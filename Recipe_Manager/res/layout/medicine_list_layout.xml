@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <include android:id="@+id/medicine_search_layout"
+        layout="@layout/search_layout"
+        android:visibility="visible"/>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:fadingEdgeLength="18dip"
+        android:divider="@android:drawable/divider_horizontal_textfield"
+        android:cacheColorHint="@color/white"/>
+
+</LinearLayout>

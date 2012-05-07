@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">病历管理</string>
+    <string name="medicine_amount">%1$d (克/分)</string>
+    <string name="title_bar_button_name">保存</string>
+    <string name="title_bar_text_edit">编辑</string>
+    <string name="title_bar_text_create">新建</string>
+    <string name="title_bar_text_edit_recipe">开药</string>
+    <!-- menu define -->
+    <string name="menu_create">添加</string>
+    <string name="menu_alias_create">添加别名</string>
+    <string name="menu_search">查找</string>
+    <!-- dialog define -->
+    <string name="dialog_add_medicine_title">添加药品</string>
+    <string name="dialog_delete_patient_title">删除</string>
+    <string name="dialog_delete_patient_message">将删除此病人的所有记录（病历，处方）！</string>
+    <string name="dialog_quit_edit_patient_message">确定要退出吗？编辑的信息未保存。</string>
+    <string name="dialog_add_medicine_name">名称:</string>
+    <string name="dialog_add_medicine_amount">金额:</string>
+    <string name="dialog_add_medicine_unit">(克/分)</string>
+    <string name="dialog_waiting">请等待</string>
+    <string name="dialog_alter_title">提醒</string>
+    <string name="dialog_empty_message">输入不能为空</string>
+    <string name="dialog_empty_name_message">姓名不能为空</string>
+    <string name="dialog_exsit_message">药品已存在，请检查！</string>
+    <string name="dialog_add_alias_title">添加别名</string>
+    <string name="dialog_illegal_input">数量不能为负</string>
+    <string name="dialog_empty_weight">药品重量不能为空</string>
+    <!-- Toast info -->
+    <string name="toast_add_success">添加成功</string>
+    <string name="toast_edit_success">修改成功</string>
+    <string name="toast_delete_success">删除成功</string>
+    <!-- Context menu -->
+    <string name="context_menu_edit">修改</string>
+    <string name="context_menu_delete">删除</string>
+    <!-- Search define -->
+    <string name="search_medicine_hint">请输入药品名称</string>
+    <string name="search_patient_hint">请输入病人姓名</string>
+    <!-- Activity title define-->
+    <string name="recipe">病历</string>
+    <string name="pricing">划价</string>
+    <string name="medicine_manage">药品管理</string>
+    <!-- Create patient activity define -->
+    <string name="patient_name">姓名</string>
+    <string name="patient_gender">性别</string>
+    <string name="patient_nation">民族</string>
+    <string name="patient_gender_han">汉族</string>
+    <string name="patient_age">年龄</string>
+    <string name="patient_address">地址</string>
+    <string name="patient_telephone">电话</string>
+    <string name="patient_history">既往史</string>
+    <string name="patient_case_history">病例记录</string>
+    <string name="patient_case_history_browse">浏览</string>
+    <!-- Case history activity define -->
+    <string name="case_history_symptom">病症</string>
+    <string name="case_history_description_hint">描述</string>
+    <string name="case_history_recipe">添加处方</string>
+    <!-- recipe activity define -->
+    <string name="recipe_name_hint">处方名称</string>
+    <string name="recipe_count">数量</string>
+    <string name="recipe_unit">副</string>
+    <string name="recipe_medicine_unit">克</string>
+    <string name="recipe_count_with_unit">%1$d /副</string>
+    <string name="recipe_recipping_medicine">开药</string>
+</resources>

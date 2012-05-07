@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white">
+
+    <EditText android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        style="@style/MiddleText"
+        android:gravity="top|left"
+        android:id="@+id/patient_history_edit_text"
+        android:layout_margin="10dip"/>
+
+</LinearLayout>

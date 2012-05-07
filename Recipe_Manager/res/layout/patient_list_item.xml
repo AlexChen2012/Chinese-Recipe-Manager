@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <TextView style="@style/MiddleText"
+        android:id="@+id/patient_name"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="5dip"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:layout_gravity="center_vertical"/>
+
+    <TextView style="@style/MiddleText"
+        android:id="@+id/first_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="100dip"
+        android:layout_marginRight="5dip"
+        android:gravity="bottom"
+        android:singleLine="true"
+        android:layout_gravity="bottom|right"/>
+</LinearLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.2">
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_add_medicine_name"
+            android:layout_marginLeft="5dip"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_name"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dip"
+            android:gravity="center"
+            android:singleLine="true"
+            android:layout_gravity="center_vertical"/>
+
+        <View android:layout_width="1dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="3dip"
+            android:layout_marginRight="3dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_add_medicine_amount"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_amount"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dip"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:singleLine="true"
+            android:layout_gravity="center_vertical"/>
+    
+    </LinearLayout>
+
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:drawable/divider_horizontal_textfield"/>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.8"
+        android:fadingEdgeLength="18dip"
+        android:divider="@android:drawable/divider_horizontal_textfield"
+        android:cacheColorHint="@color/white"/>
+
+</LinearLayout>

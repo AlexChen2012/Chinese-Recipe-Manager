@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dip"
+    android:orientation="vertical">
+
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:background="@android:drawable/editbox_background"
+        android:orientation="horizontal">
+
+        <EditText android:id="@+id/search_edit_view"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:layout_marginLeft="5dip"
+            android:hint="@string/search_medicine_hint"
+            android:gravity="center_vertical"
+            android:background="@color/white"
+            android:textColor="@color/black"/>
+    
+        <ImageView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_search"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:drawable/divider_horizontal_textfield"/>
+
+</LinearLayout>
