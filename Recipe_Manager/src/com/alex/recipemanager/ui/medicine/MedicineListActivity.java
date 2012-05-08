@@ -265,9 +265,10 @@ public class MedicineListActivity extends BaseListActivity{
                     } else {
                         mItemCache.mName = editName;
                         String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
-                        String []selectionArgs = new String[]{mItemCache.mName};
-                            mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME, mItemCache,
-                                    MedicineNameColumn.CONTENT_URI, null, selection, selectionArgs, null);
+                        String[] selectionArgs = new String[] { mItemCache.mName };
+                        mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
+                                mItemCache, MedicineNameColumn.CONTENT_URI,
+                                null, selection, selectionArgs, null);
                     }
                     showDialog(DIALOG_WAITING);
                 }
@@ -328,7 +329,7 @@ public class MedicineListActivity extends BaseListActivity{
         @Override
         protected void onInsertComplete(int token, Object cookie, Uri uri) {
             if(token == TOKEN_INSERT_MEDICINE_AMOUNT){
-                if(uri != null){
+                if(uri != null) {
                     ItemCache cache = (ItemCache) cookie;
                     int id = Integer.valueOf(uri.getPathSegments().get(1));
                     ContentValues values = new ContentValues();
