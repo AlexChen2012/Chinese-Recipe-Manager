@@ -75,6 +75,8 @@ public final class RecipeContent {
         public static final String MEDICINE_KEY = "medicineAlias_key";
         //name of medicine
         public static final String MEDICINE_NAME = "medicine_name";
+        //PinYin abbreviation.
+        public static final String PINYIN_ABBR = "pinyin_abbreviation";
     }
 
     public interface RecipeColumn extends BaseColumns {

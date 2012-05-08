@@ -96,8 +96,10 @@ public class PatientInfoEditActivity extends BaseActivity{
     }
 
     private void setViewToData() {
-        Uri uri = Uri.withAppendedPath(PatientColumns.CONTENT_URI, String.valueOf(mPatientId));
-        Cursor c = getContentResolver().query(uri, PATIENT_TABLE_PROJECTION, null, null, null);
+        Uri uri = Uri.withAppendedPath(PatientColumns.CONTENT_URI,
+                String.valueOf(mPatientId));
+        Cursor c = getContentResolver().query(uri, PATIENT_TABLE_PROJECTION,
+                null, null, null);
         if(c != null){
             try{
                 c.moveToFirst();
@@ -110,11 +112,13 @@ public class PatientInfoEditActivity extends BaseActivity{
         String selection = CaseHistoryColumn.PATIENT_KEY + " =?";
         String []selectionArgs = new String[] {String.valueOf(mPatientId)};
         c = getContentResolver().query(CaseHistoryColumn.CONTENT_URI,
-                CASE_HISTORY_TABLE_PROJECTION, selection, selectionArgs, CaseHistoryColumn.DEFAULT_ORDER);
+                CASE_HISTORY_TABLE_PROJECTION, selection, selectionArgs,
+                CaseHistoryColumn.DEFAULT_ORDER);
         if(c != null) {
             try {
                 while(c.moveToNext()) {
-                    addCaseHistoryView(c.getInt(COLUMN_CASE_HISTORY_ID), c.getString(COLUMN_CASE_HISTORY_DESCRIPTION));
+                    addCaseHistoryView(c.getInt(COLUMN_CASE_HISTORY_ID),
+                            c.getString(COLUMN_CASE_HISTORY_DESCRIPTION));
                 }
             } finally {
                 c.close();
@@ -138,7 +142,8 @@ public class PatientInfoEditActivity extends BaseActivity{
 
     @Override
     public void exitActivity() {
-        deleteRemovedCaseHistory(isCreatePatient() ? TOKEN_NEED_DELETE_PATIENT : 0);
+        deleteRemovedCaseHistory(isCreatePatient() ?
+                TOKEN_NEED_DELETE_PATIENT : 0);
     }
 
     @Override
@@ -146,7 +151,8 @@ public class PatientInfoEditActivity extends BaseActivity{
         switch (id) {
         case DIALOG_INPUT_NAME_EMPTY:
             return MedicineUtil.createAlterDialog(this,
-                    getString(R.string.dialog_alter_title), getString(R.string.dialog_empty_name_message));
+                    getString(R.string.dialog_alter_title),
+                    getString(R.string.dialog_empty_name_message));
         default:
             return super.onCreateDialog(id);
         }

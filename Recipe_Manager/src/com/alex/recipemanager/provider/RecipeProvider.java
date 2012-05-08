@@ -22,66 +22,81 @@ import com.alex.recipemanager.provider.RecipeContent.PatientColumns;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 
-public class RecipeProvider extends ContentProvider{
+public class RecipeProvider extends ContentProvider {
     private static final String TAG = "RecipeProvider";
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 16;
+    public static final int DATABASE_VERSION = 17;
 
-    private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY = "references "
-        + PatientColumns.TABLE_NAME + " ( " + PatientColumns._ID + " ) on delete cascade ";
+    private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
+            "references " + PatientColumns.TABLE_NAME
+            + " ( " + PatientColumns._ID + " )";
 
-    private static final String REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY = "references "
-        + MedicineColumn.TABLE_NAME + " ( " + MedicineColumn._ID + " ) on delete cascade ";
+    private static final String REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY =
+            "references " + MedicineColumn.TABLE_NAME
+            + " ( " + MedicineColumn._ID + " )";
 
-    private static final String REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY = "references "
-        + CaseHistoryColumn.TABLE_NAME + " ( " + CaseHistoryColumn._ID + " ) on delete cascade ";
+    private static final String REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY =
+            "references "
+            + CaseHistoryColumn.TABLE_NAME
+            + " ( "
+            + CaseHistoryColumn._ID
+            + " )";
 
-    private static final String REFERENCE_RECIPE_ID_AS_FOREIGN_KEY = "references "
-        + RecipeMedicineColumn.TABLE_NAME + " ( " + RecipeMedicineColumn._ID + " ) on delete cascade ";
+    private static final String REFERENCE_RECIPE_ID_AS_FOREIGN_KEY =
+            "references "
+            + RecipeMedicineColumn.TABLE_NAME
+            + " ( "
+            + RecipeMedicineColumn._ID + " )";
 
     private static HashMap<String, String> sMedicineJoinAliasProjectionMap;
 
     private static final int BASE_SHIFT = 12;
-    private static final int PATIENT_BASE       = 0;
-    private static final int PATIENT            = PATIENT_BASE;
-    private static final int PATIENT_ID         = PATIENT_BASE + 1;
+    private static final int PATIENT_BASE = 0;
+    private static final int PATIENT = PATIENT_BASE;
+    private static final int PATIENT_ID = PATIENT_BASE + 1;
 
-    private static final int CASE_HISTORY_BASE        = PATIENT_BASE + 0x1000;
-    private static final int CASE_HISTORY             = CASE_HISTORY_BASE;
-    private static final int CASE_HISTORY_ID          = CASE_HISTORY_BASE + 1;
+    private static final int CASE_HISTORY_BASE = PATIENT_BASE + 0x1000;
+    private static final int CASE_HISTORY = CASE_HISTORY_BASE;
+    private static final int CASE_HISTORY_ID = CASE_HISTORY_BASE + 1;
 
-    private static final int MEDICINE_BASE      = CASE_HISTORY_BASE + 0x1000;
-    private static final int MEDICINE           = MEDICINE_BASE;
-    private static final int MEDICINE_ID        = MEDICINE_BASE + 1;
+    private static final int MEDICINE_BASE = CASE_HISTORY_BASE + 0x1000;
+    private static final int MEDICINE = MEDICINE_BASE;
+    private static final int MEDICINE_ID = MEDICINE_BASE + 1;
 
-    private static final int RECIPE_BASE            = MEDICINE_BASE + 0x1000;
-    private static final int RECIPE                 = RECIPE_BASE;
-    private static final int RECIPE_ID              = RECIPE_BASE + 1;
+    private static final int RECIPE_BASE = MEDICINE_BASE + 0x1000;
+    private static final int RECIPE = RECIPE_BASE;
+    private static final int RECIPE_ID = RECIPE_BASE + 1;
 
-    private static final int RECIPE_MEDICINE_BASE        = RECIPE_BASE + 0x1000;
-    private static final int RECIPE_MEDICINE             = RECIPE_MEDICINE_BASE;
-    private static final int RECIPE_MEDICINE_ID          = RECIPE_MEDICINE_BASE + 1;
+    private static final int RECIPE_MEDICINE_BASE = RECIPE_BASE + 0x1000;
+    private static final int RECIPE_MEDICINE = RECIPE_MEDICINE_BASE;
+    private static final int RECIPE_MEDICINE_ID = RECIPE_MEDICINE_BASE + 1;
 
-    private static final int ALIAS_BASE        = RECIPE_MEDICINE_BASE + 0x1000;
-    private static final int ALIAS             = ALIAS_BASE;
-    private static final int ALIAS_ID          = ALIAS_BASE + 1;
-    private static final int ALIAS_MEDICINE    = ALIAS_BASE + 2;
+    private static final int ALIAS_BASE = RECIPE_MEDICINE_BASE + 0x1000;
+    private static final int ALIAS = ALIAS_BASE;
+    private static final int ALIAS_ID = ALIAS_BASE + 1;
+    private static final int ALIAS_MEDICINE = ALIAS_BASE + 2;
     private static final int ALIAS_MEDICINE_ID = ALIAS_BASE + 3;
 
-    private static final int NATION_BASE        = ALIAS_BASE + 0x1000;
-    private static final int NATION             = NATION_BASE;
+    private static final int NATION_BASE = ALIAS_BASE + 0x1000;
+    private static final int NATION = NATION_BASE;
 
-    private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final UriMatcher sURIMatcher = new UriMatcher(
+            UriMatcher.NO_MATCH);
 
-    private static final String TABLE_MEDICINE_JOINED_ALIAS_QUERY = MedicineNameColumn.TABLE_NAME
-        + " left join "
-        + MedicineColumn.TABLE_NAME
-        + " on "
-        + MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID
-        + "="
-        + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY;
+    private static final String TABLE_MEDICINE_JOINED_ALIAS_QUERY =
+            MedicineNameColumn.TABLE_NAME
+            + " left join "
+            + MedicineColumn.TABLE_NAME
+            + " on "
+            + MedicineColumn.TABLE_NAME
+            + "."
+            + MedicineColumn._ID
+            + "="
+            + MedicineNameColumn.TABLE_NAME
+            + "."
+            + MedicineNameColumn.MEDICINE_KEY;
 
     static {
         // Email URI matching table
@@ -93,7 +108,8 @@ public class RecipeProvider extends ContentProvider{
         // All case history
         matcher.addURI(RecipeContent.AUTHORITY, "case_history", CASE_HISTORY);
         // A special history
-        matcher.addURI(RecipeContent.AUTHORITY, "case_history/#", CASE_HISTORY_ID);
+        matcher.addURI(RecipeContent.AUTHORITY, "case_history/#",
+                CASE_HISTORY_ID);
         // All medicine
         matcher.addURI(RecipeContent.AUTHORITY, "medicine", MEDICINE);
         // A special medicine
@@ -103,180 +119,246 @@ public class RecipeProvider extends ContentProvider{
         // A special medicine alias
         matcher.addURI(RecipeContent.AUTHORITY, "medicine_name/#", ALIAS_ID);
         // All medicine and all it's names
-        matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine", ALIAS_MEDICINE);
+        matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine",
+                ALIAS_MEDICINE);
         // A special medicine and all it's names
-        matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine/#", ALIAS_MEDICINE_ID);
+        matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine/#",
+                ALIAS_MEDICINE_ID);
         // All recipe
         matcher.addURI(RecipeContent.AUTHORITY, "recipe", RECIPE);
         // A special recipe
         matcher.addURI(RecipeContent.AUTHORITY, "recipe/#", RECIPE_ID);
         // All recipe medicine
-        matcher.addURI(RecipeContent.AUTHORITY, "recipe_medicine", RECIPE_MEDICINE);
+        matcher.addURI(RecipeContent.AUTHORITY, "recipe_medicine",
+                RECIPE_MEDICINE);
         // A special medicine
-        matcher.addURI(RecipeContent.AUTHORITY, "recipe_medicine/#", RECIPE_MEDICINE_ID);
+        matcher.addURI(RecipeContent.AUTHORITY, "recipe_medicine/#",
+                RECIPE_MEDICINE_ID);
         // All nations in China
         matcher.addURI(RecipeContent.AUTHORITY, "nation", NATION);
     }
 
-    private static final String[] TABLE_NAMES = {
-        PatientColumns.TABLE_NAME,
-        CaseHistoryColumn.TABLE_NAME,
-        MedicineColumn.TABLE_NAME,
-        RecipeColumn.TABLE_NAME,
-        RecipeMedicineColumn.TABLE_NAME,
-        MedicineNameColumn.TABLE_NAME,
-        NationColumn.TABLE_NAME
-    };
+    private static final String[] TABLE_NAMES = { PatientColumns.TABLE_NAME,
+            CaseHistoryColumn.TABLE_NAME, MedicineColumn.TABLE_NAME,
+            RecipeColumn.TABLE_NAME, RecipeMedicineColumn.TABLE_NAME,
+            MedicineNameColumn.TABLE_NAME, NationColumn.TABLE_NAME };
 
     static void createPatientTable(SQLiteDatabase db) {
-        String s = " (" + PatientColumns._ID + " integer primary key autoincrement, "
-        + PatientColumns.ADDRESS + " text, "
-        + PatientColumns.FIRST_TIME + " integer, "
-        + PatientColumns.GENDER + " integer, "
-        + PatientColumns.NAME + " text, "
-        + PatientColumns.HISTORY + " text, "
-        + PatientColumns.AGE + " integer, "
-        + PatientColumns.NATION + " text, "
-        + PatientColumns.TIMESTAMP + " integer, "
-        + PatientColumns.TELEPHONE + " text"
-        + ");";
+        String s = " (" + PatientColumns._ID
+                + " integer primary key autoincrement, "
+                + PatientColumns.ADDRESS + " text, "
+                + PatientColumns.FIRST_TIME + " integer, "
+                + PatientColumns.GENDER + " integer, " + PatientColumns.NAME
+                + " text, " + PatientColumns.HISTORY + " text, "
+                + PatientColumns.AGE + " integer, " + PatientColumns.NATION
+                + " text, " + PatientColumns.TIMESTAMP + " integer, "
+                + PatientColumns.TELEPHONE + " text" + ");";
         db.execSQL("create table " + PatientColumns.TABLE_NAME + s);
     }
 
     static void createCaseHistoryTable(SQLiteDatabase db) {
-        String s = " (" + CaseHistoryColumn._ID + " integer primary key autoincrement, "
-        + CaseHistoryColumn.PATIENT_KEY + " integer " + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
-        + CaseHistoryColumn.DESCRIPTION + " text, "
-        + CaseHistoryColumn.SYMPTOM + " text, "
-        + CaseHistoryColumn.FIRST_TIME + " integer, "
-        + CaseHistoryColumn.TIMESTAMP + " integer"
-        + ");";
+        String s = " (" + CaseHistoryColumn._ID
+                + " integer primary key autoincrement, "
+                + CaseHistoryColumn.PATIENT_KEY + " integer "
+                + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
+                + CaseHistoryColumn.DESCRIPTION + " text, "
+                + CaseHistoryColumn.SYMPTOM + " text, "
+                + CaseHistoryColumn.FIRST_TIME + " integer, "
+                + CaseHistoryColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + CaseHistoryColumn.TABLE_NAME + s);
-        db.execSQL(createIndex(CaseHistoryColumn.TABLE_NAME, CaseHistoryColumn.PATIENT_KEY));
+        db.execSQL(createIndex(CaseHistoryColumn.TABLE_NAME,
+                CaseHistoryColumn.PATIENT_KEY));
     }
 
     static void createMedicineTable(SQLiteDatabase db) {
-        String s = " (" + MedicineColumn._ID + " integer primary key autoincrement, "
-        + MedicineColumn.AMOUNT + " integer"
-        + ");";
+        String s = " (" + MedicineColumn._ID
+                + " integer primary key autoincrement, "
+                + MedicineColumn.AMOUNT + " integer" + ");";
         db.execSQL("create table " + MedicineColumn.TABLE_NAME + s);
     }
 
-    static void createMedicineAliasTable(SQLiteDatabase db) {
-        String s = " (" + MedicineNameColumn._ID + " integer primary key autoincrement, "
-        + MedicineNameColumn.MEDICINE_KEY + " integer " + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
-        + MedicineNameColumn.MEDICINE_NAME + " text, "
-        + "unique (" + MedicineNameColumn.MEDICINE_NAME + ")"
-        + ");";
+    static void createMedicineNameTable(SQLiteDatabase db) {
+        String s = " (" + MedicineNameColumn._ID
+                + " integer primary key autoincrement, "
+                + MedicineNameColumn.MEDICINE_KEY + " integer "
+                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + MedicineNameColumn.MEDICINE_NAME + " text, " + "unique ("
+                + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
         db.execSQL("create table " + MedicineNameColumn.TABLE_NAME + s);
-        db.execSQL(createIndex(MedicineNameColumn.TABLE_NAME, MedicineNameColumn.MEDICINE_KEY));
+        db.execSQL(createIndex(MedicineNameColumn.TABLE_NAME,
+                MedicineNameColumn.MEDICINE_KEY));
     }
 
     static void createRecipeTable(SQLiteDatabase db) {
-        String s = " (" + RecipeColumn._ID + " integer primary key autoincrement, "
-        + RecipeColumn.PATIENT_KEY + " integer " + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
-        + RecipeColumn.CASE_HISTORY_KEY + " integer " + REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY + " , "
-        + RecipeColumn.NAME + " text, "
-        + RecipeColumn.NUMBER + " integer, "
-        + RecipeColumn.TIMESTAMP + " integer"
-        + ");";
+        String s = " (" + RecipeColumn._ID
+                + " integer primary key autoincrement, "
+                + RecipeColumn.PATIENT_KEY + " integer "
+                + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
+                + RecipeColumn.CASE_HISTORY_KEY + " integer "
+                + REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY + " , "
+                + RecipeColumn.NAME + " text, " + RecipeColumn.NUMBER
+                + " integer, " + RecipeColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + RecipeColumn.TABLE_NAME + s);
-        db.execSQL(createIndex(RecipeColumn.TABLE_NAME, RecipeColumn.PATIENT_KEY));
-        db.execSQL(createIndex(RecipeColumn.TABLE_NAME, RecipeColumn.CASE_HISTORY_KEY));
+        db.execSQL(createIndex(RecipeColumn.TABLE_NAME,
+                RecipeColumn.PATIENT_KEY));
+        db.execSQL(createIndex(RecipeColumn.TABLE_NAME,
+                RecipeColumn.CASE_HISTORY_KEY));
     }
 
     static void createRecipeMedicineTable(SQLiteDatabase db) {
-        String s = " (" + RecipeMedicineColumn._ID + " integer primary key autoincrement, "
-        + RecipeMedicineColumn.PATIENT_KEY + " integer " + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
-        + RecipeMedicineColumn.MEDICINE_KEY + " integer " + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
-        + RecipeMedicineColumn.RECIPE_KEY + " integer " + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
-        + RecipeMedicineColumn.CASE_HISTORY_KEY + " integer " + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
-        + RecipeMedicineColumn.WEIGHT + " integer"
-        + ");";
+        String s = " (" + RecipeMedicineColumn._ID
+                + " integer primary key autoincrement, "
+                + RecipeMedicineColumn.PATIENT_KEY + " integer "
+                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + RecipeMedicineColumn.MEDICINE_KEY + " integer "
+                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + RecipeMedicineColumn.RECIPE_KEY + " integer "
+                + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
+                + RecipeMedicineColumn.CASE_HISTORY_KEY + " integer "
+                + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
+                + RecipeMedicineColumn.WEIGHT + " integer" + ");";
         db.execSQL("create table " + RecipeMedicineColumn.TABLE_NAME + s);
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME, RecipeMedicineColumn.MEDICINE_KEY));
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME, RecipeMedicineColumn.RECIPE_KEY));
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME, RecipeMedicineColumn.PATIENT_KEY));
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME, RecipeMedicineColumn.CASE_HISTORY_KEY));
+        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
+                RecipeMedicineColumn.MEDICINE_KEY));
+        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
+                RecipeMedicineColumn.RECIPE_KEY));
+        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
+                RecipeMedicineColumn.PATIENT_KEY));
+        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
+                RecipeMedicineColumn.CASE_HISTORY_KEY));
     }
 
     static void createNationTable(SQLiteDatabase db) {
         String s = " (" + NationColumn._ID + " integer primary key, "
-        + NationColumn.NATION_NAME + " text"
-        + ");";
+                + NationColumn.NATION_NAME + " text" + ");";
         db.execSQL("create table " + NationColumn.TABLE_NAME + s);
         initializeNationTable(db);
-        }
+    }
 
     private static void initializeNationTable(SQLiteDatabase db) {
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 1 + "','汉族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 2 + "','蒙古族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 3 + "','回族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 4 + "','藏族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 5 + "','维吾尔族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 6 + "','苗族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 7 + "','彝族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 8 + "','壮族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 9 + "','布依族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 10 + "','朝鲜族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 11 + "','满族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 12 + "','侗族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 13 + "','瑶族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 14 + "','白族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 15 + "','土家族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 16 + "','哈尼族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 17 + "','哈萨克族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 18 + "','傣族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 19 + "','黎族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 20 + "','傈僳族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 21 + "','佤族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 22 + "','畲族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 23 + "','高山族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 24 + "','拉祜族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 25 + "','东乡族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 26 + "','纳西族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 27 + "','景颇族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 28 + "','柯尔克孜族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 29 + "','土族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 30 + "','达斡尔族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 31 + "','仫佬族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 32 + "','羌族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 33 + "','布朗族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 34 + "','撒拉族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 35 + "','毛难族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 36 + "','水族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 37 + "','仡佬族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 38 + "','锡伯族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 39 + "','阿昌族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 40 + "','普米族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 41 + "','塔吉克族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 42 + "','怒族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 43 + "','乌孜别克族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 44 + "','俄罗斯族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 45 + "','鄂温克族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 46 + "','崩龙族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 47 + "','保安族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 48 + "','裕固族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 49 + "','京族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 50 + "','塔塔尔族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 51 + "','独龙族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 52 + "','鄂伦春族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 53 + "','赫哲族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 54 + "','门巴族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 55 + "','珞巴族')");
-        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 56 + "','基诺族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 1
+                + "','汉族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 2
+                + "','蒙古族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 3
+                + "','回族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 4
+                + "','藏族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 5
+                + "','维吾尔族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 6
+                + "','苗族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 7
+                + "','彝族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 8
+                + "','壮族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 9
+                + "','布依族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 10
+                + "','朝鲜族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 11
+                + "','满族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 12
+                + "','侗族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 13
+                + "','瑶族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 14
+                + "','白族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 15
+                + "','土家族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 16
+                + "','哈尼族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 17
+                + "','哈萨克族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 18
+                + "','傣族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 19
+                + "','黎族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 20
+                + "','傈僳族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 21
+                + "','佤族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 22
+                + "','畲族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 23
+                + "','高山族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 24
+                + "','拉祜族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 25
+                + "','东乡族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 26
+                + "','纳西族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 27
+                + "','景颇族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 28
+                + "','柯尔克孜族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 29
+                + "','土族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 30
+                + "','达斡尔族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 31
+                + "','仫佬族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 32
+                + "','羌族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 33
+                + "','布朗族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 34
+                + "','撒拉族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 35
+                + "','毛难族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 36
+                + "','水族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 37
+                + "','仡佬族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 38
+                + "','锡伯族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 39
+                + "','阿昌族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 40
+                + "','普米族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 41
+                + "','塔吉克族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 42
+                + "','怒族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 43
+                + "','乌孜别克族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 44
+                + "','俄罗斯族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 45
+                + "','鄂温克族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 46
+                + "','崩龙族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 47
+                + "','保安族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 48
+                + "','裕固族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 49
+                + "','京族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 50
+                + "','塔塔尔族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 51
+                + "','独龙族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 52
+                + "','鄂伦春族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 53
+                + "','赫哲族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 54
+                + "','门巴族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 55
+                + "','珞巴族')");
+        db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 56
+                + "','基诺族')");
     }
 
     /*
-     * Internal helper method for index creation.
-     * Example:
-     * "create index message_" + MessageColumns.FLAG_READ
-     * + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");"
+     * Internal helper method for index creation. Example:
+     * "create index message_" + MessageColumns.FLAG_READ + " on " +
+     * Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");"
      */
     /* package */
     static String createIndex(String tableName, String columnName) {
-        return "create index " + tableName.toLowerCase() + '_' + columnName + " on " + tableName
-        + " (" + columnName + ");";
+        return "create index " + tableName.toLowerCase() + '_' + columnName
+                + " on " + tableName + " (" + columnName + ");";
     }
 
     private SQLiteDatabase mDatabase;
@@ -301,17 +383,37 @@ public class RecipeProvider extends ContentProvider{
         public void onCreate(SQLiteDatabase db) {
             createPatientTable(db);
             createCaseHistoryTable(db);
-            createMedicineAliasTable(db);
+            createMedicineNameTable(db);
             createMedicineTable(db);
             createRecipeMedicineTable(db);
             createRecipeTable(db);
-            //Nation Table should not be modified.Only used to query.
+            // Nation Table should not be modified.Only used to query.
             createNationTable(db);
+            createTriggers(db);
+        }
+
+        public void createTriggers(SQLiteDatabase db) {
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + MedicineNameColumn.TABLE_NAME + "_deleted;");
+            db.execSQL("CREATE TRIGGER "
+                    + MedicineNameColumn.TABLE_NAME + "_deleted "
+                    + "   BEFORE DELETE ON " + MedicineNameColumn.TABLE_NAME
+                    + " BEGIN "
+                    + "   DELETE FROM " + MedicineColumn.TABLE_NAME
+                    + "     WHERE " + MedicineColumn._ID
+                                    + "=OLD." + MedicineNameColumn.MEDICINE_KEY
+                                    + " AND (SELECT COUNT(*) FROM "
+                                    + MedicineNameColumn.TABLE_NAME
+                                    + " WHERE " + MedicineNameColumn.MEDICINE_KEY
+                                    + " =OLD." + MedicineNameColumn.MEDICINE_KEY
+                                    + ")=1;"
+                    + " END");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + RecipeMedicineColumn.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS "
+                    + RecipeMedicineColumn.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
@@ -319,6 +421,7 @@ public class RecipeProvider extends ContentProvider{
             db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
             onCreate(db);
+            createTriggers(db);
         }
     }
 
@@ -353,42 +456,46 @@ public class RecipeProvider extends ContentProvider{
         Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
 
         switch (match) {
-            case PATIENT:
-            case CASE_HISTORY:
-            case RECIPE:
-            case RECIPE_MEDICINE:
-            case MEDICINE:
-            case ALIAS:
-            case NATION:
-                c = db.query(TABLE_NAMES[table], projection,
-                        selection, selectionArgs, null, null, sortOrder);
-                break;
-            case ALIAS_MEDICINE:
-                qBuilder = new SQLiteQueryBuilder();
-                qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
-                qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
-                c = qBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-                break;
-            case CASE_HISTORY_ID:
-            case PATIENT_ID:
-            case RECIPE_ID:
-            case RECIPE_MEDICINE_ID:
-            case MEDICINE_ID:
-            case ALIAS_ID:
-                id = uri.getLastPathSegment();
-                c = db.query(TABLE_NAMES[table], projection,
-                        whereWithId(id, selection), selectionArgs, null, null, sortOrder);
-                break;
+        case PATIENT:
+        case CASE_HISTORY:
+        case RECIPE:
+        case RECIPE_MEDICINE:
+        case MEDICINE:
+        case ALIAS:
+        case NATION:
+            c = db.query(TABLE_NAMES[table], projection, selection,
+                    selectionArgs, null, null, sortOrder);
+            break;
+        case ALIAS_MEDICINE:
+            qBuilder = new SQLiteQueryBuilder();
+            qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
+            qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
+            c = qBuilder.query(db, projection, selection, selectionArgs, null,
+                    null, sortOrder);
+            break;
+        case CASE_HISTORY_ID:
+        case PATIENT_ID:
+        case RECIPE_ID:
+        case RECIPE_MEDICINE_ID:
+        case MEDICINE_ID:
+        case ALIAS_ID:
+            id = uri.getLastPathSegment();
+            c = db.query(TABLE_NAMES[table], projection,
+                    whereWithId(id, selection), selectionArgs, null, null,
+                    sortOrder);
+            break;
 
-            case ALIAS_MEDICINE_ID:
-                id = uri.getLastPathSegment();
-                qBuilder = new SQLiteQueryBuilder();
-                qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
-                qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
-                c = qBuilder.query(db, projection, MedicineNameColumn.TABLE_NAME + "." + whereWithId(id, selection), selectionArgs, null, null, sortOrder);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        case ALIAS_MEDICINE_ID:
+            id = uri.getLastPathSegment();
+            qBuilder = new SQLiteQueryBuilder();
+            qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
+            qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
+            c = qBuilder.query(db, projection, MedicineNameColumn.TABLE_NAME
+                    + "." + whereWithId(id, selection), selectionArgs, null,
+                    null, sortOrder);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
         }
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
@@ -413,34 +520,35 @@ public class RecipeProvider extends ContentProvider{
         Uri resultUri = null;
 
         switch (match) {
-            case PATIENT:
-                values.put(PatientColumns.FIRST_TIME, System.currentTimeMillis());
-                values.put(PatientColumns.TIMESTAMP, System.currentTimeMillis());
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(uri, id);
-                break;
-            case CASE_HISTORY:
-                values.put(CaseHistoryColumn.FIRST_TIME, System.currentTimeMillis());
-                values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(uri, id);
-                break;
-            case RECIPE:
-                values.put(RecipeColumn.TIMESTAMP, System.currentTimeMillis());
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(uri, id);
-                break;
-            case MEDICINE:
-            case ALIAS:
-            case RECIPE_MEDICINE:
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(uri, id);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URL " + uri);
+        case PATIENT:
+            values.put(PatientColumns.FIRST_TIME, System.currentTimeMillis());
+            values.put(PatientColumns.TIMESTAMP, System.currentTimeMillis());
+            id = db.insert(TABLE_NAMES[table], "foo", values);
+            resultUri = ContentUris.withAppendedId(uri, id);
+            break;
+        case CASE_HISTORY:
+            values.put(CaseHistoryColumn.FIRST_TIME, System.currentTimeMillis());
+            values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
+            id = db.insert(TABLE_NAMES[table], "foo", values);
+            resultUri = ContentUris.withAppendedId(uri, id);
+            break;
+        case RECIPE:
+            values.put(RecipeColumn.TIMESTAMP, System.currentTimeMillis());
+            id = db.insert(TABLE_NAMES[table], "foo", values);
+            resultUri = ContentUris.withAppendedId(uri, id);
+            break;
+        case MEDICINE:
+        case ALIAS:
+        case RECIPE_MEDICINE:
+            id = db.insert(TABLE_NAMES[table], "foo", values);
+            resultUri = ContentUris.withAppendedId(uri, id);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown URL " + uri);
         }
 
-        // Notify with the base uri, not the new uri (nobody is watching a new record)
+        // Notify with the base uri, not the new uri (nobody is watching a new
+        // record)
         getContext().getContentResolver().notifyChange(uri, null);
         return resultUri;
     }
@@ -455,89 +563,68 @@ public class RecipeProvider extends ContentProvider{
         int result = -1;
 
         switch (match) {
-            case PATIENT:
-            case MEDICINE:
-            case ALIAS:
-            case RECIPE:
-            case RECIPE_MEDICINE:
-            case CASE_HISTORY:
-                result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
-                break;
-            case RECIPE_MEDICINE_ID:
-            case MEDICINE_ID:
-                id = uri.getPathSegments().get(1);
-                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                break;
-            //all case_historys and recipes relate to this patient need to be deleted.
-            case PATIENT_ID:
-                //delete patient from patient table.
-                id = uri.getPathSegments().get(1);
-                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                //delete case_historys which belong to patient.
-                result = db.delete(CaseHistoryColumn.TABLE_NAME,
-                        CaseHistoryColumn.PATIENT_KEY + " = " + id, null);
-                //delete recipes which belong to patient.
-                result = db.delete(RecipeColumn.TABLE_NAME,
-                        RecipeColumn.PATIENT_KEY + " = " + id, null);
-                //delete recipe_medicines which belong to patient.
-                result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                        RecipeMedicineColumn.PATIENT_KEY + " = " + id, null);
-                break;
-            //the same strategy as Patient_id.
-            case CASE_HISTORY_ID:
-                id = uri.getPathSegments().get(1);
-                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                //delete recipes which belong to case_history.
-                result = db.delete(RecipeColumn.TABLE_NAME,
-                        RecipeColumn.CASE_HISTORY_KEY + " = " + id, null);
-                //delete recipe_medicines which belong to case_history.
-                result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                        RecipeMedicineColumn.CASE_HISTORY_KEY + " = " + id, null);
-                break;
-            //the same strategy as Patient_id.
-            case RECIPE_ID:
-                id = uri.getPathSegments().get(1);
-                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                //delete recipe_medicines which belong to recipe.
-                result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                        RecipeMedicineColumn.RECIPE_KEY + " = " + id, null);
-                break;
-            case ALIAS_ID:
-                String medicineKey = null;
-                Cursor c = query(uri, null, null, null, null);
-                if(c != null){
-                    try{
-                        c.moveToFirst();
-                        medicineKey = String.valueOf(c.getInt(c.getColumnIndex(MedicineNameColumn.MEDICINE_KEY)));
-                        
-                    } finally {
-                        c.close();
-                    }
-                }
-                String select = MedicineNameColumn.MEDICINE_KEY + " =? ";
-                String []args = new String[]{medicineKey};
-                c = query(MedicineNameColumn.CONTENT_URI, new String[] {"_id"}, select, args, null);
-                if(c != null){
-                    try{
-                        if(c.getCount() <= 1){
-                            Uri medicineUri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, medicineKey);
-                            delete(medicineUri, null, null);
-                        }
-                        id = uri.getPathSegments().get(1);
-                        result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                    } finally {
-                        c.close();
-                    }
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        case PATIENT:
+        case MEDICINE:
+        case ALIAS:
+        case RECIPE:
+        case RECIPE_MEDICINE:
+        case CASE_HISTORY:
+            result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
+            break;
+        case RECIPE_MEDICINE_ID:
+        case MEDICINE_ID:
+        case ALIAS_ID:
+            id = uri.getPathSegments().get(1);
+            result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
+                    selectionArgs);
+            break;
+        // all case_historys and recipes relate to this patient need to be
+        // deleted.
+        case PATIENT_ID:
+            // delete patient from patient table.
+            id = uri.getPathSegments().get(1);
+            result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
+                    selectionArgs);
+            // delete case_historys which belong to patient.
+            result = db.delete(CaseHistoryColumn.TABLE_NAME,
+                    CaseHistoryColumn.PATIENT_KEY + " = " + id, null);
+            // delete recipes which belong to patient.
+            result = db.delete(RecipeColumn.TABLE_NAME,
+                    RecipeColumn.PATIENT_KEY + " = " + id, null);
+            // delete recipe_medicines which belong to patient.
+            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
+                    RecipeMedicineColumn.PATIENT_KEY + " = " + id, null);
+            break;
+        // the same strategy as Patient_id.
+        case CASE_HISTORY_ID:
+            id = uri.getPathSegments().get(1);
+            result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
+                    selectionArgs);
+            // delete recipes which belong to case_history.
+            result = db.delete(RecipeColumn.TABLE_NAME,
+                    RecipeColumn.CASE_HISTORY_KEY + " = " + id, null);
+            // delete recipe_medicines which belong to case_history.
+            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
+                    RecipeMedicineColumn.CASE_HISTORY_KEY + " = " + id, null);
+            break;
+        // the same strategy as Patient_id.
+        case RECIPE_ID:
+            id = uri.getPathSegments().get(1);
+            result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
+                    selectionArgs);
+            // delete recipe_medicines which belong to recipe.
+            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
+                    RecipeMedicineColumn.RECIPE_KEY + " = " + id, null);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
         }
         return result;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection,
+            String[] selectionArgs) {
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
@@ -548,55 +635,60 @@ public class RecipeProvider extends ContentProvider{
         Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         String id;
         switch (match) {
-            case PATIENT_ID:
-                values.put(PatientColumns.TIMESTAMP, System.currentTimeMillis());
-                id = uri.getPathSegments().get(1);
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                        selectionArgs);
-                break;
-            case ALIAS_ID:
-            case CASE_HISTORY_ID:
-                values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
-                id = uri.getPathSegments().get(1);
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                        selectionArgs);
-                break;
-            case RECIPE_ID:
-                values.put(RecipeColumn.TIMESTAMP, System.currentTimeMillis());
-                id = uri.getPathSegments().get(1);
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                        selectionArgs);
-                break;
-            case RECIPE_MEDICINE_ID:
-            case MEDICINE_ID:
-                id = uri.getPathSegments().get(1);
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                        selectionArgs);
-                break;
-            case PATIENT:
-            case MEDICINE:
-            case ALIAS:
-            case RECIPE:
-            case RECIPE_MEDICINE:
-            case CASE_HISTORY:
-                result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        case PATIENT_ID:
+            values.put(PatientColumns.TIMESTAMP, System.currentTimeMillis());
+            id = uri.getPathSegments().get(1);
+            result = db.update(TABLE_NAMES[table], values,
+                    whereWithId(id, selection), selectionArgs);
+            break;
+        case ALIAS_ID:
+        case CASE_HISTORY_ID:
+            values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
+            id = uri.getPathSegments().get(1);
+            result = db.update(TABLE_NAMES[table], values,
+                    whereWithId(id, selection), selectionArgs);
+            break;
+        case RECIPE_ID:
+            values.put(RecipeColumn.TIMESTAMP, System.currentTimeMillis());
+            id = uri.getPathSegments().get(1);
+            result = db.update(TABLE_NAMES[table], values,
+                    whereWithId(id, selection), selectionArgs);
+            break;
+        case RECIPE_MEDICINE_ID:
+        case MEDICINE_ID:
+            id = uri.getPathSegments().get(1);
+            result = db.update(TABLE_NAMES[table], values,
+                    whereWithId(id, selection), selectionArgs);
+            break;
+        case PATIENT:
+        case MEDICINE:
+        case ALIAS:
+        case RECIPE:
+        case RECIPE_MEDICINE:
+        case CASE_HISTORY:
+            result = db.update(TABLE_NAMES[table], values, selection,
+                    selectionArgs);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
         return result;
     }
 
-    static{
+    static {
         sMedicineJoinAliasProjectionMap = new HashMap<String, String>();
         sMedicineJoinAliasProjectionMap.put(MedicineNameColumn._ID,
                 MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID);
-        sMedicineJoinAliasProjectionMap.put(MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID,
-                MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID);
-        sMedicineJoinAliasProjectionMap.put(MedicineColumn.AMOUNT, MedicineColumn.AMOUNT);
-        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_NAME, MedicineNameColumn.MEDICINE_NAME);
-        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_KEY, MedicineNameColumn.MEDICINE_KEY);
+        sMedicineJoinAliasProjectionMap.put(MedicineColumn.TABLE_NAME + "."
+                + MedicineColumn._ID, MedicineColumn.TABLE_NAME + "."
+                + MedicineColumn._ID);
+        sMedicineJoinAliasProjectionMap.put(MedicineColumn.AMOUNT,
+                MedicineColumn.AMOUNT);
+        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_NAME,
+                MedicineNameColumn.MEDICINE_NAME);
+        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_KEY,
+                MedicineNameColumn.MEDICINE_KEY);
     }
 }

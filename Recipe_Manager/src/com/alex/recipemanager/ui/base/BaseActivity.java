@@ -19,7 +19,7 @@ public class BaseActivity extends Activity{
     public static final String EXTRA_INT_VALUE_RECIPE_ID = "extra_int_value_recipe_id";
     public static final int DEFAULT_ID_VALUE = -1;
 
-    public static final String[] PATIENT_TABLE_PROJECTION = new String[]{
+    public static final String[] PATIENT_TABLE_PROJECTION = new String[] {
         PatientColumns._ID,
         PatientColumns.NAME,
         PatientColumns.GENDER,
