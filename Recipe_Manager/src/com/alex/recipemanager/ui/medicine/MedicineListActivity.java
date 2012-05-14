@@ -261,7 +261,7 @@ public class MedicineListActivity extends BaseListActivity{
                 } else {
                     mItemCache.mAmount = amount.getText().toString();
                     mItemCache.mName = (String) name.getText().toString();
-                    mItemCache.mAbbr = MedicineUtil.getPYAbbr(mItemCache.mName);
+                    mItemCache.mAbbr = MedicineUtil.getPinyinAbbr(mItemCache.mName);
 
                     String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
                     String[] selectionArgs = new String[] { mItemCache.mName };
