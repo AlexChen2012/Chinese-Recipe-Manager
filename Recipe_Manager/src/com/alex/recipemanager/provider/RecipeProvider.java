@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 17;
+    public static final int DATABASE_VERSION = 19;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -73,13 +73,13 @@ public class RecipeProvider extends ContentProvider {
     private static final int RECIPE_MEDICINE = RECIPE_MEDICINE_BASE;
     private static final int RECIPE_MEDICINE_ID = RECIPE_MEDICINE_BASE + 1;
 
-    private static final int ALIAS_BASE = RECIPE_MEDICINE_BASE + 0x1000;
-    private static final int ALIAS = ALIAS_BASE;
-    private static final int ALIAS_ID = ALIAS_BASE + 1;
-    private static final int ALIAS_MEDICINE = ALIAS_BASE + 2;
-    private static final int ALIAS_MEDICINE_ID = ALIAS_BASE + 3;
+    private static final int MEDICINE_NAME_BASE = RECIPE_MEDICINE_BASE + 0x1000;
+    private static final int MEDICINE_NAME = MEDICINE_NAME_BASE;
+    private static final int MEDICINE_NAME_ID = MEDICINE_NAME_BASE + 1;
+    private static final int MEDICINE_NAME_MEDICINE = MEDICINE_NAME_BASE + 2;
+    private static final int MEDICINE_NAME_MEDICINE_ID = MEDICINE_NAME_BASE + 3;
 
-    private static final int NATION_BASE = ALIAS_BASE + 0x1000;
+    private static final int NATION_BASE = MEDICINE_NAME_BASE + 0x1000;
     private static final int NATION = NATION_BASE;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(
@@ -115,15 +115,15 @@ public class RecipeProvider extends ContentProvider {
         // A special medicine
         matcher.addURI(RecipeContent.AUTHORITY, "medicine/#", MEDICINE_ID);
         // All medicine alias
-        matcher.addURI(RecipeContent.AUTHORITY, "medicine_name", ALIAS);
+        matcher.addURI(RecipeContent.AUTHORITY, "medicine_name", MEDICINE_NAME);
         // A special medicine alias
-        matcher.addURI(RecipeContent.AUTHORITY, "medicine_name/#", ALIAS_ID);
+        matcher.addURI(RecipeContent.AUTHORITY, "medicine_name/#", MEDICINE_NAME_ID);
         // All medicine and all it's names
         matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine",
-                ALIAS_MEDICINE);
+                MEDICINE_NAME_MEDICINE);
         // A special medicine and all it's names
         matcher.addURI(RecipeContent.AUTHORITY, "medicine_alias/medicine/#",
-                ALIAS_MEDICINE_ID);
+                MEDICINE_NAME_MEDICINE_ID);
         // All recipe
         matcher.addURI(RecipeContent.AUTHORITY, "recipe", RECIPE);
         // A special recipe
@@ -182,6 +182,7 @@ public class RecipeProvider extends ContentProvider {
                 + " integer primary key autoincrement, "
                 + MedicineNameColumn.MEDICINE_KEY + " integer "
                 + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + MedicineNameColumn.PINYIN_ABBR + " text, "
                 + MedicineNameColumn.MEDICINE_NAME + " text, " + "unique ("
                 + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
         db.execSQL("create table " + MedicineNameColumn.TABLE_NAME + s);
@@ -461,12 +462,12 @@ public class RecipeProvider extends ContentProvider {
         case RECIPE:
         case RECIPE_MEDICINE:
         case MEDICINE:
-        case ALIAS:
+        case MEDICINE_NAME:
         case NATION:
             c = db.query(TABLE_NAMES[table], projection, selection,
                     selectionArgs, null, null, sortOrder);
             break;
-        case ALIAS_MEDICINE:
+        case MEDICINE_NAME_MEDICINE:
             qBuilder = new SQLiteQueryBuilder();
             qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
             qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
@@ -478,14 +479,14 @@ public class RecipeProvider extends ContentProvider {
         case RECIPE_ID:
         case RECIPE_MEDICINE_ID:
         case MEDICINE_ID:
-        case ALIAS_ID:
+        case MEDICINE_NAME_ID:
             id = uri.getLastPathSegment();
             c = db.query(TABLE_NAMES[table], projection,
                     whereWithId(id, selection), selectionArgs, null, null,
                     sortOrder);
             break;
 
-        case ALIAS_MEDICINE_ID:
+        case MEDICINE_NAME_MEDICINE_ID:
             id = uri.getLastPathSegment();
             qBuilder = new SQLiteQueryBuilder();
             qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
@@ -514,6 +515,7 @@ public class RecipeProvider extends ContentProvider {
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         long id;
+        String abbr;
 
         Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
 
@@ -537,8 +539,8 @@ public class RecipeProvider extends ContentProvider {
             id = db.insert(TABLE_NAMES[table], "foo", values);
             resultUri = ContentUris.withAppendedId(uri, id);
             break;
+        case MEDICINE_NAME:
         case MEDICINE:
-        case ALIAS:
         case RECIPE_MEDICINE:
             id = db.insert(TABLE_NAMES[table], "foo", values);
             resultUri = ContentUris.withAppendedId(uri, id);
@@ -565,7 +567,7 @@ public class RecipeProvider extends ContentProvider {
         switch (match) {
         case PATIENT:
         case MEDICINE:
-        case ALIAS:
+        case MEDICINE_NAME:
         case RECIPE:
         case RECIPE_MEDICINE:
         case CASE_HISTORY:
@@ -573,7 +575,7 @@ public class RecipeProvider extends ContentProvider {
             break;
         case RECIPE_MEDICINE_ID:
         case MEDICINE_ID:
-        case ALIAS_ID:
+        case MEDICINE_NAME_ID:
             id = uri.getPathSegments().get(1);
             result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                     selectionArgs);
@@ -641,7 +643,7 @@ public class RecipeProvider extends ContentProvider {
             result = db.update(TABLE_NAMES[table], values,
                     whereWithId(id, selection), selectionArgs);
             break;
-        case ALIAS_ID:
+        case MEDICINE_NAME_ID:
         case CASE_HISTORY_ID:
             values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
             id = uri.getPathSegments().get(1);
@@ -662,7 +664,7 @@ public class RecipeProvider extends ContentProvider {
             break;
         case PATIENT:
         case MEDICINE:
-        case ALIAS:
+        case MEDICINE_NAME:
         case RECIPE:
         case RECIPE_MEDICINE:
         case CASE_HISTORY:

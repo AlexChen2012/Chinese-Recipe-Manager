@@ -2,7 +2,6 @@ package com.alex.recipemanager.test;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;

@@ -30,6 +30,7 @@ import com.alex.recipemanager.R;
 import com.alex.recipemanager.provider.RecipeContent.MedicineColumn;
 import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.ui.base.BaseListActivity;
+import com.alex.recipemanager.util.MedicineUtil;
 
 public class MedicineListActivity extends BaseListActivity{
 
@@ -68,7 +69,7 @@ public class MedicineListActivity extends BaseListActivity{
     private Cursor mCursor;
     private MedicineListAdapter mAdapter;
     private MedicineAsyncQueryHandler mQueryHandler;
-    private ItemCache mItemCache;
+    private static ItemCache mItemCache;
     private EditText mEditText;
     private boolean mSelectorMode;
 
@@ -82,6 +83,7 @@ public class MedicineListActivity extends BaseListActivity{
         getListView().setAdapter(mAdapter);
         getListView().setOnCreateContextMenuListener(this);
         mQueryHandler = new MedicineAsyncQueryHandler(getContentResolver());
+        mItemCache = new ItemCache();
         findView();
     }
 
@@ -211,7 +213,7 @@ public class MedicineListActivity extends BaseListActivity{
     protected Dialog onCreateDialog(int id, Bundle bundle) {
         switch (id) {
         case DIALOG_ADD_MEDICINE:
-            return createAddEditMedicineDialog(bundle);
+            return createAddOrEditMedicineDialog(bundle);
         default:
             return super.onCreateDialog(id);
         }
@@ -220,28 +222,30 @@ public class MedicineListActivity extends BaseListActivity{
     @Override
     protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
         if(id == DIALOG_ADD_MEDICINE){
-            mItemCache = new ItemCache();
-            mItemCache.mIsInsert = true;
             TextView name = (TextView)dialog.findViewById(R.id.medicine_name_edit);
             TextView amount = (TextView)dialog.findViewById(R.id.medicine_amount_edit);
-            name.setText("");
-            amount.setText("");
-            if(bundle != null){
+
+            mItemCache.clean();
+            if (bundle != null) {
                 int position = bundle.getInt(BUNDLE_INT_VALUE_POSITION);
                 Cursor c = (Cursor) mAdapter.getItem(position);
+                mItemCache.mIsUpdated = true;
                 mItemCache.mMedicineNameId = String.valueOf(c.getInt(MEDICINE_NAME_ID_COLUMN));
                 mItemCache.mMedicineId = String.valueOf(c.getInt(MEDICINE_KEY_COLUMN));
-                mItemCache.mIsInsert = false;
-                mItemCache.mName = String.valueOf(c.getString(MEDICINE_NAME_COLUMN));
-                mItemCache.mAmount = String.valueOf(c.getInt(MEDICINE_AMOUNT_COLUMN));
-                name.setText(mItemCache.mName);
-                amount.setText(mItemCache.mAmount);
+
+                name.setText(c.getString(MEDICINE_NAME_COLUMN));
+                amount.setText(String.valueOf(c.getInt(MEDICINE_AMOUNT_COLUMN)));
+            } else {
+                mItemCache.mIsUpdated = false;
+
+                name.setText("");
+                amount.setText("");
             }
         }
         onPrepareDialog(id, dialog);
     }
 
-    private Dialog createAddEditMedicineDialog(final Bundle bundle) {
+    private Dialog createAddOrEditMedicineDialog(final Bundle bundle) {
         LayoutInflater factory = LayoutInflater.from(this);
         final View textEntryView = factory.inflate(R.layout.add_medicine_dialog_entry, null);
         final TextView name = (TextView)textEntryView.findViewById(R.id.medicine_name_edit);
@@ -256,20 +260,14 @@ public class MedicineListActivity extends BaseListActivity{
                     showDialog(DIALOG_INPUT_EMPTY);
                 } else {
                     mItemCache.mAmount = amount.getText().toString();
-                    String editName = (String) name.getText().toString();
-                    if( mItemCache.mName != null && mItemCache.mName.equals(editName)){
-                        Uri uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, mItemCache.mMedicineId);
-                        ContentValues value = new ContentValues();
-                        value.put(MedicineColumn.AMOUNT, mItemCache.mAmount);
-                        mQueryHandler.startUpdate(TOKEN_UPGRADE_MEDICINE_AMOUNT, mItemCache, uri, value, null, null);
-                    } else {
-                        mItemCache.mName = editName;
-                        String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
-                        String[] selectionArgs = new String[] { mItemCache.mName };
-                        mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
-                                mItemCache, MedicineNameColumn.CONTENT_URI,
-                                null, selection, selectionArgs, null);
-                    }
+                    mItemCache.mName = (String) name.getText().toString();
+                    mItemCache.mAbbr = MedicineUtil.getPYAbbr(mItemCache.mName);
+
+                    String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
+                    String[] selectionArgs = new String[] { mItemCache.mName };
+                    mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
+                            mItemCache, MedicineNameColumn.CONTENT_URI,
+                            null, selection, selectionArgs, null);
                     showDialog(DIALOG_WAITING);
                 }
             }
@@ -299,14 +297,13 @@ public class MedicineListActivity extends BaseListActivity{
                         } else {
                             ItemCache cache = (ItemCache) cookie;
                             ContentValues values = new ContentValues(1);
-                            boolean insert = cache.mIsInsert;
-                            if(insert){
-                                values.put(MedicineColumn.AMOUNT, cache.mAmount);
-                                startInsert(TOKEN_INSERT_MEDICINE_AMOUNT, cookie, MedicineColumn.CONTENT_URI, values);
-                            } else {
+                            if(cache.mIsUpdated){
                                 values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
                                 Uri uri = Uri.withAppendedPath(MedicineNameColumn.CONTENT_URI, cache.mMedicineNameId);
                                 startUpdate(TOKEN_UPGRADE_MEDICINE_NAME, cookie, uri, values, null, null);
+                            } else {
+                                values.put(MedicineColumn.AMOUNT, cache.mAmount);
+                                startInsert(TOKEN_INSERT_MEDICINE_AMOUNT, cookie, MedicineColumn.CONTENT_URI, values);
                             }
                         }
                     } finally {
@@ -335,6 +332,7 @@ public class MedicineListActivity extends BaseListActivity{
                     ContentValues values = new ContentValues();
                     values.put(MedicineNameColumn.MEDICINE_KEY, id);
                     values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
+                    values.put(MedicineNameColumn.PINYIN_ABBR, cache.mAbbr);
                     startInsert(TOKEN_INSERT_MEDICINE_NAME, null, MedicineNameColumn.CONTENT_URI, values);
                 }else {
                     //something wrong.
@@ -371,9 +369,19 @@ public class MedicineListActivity extends BaseListActivity{
 
     static class ItemCache{
         String mName;
+        String mAbbr;
         String mAmount;
-        boolean mIsInsert;
+        boolean mIsUpdated;
         String mMedicineNameId;
         String mMedicineId;
+
+        void clean() {
+            mName = null;
+            mAbbr = null;
+            mAmount = null;
+            mMedicineId = null;
+            mMedicineNameId = null;
+            mIsUpdated = false;
+        }
     }
 }
