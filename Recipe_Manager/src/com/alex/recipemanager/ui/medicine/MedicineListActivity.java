@@ -122,7 +122,8 @@ public class MedicineListActivity extends BaseListActivity{
                     //XXX: we do not use selectionArgs to set name since this is a android bug.
                     //get more info from url: http://code.google.com/p/android/issues/detail?id=3153.
                     //String selectionArgs[] = new String[] {name};
-                    selection = MedicineNameColumn.MEDICINE_NAME + " like '%" + s.toString() + "%'";
+                    selection = MedicineNameColumn.MEDICINE_NAME + " LIKE '%" + s.toString() + "%' OR "
+                        + MedicineNameColumn.PINYIN_ABBR + " LIKE '" + s.toString() + "%'";
                 }
                 updateList(selection);
             }

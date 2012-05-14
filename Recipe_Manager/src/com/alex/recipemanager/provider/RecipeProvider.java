@@ -692,5 +692,7 @@ public class RecipeProvider extends ContentProvider {
                 MedicineNameColumn.MEDICINE_NAME);
         sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_KEY,
                 MedicineNameColumn.MEDICINE_KEY);
+        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.PINYIN_ABBR,
+                MedicineNameColumn.PINYIN_ABBR);
     }
 }
