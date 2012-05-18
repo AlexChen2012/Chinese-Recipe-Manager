@@ -120,7 +120,7 @@ public class PatientListActivity extends BaseListActivity{
     }
 
     @Override
-    protected Dialog onCreateDialog(int id, Bundle bundle) {
+    protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_DELETE_CONFIRM:
             return createDeleteAlterDialog();

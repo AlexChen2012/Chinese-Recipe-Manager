@@ -104,9 +104,22 @@ public class PatientInfoEditActivity extends BaseActivity{
             try{
                 c.moveToFirst();
                 mNameEdit.setText(c.getString(COLUMN_PATIENT_NAME));
-                //TODO:
+                String age = (c.getInt(COLUMN_PATIENT_AGE) == 0) ? "" : String.valueOf(c.getInt(COLUMN_PATIENT_AGE));
+                mAgeEdit.setText(age);
+                mAddressEdit.setText(c.getString(COLUMN_PATIENT_ADDRESS));
+                mTelephoyEdit.setText(c.getString(COLUMN_PATIENT_TELEPHONE));
+                mGenderSpinner.setSelection(c.getInt(COLUMN_PATIENT_GENDER));
+                String nation = c.getString(COLUMN_PATIENT_NATION);
+                if (!TextUtils.isEmpty(nation)) {
+                    mNationButton.setText(nation);
+                }
+                mHistory = c.getString(COLUMN_PATIENT_HISTORY);
+                if (!TextUtils.isEmpty(mHistory)) {
+                    addHistoryView();
+                }
             } finally {
                 c.close();
+                c = null;
             }
         }
         String selection = CaseHistoryColumn.PATIENT_KEY + " =?";
@@ -122,6 +135,7 @@ public class PatientInfoEditActivity extends BaseActivity{
                 }
             } finally {
                 c.close();
+                c = null;
             }
         }
     }
@@ -228,7 +242,7 @@ public class PatientInfoEditActivity extends BaseActivity{
     }
 
     public void onRemoveButtonClick(View v){
-        RemoveableLayoutView view = (RemoveableLayoutView)v.getParent();
+        RemoveableLayoutView view = (RemoveableLayoutView)v.getParent().getParent();
         if(view.getRecordId() == RemoveableLayoutView.NO_ID){
             mAddHistoryLayout.removeViewAt(1);
             mHistory = null;
@@ -244,7 +258,6 @@ public class PatientInfoEditActivity extends BaseActivity{
         if (resultCode != RESULT_OK || data == null) {
             return;
         }
-        RemoveableLayoutView view;
         switch(requestCode) {
             case REQUEST_CODE_SELECT_NATION:
                 String nation = data.getStringExtra(
@@ -254,17 +267,7 @@ public class PatientInfoEditActivity extends BaseActivity{
             case REQUEST_CODE_EDIT_HISTORY:
                 mHistory = data.getStringExtra(
                         PatientHistoryActivity.EXTRA_STRING_VALUE_EDIT_HISTORY);
-                if(!hasHistory()){
-                    //new history.
-                    view = (RemoveableLayoutView) mInflater.inflate(
-                        R.layout.removeable_single_item, null);
-                    mAddHistoryLayout.addView(view, mAddHistoryLayout.getChildCount());
-                } else {
-                    // edit history.
-                    view = (RemoveableLayoutView) mAddHistoryLayout.getChildAt(1);
-                }
-                TextView historyTextView = (TextView) view.findViewById(R.id.content_text_view);
-                historyTextView.setText(mHistory);
+                addHistoryView();
                 break;
             case REQUEST_CODE_EDIT_CASE_HISTORY:
                 int id = data.getIntExtra(EXTRA_INT_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
@@ -279,9 +282,23 @@ public class PatientInfoEditActivity extends BaseActivity{
                         c.close();
                     }
                 }
+                break;
             default:
                 break;
         }
+    }
+
+    private void addHistoryView() {
+        RemoveableLayoutView view;
+        if(!hasHistory()){
+            view = (RemoveableLayoutView) mInflater.inflate(
+                    R.layout.removeable_single_item, null);
+            mAddHistoryLayout.addView(view, mAddHistoryLayout.getChildCount());
+        } else {
+            view = (RemoveableLayoutView) mAddHistoryLayout.getChildAt(1);
+        }
+        TextView historyTextView = (TextView) view.findViewById(R.id.content_text_view);
+        historyTextView.setText(mHistory);
     }
 
     private void addCaseHistoryView(int id, String description) {
@@ -290,7 +307,11 @@ public class PatientInfoEditActivity extends BaseActivity{
         view.setRecordId(id);
         TextView descripView = (TextView) view.findViewById(R.id.content_text_view);
         descripView.setText(description);
-        mAddCaseHistoryLayout.addView(view, mAddHistoryLayout.getChildCount());
+        int position = mAddHistoryLayout.getChildCount();
+        if (position == 2 && mAddHistoryLayout.getChildAt(1) == null) {
+            position = 1;
+        }
+        mAddCaseHistoryLayout.addView(view, 1);
     }
 
     public class PatientEditAsyncQueryHandler extends AsyncQueryHandler{

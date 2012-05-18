@@ -1,12 +1,11 @@
 package com.alex.recipemanager.ui.base;
 
-import com.alex.recipemanager.R;
-import com.alex.recipemanager.util.MedicineUtil;
-
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.os.Bundle;
+
+import com.alex.recipemanager.R;
+import com.alex.recipemanager.util.MedicineUtil;
 
 public class BaseListActivity extends ListActivity{
     //use negative number to define dialog, since subclass may define it's own dialog.
@@ -15,7 +14,7 @@ public class BaseListActivity extends ListActivity{
     protected static final int DIALOG_NAME_EXSIT   = -3;
 
     @Override
-    protected Dialog onCreateDialog(int id, Bundle bundle) {
+    protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_WAITING:
             ProgressDialog waitingDialog = new ProgressDialog(this);

@@ -117,7 +117,7 @@ public class AliasListActivity extends BaseListActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case MENU_CREATE:
-            showDialog(DIALOG_ADD_ALIAS, null);
+            showDialog(DIALOG_ADD_ALIAS);
             break;
         default:
             return super.onOptionsItemSelected(item);
@@ -126,7 +126,7 @@ public class AliasListActivity extends BaseListActivity{
     }
 
     @Override
-    protected Dialog onCreateDialog(int id, Bundle bundle) {
+    protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_ADD_ALIAS:
             return createAliasDialog();

@@ -54,6 +54,8 @@ public class MedicineListActivity extends BaseListActivity{
 
     private static final int DIALOG_ADD_MEDICINE = 0;
 
+    private static final int INVALIDE_POSITION = -1;
+
     private static final int TOKEN_QUERY_MEDICINE_NAME     = 0;
     private static final int TOKEN_INSERT_MEDICINE_AMOUNT  = 1;
     private static final int TOKEN_INSERT_MEDICINE_NAME    = 2;
@@ -64,26 +66,28 @@ public class MedicineListActivity extends BaseListActivity{
     private static final int CONTEXT_MENU_EDIT   = 0;
     private static final int CONTEXT_MENU_DELETE = 1;
 
-    private static final String BUNDLE_INT_VALUE_POSITION = "bundle_int_value_position";
-
     private Cursor mCursor;
     private MedicineListAdapter mAdapter;
     private MedicineAsyncQueryHandler mQueryHandler;
     private static ItemCache mItemCache;
     private EditText mEditText;
     private boolean mSelectorMode;
+    private int mPosition;
+    private String mOldName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.medicine_list_layout);
         setTitle(R.string.medicine_manage);
+        mPosition = INVALIDE_POSITION;
         mSelectorMode = getIntent().getBooleanExtra(EXTRA_BOOLEAN_VALUE_START_FROM_MEDICINE_SELECTOR, false);
         mAdapter = new MedicineListAdapter(this, null);
         getListView().setAdapter(mAdapter);
         getListView().setOnCreateContextMenuListener(this);
         mQueryHandler = new MedicineAsyncQueryHandler(getContentResolver());
         mItemCache = new ItemCache();
+        mOldName = "";
         findView();
     }
 
@@ -175,7 +179,7 @@ public class MedicineListActivity extends BaseListActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case MENU_CREATE:
-            showDialog(DIALOG_ADD_MEDICINE, null);
+            showDialog(DIALOG_ADD_MEDICINE);
             break;
         default:
             return super.onOptionsItemSelected(item);
@@ -195,11 +199,10 @@ public class MedicineListActivity extends BaseListActivity{
     @Override
     public boolean onContextItemSelected(MenuItem item){
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Bundle bundle = new Bundle();
-        bundle.putInt(BUNDLE_INT_VALUE_POSITION, info.position);
+        mPosition = info.position;
         switch (item.getItemId()) {
         case CONTEXT_MENU_EDIT:
-            showDialog(DIALOG_ADD_MEDICINE, bundle);
+            showDialog(DIALOG_ADD_MEDICINE);
             return true;
         case CONTEXT_MENU_DELETE:
             showDialog(DIALOG_WAITING);
@@ -211,31 +214,32 @@ public class MedicineListActivity extends BaseListActivity{
     }
 
     @Override
-    protected Dialog onCreateDialog(int id, Bundle bundle) {
+    protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_ADD_MEDICINE:
-            return createAddOrEditMedicineDialog(bundle);
+            return createAddOrEditMedicineDialog();
         default:
             return super.onCreateDialog(id);
         }
     }
 
     @Override
-    protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
+    protected void onPrepareDialog(int id, Dialog dialog) {
         if(id == DIALOG_ADD_MEDICINE){
             TextView name = (TextView)dialog.findViewById(R.id.medicine_name_edit);
             TextView amount = (TextView)dialog.findViewById(R.id.medicine_amount_edit);
 
             mItemCache.clean();
-            if (bundle != null) {
-                int position = bundle.getInt(BUNDLE_INT_VALUE_POSITION);
-                Cursor c = (Cursor) mAdapter.getItem(position);
+            if (mPosition != INVALIDE_POSITION) {
+                Cursor c = (Cursor) mAdapter.getItem(mPosition);
                 mItemCache.mIsUpdated = true;
                 mItemCache.mMedicineNameId = String.valueOf(c.getInt(MEDICINE_NAME_ID_COLUMN));
                 mItemCache.mMedicineId = String.valueOf(c.getInt(MEDICINE_KEY_COLUMN));
 
-                name.setText(c.getString(MEDICINE_NAME_COLUMN));
+                mOldName = c.getString(MEDICINE_NAME_COLUMN);
+                name.setText(mOldName);
                 amount.setText(String.valueOf(c.getInt(MEDICINE_AMOUNT_COLUMN)));
+                mPosition = INVALIDE_POSITION;
             } else {
                 mItemCache.mIsUpdated = false;
 
@@ -243,10 +247,10 @@ public class MedicineListActivity extends BaseListActivity{
                 amount.setText("");
             }
         }
-        onPrepareDialog(id, dialog);
+        super.onPrepareDialog(id, dialog);
     }
 
-    private Dialog createAddOrEditMedicineDialog(final Bundle bundle) {
+    private Dialog createAddOrEditMedicineDialog() {
         LayoutInflater factory = LayoutInflater.from(this);
         final View textEntryView = factory.inflate(R.layout.add_medicine_dialog_entry, null);
         final TextView name = (TextView)textEntryView.findViewById(R.id.medicine_name_edit);
@@ -290,13 +294,14 @@ public class MedicineListActivity extends BaseListActivity{
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if(token == TOKEN_QUERY_MEDICINE_NAME){
+                ItemCache cache = (ItemCache) cookie;
                 if(cursor != null){
                     try{
-                        if(cursor.getCount() > 0){
+                        if(isIlleagalInput(cursor, cache)){
                             removeDialog(DIALOG_WAITING);
                             showDialog(DIALOG_NAME_EXSIT);
                         } else {
-                            ItemCache cache = (ItemCache) cookie;
+                            mOldName = "";
                             ContentValues values = new ContentValues(1);
                             if(cache.mIsUpdated){
                                 values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
@@ -322,6 +327,19 @@ public class MedicineListActivity extends BaseListActivity{
                 }
                 removeDialog(DIALOG_WAITING);
             }
+        }
+
+        private boolean isIlleagalInput(Cursor c, ItemCache cache) {
+            if (cache.mIsUpdated == true) {
+                return (isNameExist(c) && c.moveToFirst()
+                        && !TextUtils.equals(c.getString(MEDICINE_NAME_COLUMN), mOldName));
+            } else {
+                return isNameExist(c);
+            }
+        }
+
+        private boolean isNameExist(Cursor c) {
+            return c.getCount() > 0;
         }
 
         @Override

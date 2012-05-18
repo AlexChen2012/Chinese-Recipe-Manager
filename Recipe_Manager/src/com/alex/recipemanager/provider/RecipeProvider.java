@@ -515,7 +515,6 @@ public class RecipeProvider extends ContentProvider {
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         long id;
-        String abbr;
 
         Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
 
@@ -643,9 +642,13 @@ public class RecipeProvider extends ContentProvider {
             result = db.update(TABLE_NAMES[table], values,
                     whereWithId(id, selection), selectionArgs);
             break;
-        case MEDICINE_NAME_ID:
         case CASE_HISTORY_ID:
             values.put(CaseHistoryColumn.TIMESTAMP, System.currentTimeMillis());
+            id = uri.getPathSegments().get(1);
+            result = db.update(TABLE_NAMES[table], values,
+                    whereWithId(id, selection), selectionArgs);
+            break;
+        case MEDICINE_NAME_ID:
             id = uri.getPathSegments().get(1);
             result = db.update(TABLE_NAMES[table], values,
                     whereWithId(id, selection), selectionArgs);

@@ -157,7 +157,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     public void onRemoveButtonClick(View v){
-        RemoveableLayoutView view = (RemoveableLayoutView)v.getParent();
+        RemoveableLayoutView view = (RemoveableLayoutView)v.getParent().getParent();
         mRecipeLayout.removeView(view);
         deleteMeidincineInfoById(view.getRecordId());
     }
