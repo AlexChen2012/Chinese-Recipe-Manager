@@ -26,7 +26,7 @@ public class MedicineUtil {
         return builder.create();
     }
 
-    public static String getWhereClauseById(ArrayList<Integer> ids) {
+    public static String getWhereClauseById(ArrayList<Long> ids) {
         StringBuilder sql = new StringBuilder();
         sql.append("_id in (");
         while (sql.length() <= SELECTION_MAX_LEN && ids.size() > 0) {

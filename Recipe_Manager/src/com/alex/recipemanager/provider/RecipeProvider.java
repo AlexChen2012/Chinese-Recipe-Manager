@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 19;
+    public static final int DATABASE_VERSION = 21;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -51,6 +51,7 @@ public class RecipeProvider extends ContentProvider {
             + RecipeMedicineColumn._ID + " )";
 
     private static HashMap<String, String> sMedicineJoinAliasProjectionMap;
+    private static HashMap<String, String> sRecipeMedicineJoinMedicineNameMap;
 
     private static final int BASE_SHIFT = 12;
     private static final int PATIENT_BASE = 0;
@@ -97,6 +98,19 @@ public class RecipeProvider extends ContentProvider {
             + MedicineNameColumn.TABLE_NAME
             + "."
             + MedicineNameColumn.MEDICINE_KEY;
+
+    private static final String TABLE_RECIPE_JOINED_MEDICINE_QUERY =
+            MedicineNameColumn.TABLE_NAME
+                + " left join "
+                + RecipeMedicineColumn.TABLE_NAME
+                + " on "
+                + RecipeMedicineColumn.TABLE_NAME
+                + "."
+                + RecipeMedicineColumn.MEDICINE_KEY
+                + "="
+                + MedicineNameColumn.TABLE_NAME
+                + "."
+                + MedicineNameColumn.MEDICINE_KEY;
 
     static {
         // Email URI matching table
@@ -148,10 +162,13 @@ public class RecipeProvider extends ContentProvider {
                 + " integer primary key autoincrement, "
                 + PatientColumns.ADDRESS + " text, "
                 + PatientColumns.FIRST_TIME + " integer, "
-                + PatientColumns.GENDER + " integer, " + PatientColumns.NAME
-                + " text, " + PatientColumns.HISTORY + " text, "
-                + PatientColumns.AGE + " integer, " + PatientColumns.NATION
-                + " text, " + PatientColumns.TIMESTAMP + " integer, "
+                + PatientColumns.GENDER + " integer, "
+                + PatientColumns.NAME + " text, "
+                + PatientColumns.NAME_ABBR + " text, "
+                + PatientColumns.HISTORY + " text, "
+                + PatientColumns.AGE + " integer, "
+                + PatientColumns.NATION + " text, "
+                + PatientColumns.TIMESTAMP + " integer, "
                 + PatientColumns.TELEPHONE + " text" + ");";
         db.execSQL("create table " + PatientColumns.TABLE_NAME + s);
     }
@@ -163,6 +180,7 @@ public class RecipeProvider extends ContentProvider {
                 + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
                 + CaseHistoryColumn.DESCRIPTION + " text, "
                 + CaseHistoryColumn.SYMPTOM + " text, "
+                + CaseHistoryColumn.SYMPTOM_ABBR + " text, "
                 + CaseHistoryColumn.FIRST_TIME + " integer, "
                 + CaseHistoryColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + CaseHistoryColumn.TABLE_NAME + s);
@@ -182,7 +200,7 @@ public class RecipeProvider extends ContentProvider {
                 + " integer primary key autoincrement, "
                 + MedicineNameColumn.MEDICINE_KEY + " integer "
                 + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
-                + MedicineNameColumn.PINYIN_ABBR + " text, "
+                + MedicineNameColumn.MEDICINE_NAME_ABBR + " text, "
                 + MedicineNameColumn.MEDICINE_NAME + " text, " + "unique ("
                 + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
         db.execSQL("create table " + MedicineNameColumn.TABLE_NAME + s);
@@ -197,8 +215,10 @@ public class RecipeProvider extends ContentProvider {
                 + REFERENCE_PATIENT_ID_AS_FOREIGN_KEY + " , "
                 + RecipeColumn.CASE_HISTORY_KEY + " integer "
                 + REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY + " , "
-                + RecipeColumn.NAME + " text, " + RecipeColumn.NUMBER
-                + " integer, " + RecipeColumn.TIMESTAMP + " integer" + ");";
+                + RecipeColumn.NAME + " text, "
+                + RecipeColumn.NAME_ABBR + " text, "
+                + RecipeColumn.NUMBER + " integer, "
+                + RecipeColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + RecipeColumn.TABLE_NAME + s);
         db.execSQL(createIndex(RecipeColumn.TABLE_NAME,
                 RecipeColumn.PATIENT_KEY));
@@ -454,18 +474,24 @@ public class RecipeProvider extends ContentProvider {
         String id;
         SQLiteQueryBuilder qBuilder;
 
-        Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
+        Log.v(TAG, "RecipeProvider.query: uri=" + uri + ", match is " + match);
 
         switch (match) {
         case PATIENT:
         case CASE_HISTORY:
         case RECIPE:
-        case RECIPE_MEDICINE:
         case MEDICINE:
         case MEDICINE_NAME:
         case NATION:
             c = db.query(TABLE_NAMES[table], projection, selection,
                     selectionArgs, null, null, sortOrder);
+            break;
+        case RECIPE_MEDICINE:
+            qBuilder = new SQLiteQueryBuilder();
+            qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
+            qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
+            c = qBuilder.query(db, projection, selection, selectionArgs, null,
+                    null, sortOrder);
             break;
         case MEDICINE_NAME_MEDICINE:
             qBuilder = new SQLiteQueryBuilder();
@@ -477,7 +503,6 @@ public class RecipeProvider extends ContentProvider {
         case CASE_HISTORY_ID:
         case PATIENT_ID:
         case RECIPE_ID:
-        case RECIPE_MEDICINE_ID:
         case MEDICINE_ID:
         case MEDICINE_NAME_ID:
             id = uri.getLastPathSegment();
@@ -485,7 +510,15 @@ public class RecipeProvider extends ContentProvider {
                     whereWithId(id, selection), selectionArgs, null, null,
                     sortOrder);
             break;
-
+        case RECIPE_MEDICINE_ID:
+            id = uri.getLastPathSegment();
+            qBuilder = new SQLiteQueryBuilder();
+            qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
+            qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
+            c = qBuilder.query(db, projection, RecipeMedicineColumn.TABLE_NAME
+                    + "." + whereWithId(id, selection), selectionArgs, null,
+                    null, sortOrder);
+            break;
         case MEDICINE_NAME_MEDICINE_ID:
             id = uri.getLastPathSegment();
             qBuilder = new SQLiteQueryBuilder();
@@ -516,7 +549,7 @@ public class RecipeProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         long id;
 
-        Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
+        Log.v(TAG, "RecipeProvider.insert: uri=" + uri + ", match is " + match);
 
         Uri resultUri = null;
 
@@ -633,7 +666,7 @@ public class RecipeProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         int result = -1;
 
-        Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
+        Log.v(TAG, "RecipeProvider.update: uri=" + uri + ", match is " + match);
         String id;
         switch (match) {
         case PATIENT_ID:
@@ -695,7 +728,28 @@ public class RecipeProvider extends ContentProvider {
                 MedicineNameColumn.MEDICINE_NAME);
         sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_KEY,
                 MedicineNameColumn.MEDICINE_KEY);
-        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.PINYIN_ABBR,
-                MedicineNameColumn.PINYIN_ABBR);
+        sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_NAME_ABBR,
+                MedicineNameColumn.MEDICINE_NAME_ABBR);
+
+        sRecipeMedicineJoinMedicineNameMap = new HashMap<String, String>();
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineNameColumn._ID,
+                MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID);
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineNameColumn.MEDICINE_KEY,
+                MedicineNameColumn.MEDICINE_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineNameColumn.MEDICINE_NAME,
+                MedicineNameColumn.MEDICINE_NAME);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID,
+                RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.CASE_HISTORY_KEY,
+                RecipeMedicineColumn.CASE_HISTORY_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.MEDICINE_KEY,
+                RecipeMedicineColumn.MEDICINE_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.PATIENT_KEY,
+                RecipeMedicineColumn.PATIENT_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.RECIPE_KEY,
+                RecipeMedicineColumn.RECIPE_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.WEIGHT,
+                RecipeMedicineColumn.WEIGHT);
+        
     }
 }

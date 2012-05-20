@@ -36,7 +36,7 @@ public class MedicineListActivity extends BaseListActivity{
 
     public static final String EXTRA_BOOLEAN_VALUE_START_FROM_MEDICINE_SELECTOR = "exatra_boolean_value_selector";
     public static final String EXTRA_STRING_VALUE_MEDICINE_NAME = "exatra_string_value_medicine_name";
-    public static final String EXTRA_INT_VALUE_MEDICINE_ID = "exatra_int_value_medicine_id";
+    public static final String EXTRA_LONG_VALUE_MEDICINE_ID = "exatra_long_value_medicine_id";
 
     public static final String[] MEDINE_NAME_JOIN_AMOUNT_PROJECTION = new String[]{
         MedicineNameColumn._ID,
@@ -70,7 +70,6 @@ public class MedicineListActivity extends BaseListActivity{
     private MedicineListAdapter mAdapter;
     private MedicineAsyncQueryHandler mQueryHandler;
     private static ItemCache mItemCache;
-    private EditText mEditText;
     private boolean mSelectorMode;
     private int mPosition;
     private String mOldName;
@@ -88,7 +87,7 @@ public class MedicineListActivity extends BaseListActivity{
         mQueryHandler = new MedicineAsyncQueryHandler(getContentResolver());
         mItemCache = new ItemCache();
         mOldName = "";
-        findView();
+        initSearchView();
     }
 
     @Override
@@ -108,18 +107,18 @@ public class MedicineListActivity extends BaseListActivity{
                 MedicineNameColumn.DEFAULT_ORDER);
     }
 
-    private void findView() {
-        mEditText = (EditText) findViewById(R.id.search_edit_view);
-        mEditText.addTextChangedListener(new TextWatcher() {
+    private void initSearchView() {
+        EditText editText = (EditText) findViewById(R.id.search_edit_view);
+        editText.addTextChangedListener(new TextWatcher() {
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // do nothing
             }
-            
+
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // do nothing
             }
-            
+
             public void afterTextChanged(Editable s) {
                 String selection = null;
                 if(!TextUtils.isEmpty(s)){
@@ -127,7 +126,7 @@ public class MedicineListActivity extends BaseListActivity{
                     //get more info from url: http://code.google.com/p/android/issues/detail?id=3153.
                     //String selectionArgs[] = new String[] {name};
                     selection = MedicineNameColumn.MEDICINE_NAME + " LIKE '%" + s.toString() + "%' OR "
-                        + MedicineNameColumn.PINYIN_ABBR + " LIKE '" + s.toString() + "%'";
+                        + MedicineNameColumn.MEDICINE_NAME_ABBR + " LIKE '" + s.toString() + "%'";
                 }
                 updateList(selection);
             }
@@ -154,7 +153,7 @@ public class MedicineListActivity extends BaseListActivity{
             if(c != null) {
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_STRING_VALUE_MEDICINE_NAME, c.getString(MEDICINE_NAME_COLUMN));
-                intent.putExtra(EXTRA_INT_VALUE_MEDICINE_ID, c.getInt(MEDICINE_KEY_COLUMN));
+                intent.putExtra(EXTRA_LONG_VALUE_MEDICINE_ID, c.getLong(MEDICINE_KEY_COLUMN));
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -233,8 +232,8 @@ public class MedicineListActivity extends BaseListActivity{
             if (mPosition != INVALIDE_POSITION) {
                 Cursor c = (Cursor) mAdapter.getItem(mPosition);
                 mItemCache.mIsUpdated = true;
-                mItemCache.mMedicineNameId = String.valueOf(c.getInt(MEDICINE_NAME_ID_COLUMN));
-                mItemCache.mMedicineId = String.valueOf(c.getInt(MEDICINE_KEY_COLUMN));
+                mItemCache.mMedicineNameId = String.valueOf(c.getLong(MEDICINE_NAME_ID_COLUMN));
+                mItemCache.mMedicineId = String.valueOf(c.getLong(MEDICINE_KEY_COLUMN));
 
                 mOldName = c.getString(MEDICINE_NAME_COLUMN);
                 name.setText(mOldName);
@@ -351,7 +350,7 @@ public class MedicineListActivity extends BaseListActivity{
                     ContentValues values = new ContentValues();
                     values.put(MedicineNameColumn.MEDICINE_KEY, id);
                     values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
-                    values.put(MedicineNameColumn.PINYIN_ABBR, cache.mAbbr);
+                    values.put(MedicineNameColumn.MEDICINE_NAME_ABBR, cache.mAbbr);
                     startInsert(TOKEN_INSERT_MEDICINE_NAME, null, MedicineNameColumn.CONTENT_URI, values);
                 }else {
                     //something wrong.

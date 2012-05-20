@@ -42,7 +42,7 @@ public class PatientInfoEditActivity extends BaseActivity{
     private static final int DIALOG_INPUT_NAME_EMPTY  = 0;
 
     private PatientEditAsyncQueryHandler mAsyncQuery;
-    private int mPatientId;
+    private long mPatientId;
     private boolean mNewPatient;
     private String mHistory;
     private Button mNationButton;
@@ -54,7 +54,7 @@ public class PatientInfoEditActivity extends BaseActivity{
     private LinearLayout mAddHistoryLayout;
     private LinearLayout mAddCaseHistoryLayout;
     private LayoutInflater mInflater;
-    private ArrayList<Integer> mCaseHistoryDeleteIds;
+    private ArrayList<Long> mCaseHistoryDeleteIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -62,7 +62,7 @@ public class PatientInfoEditActivity extends BaseActivity{
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.create_or_edit_patient_layout);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar);
-        mPatientId = getIntent().getIntExtra(EXTRA_INT_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
+        mPatientId = getIntent().getLongExtra(EXTRA_LONG_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
         setPatientState(mPatientId == DEFAULT_ID_VALUE);
         mInflater = LayoutInflater.from(this);
         setTitle();
@@ -76,7 +76,7 @@ public class PatientInfoEditActivity extends BaseActivity{
             setViewToData();
         }
         mAsyncQuery = new PatientEditAsyncQueryHandler(getContentResolver());
-        mCaseHistoryDeleteIds = new ArrayList<Integer>();
+        mCaseHistoryDeleteIds = new ArrayList<Long>();
     }
 
     private void deleteRemovedCaseHistory(int token) {
@@ -130,7 +130,7 @@ public class PatientInfoEditActivity extends BaseActivity{
         if(c != null) {
             try {
                 while(c.moveToNext()) {
-                    addCaseHistoryView(c.getInt(COLUMN_CASE_HISTORY_ID),
+                    addCaseHistoryView(c.getLong(COLUMN_CASE_HISTORY_ID),
                             c.getString(COLUMN_CASE_HISTORY_DESCRIPTION));
                 }
             } finally {
@@ -155,7 +155,7 @@ public class PatientInfoEditActivity extends BaseActivity{
     }
 
     @Override
-    public void exitActivity() {
+    public void exitActivityWithoutSave() {
         deleteRemovedCaseHistory(isCreatePatient() ?
                 TOKEN_NEED_DELETE_PATIENT : 0);
     }
@@ -195,8 +195,15 @@ public class PatientInfoEditActivity extends BaseActivity{
     }
 
     public void onAddCaseHistoryButtonClick(View v){
+        addOrEditCaseHistroy(RemoveableLayoutView.NO_ID);
+    }
+
+    private void addOrEditCaseHistroy(long id) {
         Intent intent = new Intent(this, CaseHistoryInfoEditActivity.class);
-        intent.putExtra(EXTRA_INT_VALUE_PATIENT_ID, mPatientId);
+        intent.putExtra(EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
+        if(id != RemoveableLayoutView.NO_ID) {
+            intent.putExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, id);
+        }
         startActivityForResult(intent, REQUEST_CODE_EDIT_CASE_HISTORY);
     }
 
@@ -218,6 +225,10 @@ public class PatientInfoEditActivity extends BaseActivity{
         ContentValues values = new ContentValues();
         String name = mNameEdit.getText().toString();
         values.put(PatientColumns.NAME, name);
+        if (!TextUtils.isEmpty(name)) {
+            String abbr = MedicineUtil.getPinyinAbbr(name);
+            values.put(PatientColumns.NAME_ABBR, abbr);
+        }
         int gender = (int) mGenderSpinner.getSelectedItemId();
         values.put(PatientColumns.GENDER, gender);
         String age = mAgeEdit.getText().toString();
@@ -241,14 +252,19 @@ public class PatientInfoEditActivity extends BaseActivity{
         getContentResolver().update(uri, values, null, null);
     }
 
-    public void onRemoveButtonClick(View v){
+    public void onRemoveableItemClicked(View v) {
+        RemoveableLayoutView view = (RemoveableLayoutView) v.getParent();
+        addOrEditCaseHistroy(view.getRecordId());
+    }
+
+    public void onDeleteButtonClick(View v){
         RemoveableLayoutView view = (RemoveableLayoutView)v.getParent().getParent();
         if(view.getRecordId() == RemoveableLayoutView.NO_ID){
             mAddHistoryLayout.removeViewAt(1);
             mHistory = null;
         } else {
             mAddCaseHistoryLayout.removeView(view);
-            Integer id = view.getRecordId();
+            Long id = view.getRecordId();
             mCaseHistoryDeleteIds.add(id);
         }
     }
@@ -270,14 +286,19 @@ public class PatientInfoEditActivity extends BaseActivity{
                 addHistoryView();
                 break;
             case REQUEST_CODE_EDIT_CASE_HISTORY:
-                int id = data.getIntExtra(EXTRA_INT_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
-                Uri uri = Uri.withAppendedPath(CaseHistoryColumn.CONTENT_URI, String.valueOf(id));
-                Cursor c = getContentResolver().query(uri, new String[] {CaseHistoryColumn.DESCRIPTION},
-                        null, null, null);
+                RemoveAllCaseHistories();
+                String selection = CaseHistoryColumn.PATIENT_KEY + "=?";
+                String selectionArgs[] = {String.valueOf(mPatientId)};
+                Cursor c = getContentResolver().query(CaseHistoryColumn.CONTENT_URI,
+                        new String[] {CaseHistoryColumn._ID, CaseHistoryColumn.DESCRIPTION},
+                        selection,
+                        selectionArgs,
+                        null);
                 if(c != null ) {
                     try {
-                        c.moveToFirst();
-                        addCaseHistoryView(id, c.getString(0));
+                        while (c.moveToNext()) {
+                            addCaseHistoryView(c.getLong(0), c.getString(1));
+                        }
                     } finally {
                         c.close();
                     }
@@ -288,11 +309,20 @@ public class PatientInfoEditActivity extends BaseActivity{
         }
     }
 
+    private void RemoveAllCaseHistories() {
+        int count = mAddCaseHistoryLayout.getChildCount();
+        if (count > 1) {
+            mAddCaseHistoryLayout.removeViews(1, count - 1);
+        }
+    }
+
     private void addHistoryView() {
         RemoveableLayoutView view;
         if(!hasHistory()){
             view = (RemoveableLayoutView) mInflater.inflate(
                     R.layout.removeable_single_item, null);
+            LinearLayout layout = (LinearLayout) view.getChildAt(1);
+            layout.setClickable(false);
             mAddHistoryLayout.addView(view, mAddHistoryLayout.getChildCount());
         } else {
             view = (RemoveableLayoutView) mAddHistoryLayout.getChildAt(1);
@@ -301,7 +331,7 @@ public class PatientInfoEditActivity extends BaseActivity{
         historyTextView.setText(mHistory);
     }
 
-    private void addCaseHistoryView(int id, String description) {
+    private void addCaseHistoryView(long id, String description) {
         RemoveableLayoutView view = (RemoveableLayoutView) mInflater.inflate(
                 R.layout.removeable_single_item, null);
         view.setRecordId(id);

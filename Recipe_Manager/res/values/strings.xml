@@ -35,7 +35,7 @@
     <string name="context_menu_delete">删除</string>
     <!-- Search define -->
     <string name="search_medicine_hint">请输入药品名称</string>
-    <string name="search_patient_hint">请输入病人姓名</string>
+    <string name="search_patient_hint">请输入病人/病例/处方名</string>
     <!-- Activity title define-->
     <string name="recipe">病历</string>
     <string name="pricing">划价</string>

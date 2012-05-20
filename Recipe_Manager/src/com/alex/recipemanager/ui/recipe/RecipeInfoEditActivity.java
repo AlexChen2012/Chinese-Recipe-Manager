@@ -7,6 +7,7 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alex.recipemanager.R;
+import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
@@ -33,6 +35,17 @@ public class RecipeInfoEditActivity extends BaseActivity{
 
     private static final String TAG = "RecipeInfoEditActivity";
 
+    private static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[]{
+        MedicineNameColumn.MEDICINE_NAME,
+        RecipeMedicineColumn.MEDICINE_KEY,
+        RecipeMedicineColumn.RECIPE_KEY,
+        RecipeMedicineColumn.WEIGHT
+    };
+    private static final int RECIPE_MEDICINE_NAME_COLUMN             = 0;
+    private static final int RECIPE_MEDICINE_KEY                     = 1;
+    private static final int RECIPE_MEDICINE_RECIPE_KEY_COLUMN       = 2;
+    private static final int RECIPE_MEDICINE_WEIGHT_COLUMN           = 3;
+
     private static final int DIALOG_ILLEGAL_INPUT = 0;
     private static final int DIALOG_EMPTY_WEIGHT  = 1;
 
@@ -40,9 +53,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
 
     private static final int TOKEN_UPGRATE_RECIPE_TABLE = 0;
 
-    private int mPatientId;
-    private int mCaseHistoryId;
-    private int mRecipeId;
+    private long mPatientId;
+    private long mCaseHistoryId;
+    private long mRecipeId;
     private boolean mNewRecipe;
     private EditText mNameEdit;
     private EditText mCountEidt;
@@ -57,12 +70,14 @@ public class RecipeInfoEditActivity extends BaseActivity{
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.recipe_info_edit_layout);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar);
-        mPatientId = getIntent().getIntExtra(EXTRA_INT_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
-        mCaseHistoryId = getIntent().getIntExtra(EXTRA_INT_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
-        mRecipeId = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
+        mPatientId = getIntent().getLongExtra(EXTRA_LONG_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
+        mCaseHistoryId = getIntent().getLongExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
+        mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
         setRecipeState(mRecipeId == DEFAULT_ID_VALUE);
         setTitle();
         mInflater = LayoutInflater.from(this);
+        mAsyncQuery = new RecipeAsyncQueryHandler(getContentResolver());
+        mMedicineInfo = new ArrayList<MedicineInfo>();
         bindView();
         if(isNewRecipe()){
             ContentValues values = new ContentValues();
@@ -74,8 +89,12 @@ public class RecipeInfoEditActivity extends BaseActivity{
         } else {
             setValueToView();
         }
-        mAsyncQuery = new RecipeAsyncQueryHandler(getContentResolver());
-        mMedicineInfo = new ArrayList<MedicineInfo>();
+    }
+
+    @Override
+    protected void onNewIntent(Intent newIntent) {
+        super.onNewIntent(newIntent);
+        setIntent(newIntent);
     }
 
     @Override
@@ -101,7 +120,40 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     private void setValueToView() {
-        // TODO:
+        Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
+        Cursor c = getContentResolver().query(uri, null, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    mNameEdit.setText(c.getString(c.getColumnIndexOrThrow(RecipeColumn.NAME)));
+                    mCountEidt.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.NUMBER)));
+                }
+            } finally {
+                c.close();
+                c = null;
+            }
+        }
+        String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
+        String[] selectionArgs = {String.valueOf(mRecipeId)};
+        c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
+                RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION,
+                selection,
+                selectionArgs,
+                null);
+        if (c != null) {
+            try {
+                while (c.moveToNext()) {
+                    MedicineInfo info = new MedicineInfo();
+                    info.mMedicineId = c.getLong(RECIPE_MEDICINE_KEY);
+                    info.mWeight = c.getInt(RECIPE_MEDICINE_WEIGHT_COLUMN);
+                    info.mName = c.getString(RECIPE_MEDICINE_NAME_COLUMN);
+                    addMedicineEditView(info);
+                    mMedicineInfo.add(info);
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 
     @Override
@@ -111,10 +163,10 @@ public class RecipeInfoEditActivity extends BaseActivity{
         }
         switch(requestCode) {
             case REQUEST_CODE_MEDICINE_ID_AND_NAME:
-                int id = data.getIntExtra(MedicineListActivity.EXTRA_INT_VALUE_MEDICINE_ID, DEFAULT_ID_VALUE);
+                long id = data.getLongExtra(MedicineListActivity.EXTRA_LONG_VALUE_MEDICINE_ID, DEFAULT_ID_VALUE);
                 if(!matchMedicineId(id)){
                     MedicineInfo info = new MedicineInfo();
-                    info.mId = id;
+                    info.mMedicineId = id;
                     info.mName = data.getStringExtra(MedicineListActivity.EXTRA_STRING_VALUE_MEDICINE_NAME);
                     mMedicineInfo.add(info);
                     addMedicineEditView(info);
@@ -132,8 +184,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
                 R.layout.removeable_recipe_medicine_item, null);
         TextView name = (TextView)view.findViewById(R.id.recipe_medicine_name);
         name.setText(info.mName);
-        view.setRecordId(info.mId);
+        view.setRecordId(info.mMedicineId);
         EditText medicineWeight = (EditText) view.findViewById(R.id.recipe_medicine_weight_edit);
+        medicineWeight.setText(info.mWeight > 0 ? String.valueOf(info.mWeight) : "");
         medicineWeight.addTextChangedListener(new TextWatcher() {
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -150,34 +203,34 @@ public class RecipeInfoEditActivity extends BaseActivity{
                 } else {
                     info.mWeight = Integer.valueOf(s.toString());
                 }
-                Log.v(TAG, "weight changed to: " + info.mWeight + "the info.id = " + info.mId);
+                Log.v(TAG, "weight changed to: " + info.mWeight + "the info.mMedicineId = " + info.mMedicineId);
             }
         });
         mRecipeLayout.addView(view, mRecipeLayout.getChildCount());
     }
 
-    public void onRemoveButtonClick(View v){
+    public void onDeleteButtonClick(View v){
         RemoveableLayoutView view = (RemoveableLayoutView)v.getParent().getParent();
         mRecipeLayout.removeView(view);
         deleteMeidincineInfoById(view.getRecordId());
     }
 
-    private boolean matchMedicineId(int id) {
+    private boolean matchMedicineId(long id) {
         for(MedicineInfo info : mMedicineInfo) {
-            if(info.mId == id){
-                Log.v(TAG, "matched id = " + info.mId);
+            if(info.mMedicineId == id){
+                Log.v(TAG, "matched id = " + info.mMedicineId);
                 return true;
             }
         }
         return false;
     }
 
-    private void deleteMeidincineInfoById(int id) {
+    private void deleteMeidincineInfoById(long id) {
         Log.v(TAG, "view id = " + id);
         for(MedicineInfo info : mMedicineInfo) {
-            if(info.mId == id){
+            if(info.mMedicineId == id){
                 mMedicineInfo.remove(info);
-                Log.v(TAG, "matched delete MedicineInfo where id = " + info.mId);
+                Log.v(TAG, "matched delete MedicineInfo where id = " + info.mMedicineId);
                 return ;
             }
         }
@@ -213,7 +266,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     @Override
-    public void exitActivity() {
+    public void exitActivityWithoutSave() {
         if(isNewRecipe()){
             showDialog(DIALOG_WAITING);
             Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
@@ -260,6 +313,8 @@ public class RecipeInfoEditActivity extends BaseActivity{
         String count = mCountEidt.getText().toString();
         if(!TextUtils.isEmpty(name)){
             values.put(RecipeColumn.NAME, name);
+            String abbr = MedicineUtil.getPinyinAbbr(name);
+            values.put(RecipeColumn.NAME_ABBR, abbr);
         }
         if(!TextUtils.isEmpty(count) && !illegalInput(Integer.valueOf(count))){
             values.put(RecipeColumn.NUMBER, count);
@@ -273,13 +328,13 @@ public class RecipeInfoEditActivity extends BaseActivity{
     private void insertRecipeMedicines() {
         ContentValues[] contentValues = new ContentValues[mMedicineInfo.size()];
         int i = 0;
-        for(MedicineInfo info : mMedicineInfo) {
+        for (MedicineInfo info : mMedicineInfo) {
             ContentValues values = new ContentValues();
             values.put(RecipeMedicineColumn.PATIENT_KEY, mPatientId);
             values.put(RecipeMedicineColumn.CASE_HISTORY_KEY, mCaseHistoryId);
             values.put(RecipeMedicineColumn.RECIPE_KEY, mRecipeId);
-            values.put(RecipeMedicineColumn.WEIGHT, info.mName);
-            values.put(RecipeMedicineColumn.MEDICINE_KEY, info.mId);
+            values.put(RecipeMedicineColumn.WEIGHT, info.mWeight);
+            values.put(RecipeMedicineColumn.MEDICINE_KEY, info.mMedicineId);
             contentValues[i] = values;
             i++;
         }
@@ -302,32 +357,37 @@ public class RecipeInfoEditActivity extends BaseActivity{
         @Override
         protected void onUpdateComplete(int token, Object cookie, int result) {
             if(token == TOKEN_UPGRATE_RECIPE_TABLE) {
+                if (!isNewRecipe()) {
+                    String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
+                    String[] selectionArgs = {String.valueOf(mRecipeId)};
+                    getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
+                }
                 insertRecipeMedicines();
             }
         }
     }
 
     static class MedicineInfo{
-        int mId;
+        long mMedicineId;
         String mName;
         int mWeight;
     }
 
-    private class AsyncInsertRecipeMedicine extends AsyncTask<ContentValues[], Void, Integer>{
+    private class AsyncInsertRecipeMedicine extends AsyncTask<ContentValues[], Void, Void> {
 
         @Override
-        protected Integer doInBackground(ContentValues[]... params) {
+        protected Void doInBackground(ContentValues[]... params) {
             ContentValues values[] = params[0];
             int count = getContentResolver().bulkInsert(RecipeMedicineColumn.CONTENT_URI, values);
             Log.v(TAG, count + " Recipe_Medicine records be inserted.");
-            return 1;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(Void v) {
             removeDialog(DIALOG_WAITING);
             Intent intent = new Intent();
-            intent.putExtra(EXTRA_INT_VALUE_RECIPE_ID, mRecipeId);
+            intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, mRecipeId);
             setResult(RESULT_OK, intent);
             finish();
         }

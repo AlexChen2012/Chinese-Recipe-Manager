@@ -11,7 +11,8 @@
 
     <LinearLayout android:layout_width="fill_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:onClick="onRemoveableItemClicked">
 
         <TextView style="@style/SmallText"
             android:id="@+id/content_text_view"
@@ -42,7 +43,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginRight="5dip"
             android:src="@drawable/ic_delete"
-            android:onClick="onRemoveButtonClick"/>
+            android:onClick="onDeleteButtonClick"/>
 
     </LinearLayout>
 

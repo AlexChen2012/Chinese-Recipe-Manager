@@ -14,10 +14,10 @@ import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.util.MedicineUtil;
 
 public class BaseActivity extends Activity{
-    public static final String EXTRA_INT_VALUE_PATIENT_ID = "extra_int_value_patient_id";
-    public static final String EXTRA_INT_VALUE_CASE_HISOTRY_ID = "extra_int_value_case_history_id";
-    public static final String EXTRA_INT_VALUE_RECIPE_ID = "extra_int_value_recipe_id";
-    public static final int DEFAULT_ID_VALUE = -1;
+    public static final String EXTRA_LONG_VALUE_PATIENT_ID = "extra_long_value_patient_id";
+    public static final String EXTRA_LONG_VALUE_CASE_HISOTRY_ID = "extra_long_value_case_history_id";
+    public static final String EXTRA_LONG_VALUE_RECIPE_ID = "extra_long_value_recipe_id";
+    public static final long DEFAULT_ID_VALUE = -1L;
 
     public static final String[] PATIENT_TABLE_PROJECTION = new String[] {
         PatientColumns._ID,
@@ -93,7 +93,7 @@ public class BaseActivity extends Activity{
                 .setMessage(R.string.dialog_quit_edit_patient_message)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        exitActivity();
+                        exitActivityWithoutSave();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -103,7 +103,7 @@ public class BaseActivity extends Activity{
         }
     }
 
-    public void exitActivity() {
+    public void exitActivityWithoutSave() {
         //Need be implement in subclass.
     }
 }

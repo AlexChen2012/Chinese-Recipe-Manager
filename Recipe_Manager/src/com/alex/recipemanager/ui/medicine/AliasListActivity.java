@@ -38,7 +38,7 @@ public class AliasListActivity extends BaseListActivity{
     private static final int CONTEXT_MENU_DELETE = 0;
 
     private String mAliasId;
-    private int mMedicineKey;
+    private long mMedicineKey;
     private AliasAsyncQueryHandler mAsyncQuery;
     private AliasListAdapter mAdapter;
     private Cursor mCursor;
@@ -73,7 +73,7 @@ public class AliasListActivity extends BaseListActivity{
         if(c != null){
             try{
                 c.moveToFirst();
-                mMedicineKey = c.getInt(MedicineListActivity.MEDICINE_KEY_COLUMN);
+                mMedicineKey = c.getLong(MedicineListActivity.MEDICINE_KEY_COLUMN);
                 TextView name = (TextView) findViewById(R.id.medicine_name);
                 TextView amount = (TextView) findViewById(R.id.medicine_amount);
                 name.setText(c.getString(MedicineListActivity.MEDICINE_NAME_COLUMN));

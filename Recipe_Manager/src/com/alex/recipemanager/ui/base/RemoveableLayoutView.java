@@ -6,9 +6,10 @@ import android.widget.LinearLayout;
 
 public class RemoveableLayoutView extends LinearLayout{
 
-    public static final int NO_ID = -1;
+    public static final long NO_ID = -1L;
 
-    private int mCaseHistoryId = NO_ID;
+    private long mCaseHistoryId = NO_ID;
+
     public RemoveableLayoutView(Context context) {
         super(context);
     }
@@ -17,11 +18,11 @@ public class RemoveableLayoutView extends LinearLayout{
         super(context, attrs);
     }
 
-    public void setRecordId(int id){
+    public void setRecordId(long id){
         mCaseHistoryId = id;
     }
 
-    public int getRecordId(){
+    public long getRecordId(){
         return mCaseHistoryId;
     }
 }

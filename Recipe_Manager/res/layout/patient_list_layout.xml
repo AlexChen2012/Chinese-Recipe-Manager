@@ -6,7 +6,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <include android:id="@+id/medicine_search_layout"
+    <include android:id="@+id/overall_search_layout"
         layout="@layout/search_layout"
         android:hint="@string/search_patient_hint"/>
 

@@ -14,10 +14,12 @@ public final class RecipeContent {
 
         public static final String TABLE_NAME = "Patient";
         public static final Uri CONTENT_URI = Uri.parse(RecipeContent.CONTENT_URI + "/patient");
-        public static final String DEFAULT_ORDER = PatientColumns.TIMESTAMP + " asc";
+        public static final String DEFAULT_ORDER = PatientColumns.TIMESTAMP + " desc";
 
         // patient name.
         public static final String NAME = "patient_name";
+        // patient name abbr.
+        public static final String NAME_ABBR = "patient_name_abbr";
         // patient gender
         public static final String GENDER     = "patient_gender";
         public static final int GENDER_MALE   = 0;
@@ -49,6 +51,8 @@ public final class RecipeContent {
         public static final String DESCRIPTION = "description";
         // category of the illness; 
         public static final String SYMPTOM = "symptom";
+        // abbr of symptom
+        public static final String SYMPTOM_ABBR = "symptom_abbr";
         // record the time.
         public static final String TIMESTAMP = "case_history_time";
         // first time record.
@@ -76,7 +80,7 @@ public final class RecipeContent {
         //name of medicine
         public static final String MEDICINE_NAME = "medicine_name";
         //PinYin abbreviation.
-        public static final String PINYIN_ABBR = "pinyin_abbreviation";
+        public static final String MEDICINE_NAME_ABBR = "pinyin_abbreviation";
     }
 
     public interface RecipeColumn extends BaseColumns {
@@ -89,6 +93,8 @@ public final class RecipeContent {
         public static final String CASE_HISTORY_KEY = "recipe_case_history_key";
         // recipe name
         public static final String NAME = "recipe_name";
+        // recipe name abbr
+        public static final String NAME_ABBR = "recipe_name_abbr";
         // recipe time
         public static final String TIMESTAMP = "recipe_time";
         // recipe count

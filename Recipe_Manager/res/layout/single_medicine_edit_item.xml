@@ -2,48 +2,63 @@
 <com.alex.recipemanager.RemoveableLayoutView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/meidicine_info_edit_item"
     android:layout_width="fill_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView style="@style/SmallText"
-        android:id="@+id/medicine_name_view"
-        android:layout_width="0dip"
-        android:layout_height="fill_parent"
-        android:layout_weight="0.6"
-        android:paddingRight="6dip"
-        android:layout_marginLeft="5dip"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:layout_gravity="center_vertical"/>
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:drawable/divider_horizontal_textfield"/>
 
-    <EditText style="@style/SmallText"
-        android:id="@+id/medicine_weight_edit"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.4"
-        android:layout_marginLeft="5dip"
-        android:layout_gravity="center_vertical"
-        android:singleLine="true"
-        android:numeric="integer"/>
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:orientation="horizontal"
+        android:onClick="onRemoveableItemClicked">
 
-    <TextView style="@style/SmallText"
-        android:id="@+id/medicine_weight_unit_view"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:paddingRight="6dip"
-        android:layout_marginLeft="5dip"
-        android:singleLine="true"
-        android:text="@string/recipe_medicine_unit"
-        android:gravity="center_vertical"
-        android:layout_gravity="center_vertical"/>
+        <TextView style="@style/SmallText"
+            android:id="@+id/medicine_name_view"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.6"
+            android:paddingRight="6dip"
+            android:layout_marginLeft="5dip"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+    
+        <EditText style="@style/SmallText"
+            android:id="@+id/medicine_weight_edit"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:layout_marginLeft="5dip"
+            android:layout_gravity="center_vertical"
+            android:singleLine="true"
+            android:numeric="integer"/>
+    
+        <TextView style="@style/SmallText"
+            android:id="@+id/medicine_weight_unit_view"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:paddingRight="6dip"
+            android:layout_marginLeft="5dip"
+            android:singleLine="true"
+            android:text="@string/recipe_medicine_unit"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+    
+        <ImageView android:id="@+id/remove_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dip"
+            android:src="@drawable/ic_delete"
+            android:onClick="onDeleteButtonClick"/>
 
-    <ImageView android:id="@+id/remove_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center_vertical"
-        android:layout_marginRight="5dip"
-        android:src="@drawable/ic_delete"
-        android:onClick="onRemoveButtonClick"/>
+    </LinearLayout>
+
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:drawable/divider_horizontal_textfield"/>
 
 </com.alex.recipemanager.RemoveableLayoutView>
