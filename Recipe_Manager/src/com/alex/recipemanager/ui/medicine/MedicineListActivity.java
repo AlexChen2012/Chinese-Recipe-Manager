@@ -267,7 +267,7 @@ public class MedicineListActivity extends BaseListActivity{
                     mItemCache.mName = (String) name.getText().toString();
                     mItemCache.mAbbr = MedicineUtil.getPinyinAbbr(mItemCache.mName);
 
-                    String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
+                    String selection = MedicineNameColumn.MEDICINE_NAME + " =?";
                     String[] selectionArgs = new String[] { mItemCache.mName };
                     mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
                             mItemCache, MedicineNameColumn.CONTENT_URI,

@@ -128,6 +128,7 @@ public class CaseHistoryInfoEditActivity extends BaseActivity{
         }
         Uri uri = Uri.withAppendedPath(CaseHistoryColumn.CONTENT_URI, String.valueOf(mCaseHistoryId));
         getContentResolver().update(uri, values, null, null);
+        deleteRemovedRecipe(0);
     }
 
     private void bindView() {

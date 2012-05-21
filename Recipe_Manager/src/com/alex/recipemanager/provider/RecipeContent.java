@@ -105,10 +105,6 @@ public final class RecipeContent {
         public static final String TABLE_NAME = "Recipe_Medicine";
         public static final Uri CONTENT_URI = Uri.parse(RecipeContent.CONTENT_URI + "/recipe_medicine");
 
-        // foreign key to corresponding RecipeMedicine with patient.
-        public static final String PATIENT_KEY = "recipe_medicine_patient_key";
-        // foreign key to corresponding RecipeMedicine with case_history.
-        public static final String CASE_HISTORY_KEY = "recipe_medicine_case_history_key";
         // foreign key to corresponding RecipeMedicine with Recipe.
         public static final String RECIPE_KEY = "recipe_medicine_recipe_key";
         // foreign key to corresponding Case RecipeMedicine with medicine

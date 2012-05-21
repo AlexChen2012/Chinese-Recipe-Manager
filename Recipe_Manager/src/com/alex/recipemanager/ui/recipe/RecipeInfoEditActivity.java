@@ -330,8 +330,6 @@ public class RecipeInfoEditActivity extends BaseActivity{
         int i = 0;
         for (MedicineInfo info : mMedicineInfo) {
             ContentValues values = new ContentValues();
-            values.put(RecipeMedicineColumn.PATIENT_KEY, mPatientId);
-            values.put(RecipeMedicineColumn.CASE_HISTORY_KEY, mCaseHistoryId);
             values.put(RecipeMedicineColumn.RECIPE_KEY, mRecipeId);
             values.put(RecipeMedicineColumn.WEIGHT, info.mWeight);
             values.put(RecipeMedicineColumn.MEDICINE_KEY, info.mMedicineId);

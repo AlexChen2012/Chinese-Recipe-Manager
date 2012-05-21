@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 21;
+    public static final int DATABASE_VERSION = 26;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -229,13 +229,9 @@ public class RecipeProvider extends ContentProvider {
     static void createRecipeMedicineTable(SQLiteDatabase db) {
         String s = " (" + RecipeMedicineColumn._ID
                 + " integer primary key autoincrement, "
-                + RecipeMedicineColumn.PATIENT_KEY + " integer "
-                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.MEDICINE_KEY + " integer "
                 + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.RECIPE_KEY + " integer "
-                + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
-                + RecipeMedicineColumn.CASE_HISTORY_KEY + " integer "
                 + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.WEIGHT + " integer" + ");";
         db.execSQL("create table " + RecipeMedicineColumn.TABLE_NAME + s);
@@ -243,10 +239,6 @@ public class RecipeProvider extends ContentProvider {
                 RecipeMedicineColumn.MEDICINE_KEY));
         db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
                 RecipeMedicineColumn.RECIPE_KEY));
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
-                RecipeMedicineColumn.PATIENT_KEY));
-        db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
-                RecipeMedicineColumn.CASE_HISTORY_KEY));
     }
 
     static void createNationTable(SQLiteDatabase db) {
@@ -413,7 +405,7 @@ public class RecipeProvider extends ContentProvider {
             createTriggers(db);
         }
 
-        public void createTriggers(SQLiteDatabase db) {
+        void createTriggers(SQLiteDatabase db) {
             db.execSQL("DROP TRIGGER IF EXISTS "
                     + MedicineNameColumn.TABLE_NAME + "_deleted;");
             db.execSQL("CREATE TRIGGER "
@@ -428,6 +420,45 @@ public class RecipeProvider extends ContentProvider {
                                     + " WHERE " + MedicineNameColumn.MEDICINE_KEY
                                     + " =OLD." + MedicineNameColumn.MEDICINE_KEY
                                     + ")=1;"
+                    + " END");
+
+            //patient delete trigger
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + PatientColumns.TABLE_NAME + "_deleted;");
+            db.execSQL("CREATE TRIGGER "
+                    + PatientColumns.TABLE_NAME + "_deleted "
+                    + "   BEFORE DELETE ON " + PatientColumns.TABLE_NAME
+                    + " BEGIN "
+                    + "   DELETE FROM " + CaseHistoryColumn.TABLE_NAME
+                    + "     WHERE " + CaseHistoryColumn.PATIENT_KEY
+                                    + "=OLD." + PatientColumns._ID
+                                    + ";"
+                    + " END");
+
+            //case_history delete trigger
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + CaseHistoryColumn.TABLE_NAME + "_deleted;");
+            db.execSQL("CREATE TRIGGER "
+                    + CaseHistoryColumn.TABLE_NAME + "_deleted "
+                    + "   BEFORE DELETE ON " + CaseHistoryColumn.TABLE_NAME
+                    + " BEGIN "
+                    + "   DELETE FROM " + RecipeColumn.TABLE_NAME
+                    + "     WHERE " + RecipeColumn.CASE_HISTORY_KEY
+                                    + "=OLD." + CaseHistoryColumn._ID
+                                    + ";"
+                    + " END");
+
+            //recipe delete trigger
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + RecipeColumn.TABLE_NAME + "_deleted;");
+            db.execSQL("CREATE TRIGGER "
+                    + RecipeColumn.TABLE_NAME + "_deleted "
+                    + "   BEFORE DELETE ON " + RecipeColumn.TABLE_NAME
+                    + " BEGIN "
+                    + "   DELETE FROM " + RecipeMedicineColumn.TABLE_NAME
+                    + "     WHERE " + RecipeMedicineColumn.RECIPE_KEY
+                                    + "=OLD." + RecipeColumn._ID
+                                    + ";"
                     + " END");
         }
 
@@ -619,36 +650,18 @@ public class RecipeProvider extends ContentProvider {
             id = uri.getPathSegments().get(1);
             result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                     selectionArgs);
-            // delete case_historys which belong to patient.
-            result = db.delete(CaseHistoryColumn.TABLE_NAME,
-                    CaseHistoryColumn.PATIENT_KEY + " = " + id, null);
-            // delete recipes which belong to patient.
-            result = db.delete(RecipeColumn.TABLE_NAME,
-                    RecipeColumn.PATIENT_KEY + " = " + id, null);
-            // delete recipe_medicines which belong to patient.
-            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                    RecipeMedicineColumn.PATIENT_KEY + " = " + id, null);
             break;
         // the same strategy as Patient_id.
         case CASE_HISTORY_ID:
             id = uri.getPathSegments().get(1);
             result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                     selectionArgs);
-            // delete recipes which belong to case_history.
-            result = db.delete(RecipeColumn.TABLE_NAME,
-                    RecipeColumn.CASE_HISTORY_KEY + " = " + id, null);
-            // delete recipe_medicines which belong to case_history.
-            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                    RecipeMedicineColumn.CASE_HISTORY_KEY + " = " + id, null);
             break;
         // the same strategy as Patient_id.
         case RECIPE_ID:
             id = uri.getPathSegments().get(1);
             result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                     selectionArgs);
-            // delete recipe_medicines which belong to recipe.
-            result = db.delete(RecipeMedicineColumn.TABLE_NAME,
-                    RecipeMedicineColumn.RECIPE_KEY + " = " + id, null);
             break;
         default:
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -740,12 +753,8 @@ public class RecipeProvider extends ContentProvider {
                 MedicineNameColumn.MEDICINE_NAME);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID,
                 RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID);
-        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.CASE_HISTORY_KEY,
-                RecipeMedicineColumn.CASE_HISTORY_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.MEDICINE_KEY,
                 RecipeMedicineColumn.MEDICINE_KEY);
-        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.PATIENT_KEY,
-                RecipeMedicineColumn.PATIENT_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.RECIPE_KEY,
                 RecipeMedicineColumn.RECIPE_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.WEIGHT,
