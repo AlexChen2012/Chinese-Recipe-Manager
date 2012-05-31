@@ -136,6 +136,7 @@ public class PatientListActivity extends BaseListActivity{
 
     private void initSearchView() {
         EditText editText = (EditText) findViewById(R.id.search_edit_view);
+        editText.setHint(R.string.search_patient_hint);
         editText.addTextChangedListener(new TextWatcher() {
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -180,13 +181,13 @@ public class PatientListActivity extends BaseListActivity{
     private void showPatientList(String selection) {
         showDialog(DIALOG_WAITING);
         mAsyncQuery.startQuery(
-                0,
-                null,
-                PatientColumns.CONTENT_URI,
-                PATIENT_PROJECTION,
-                selection,
-                null,
-                PatientColumns.DEFAULT_ORDER);
+            0,
+            null,
+            PatientColumns.CONTENT_URI,
+            PATIENT_PROJECTION,
+            selection,
+            null,
+            PatientColumns.DEFAULT_ORDER);
     }
 
     private void initialize() {
