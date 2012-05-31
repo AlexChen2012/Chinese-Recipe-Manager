@@ -131,7 +131,7 @@ public class PatientInfoEditActivity extends BaseActivity{
             try {
                 while(c.moveToNext()) {
                     addCaseHistoryView(c.getLong(COLUMN_CASE_HISTORY_ID),
-                            c.getString(COLUMN_CASE_HISTORY_DESCRIPTION));
+                            c.getString(COLUMN_CASE_HISTORY_SYMPTOM));
                 }
             } finally {
                 c.close();
@@ -245,9 +245,7 @@ public class PatientInfoEditActivity extends BaseActivity{
         }
         String nation = mNationButton.getText().toString();
         values.put(PatientColumns.NATION, nation);
-        if(hasHistory()){
-            values.put(PatientColumns.HISTORY, mHistory);
-        }
+        values.put(PatientColumns.HISTORY, mHistory);
         Uri uri = Uri.withAppendedPath(PatientColumns.CONTENT_URI, String.valueOf(mPatientId));
         getContentResolver().update(uri, values, null, null);
     }
@@ -281,8 +279,9 @@ public class PatientInfoEditActivity extends BaseActivity{
                 mNationButton.setText(nation);
                 break;
             case REQUEST_CODE_EDIT_HISTORY:
-                mHistory = data.getStringExtra(
+                String history = data.getStringExtra(
                         PatientHistoryActivity.EXTRA_STRING_VALUE_EDIT_HISTORY);
+                mHistory = history;
                 addHistoryView();
                 break;
             case REQUEST_CODE_EDIT_CASE_HISTORY:
@@ -290,7 +289,7 @@ public class PatientInfoEditActivity extends BaseActivity{
                 String selection = CaseHistoryColumn.PATIENT_KEY + "=?";
                 String selectionArgs[] = {String.valueOf(mPatientId)};
                 Cursor c = getContentResolver().query(CaseHistoryColumn.CONTENT_URI,
-                        new String[] {CaseHistoryColumn._ID, CaseHistoryColumn.DESCRIPTION},
+                        new String[] {CaseHistoryColumn._ID, CaseHistoryColumn.SYMPTOM},
                         selection,
                         selectionArgs,
                         null);
