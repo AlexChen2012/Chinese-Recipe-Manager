@@ -216,7 +216,7 @@ public class MedicineListActivity extends BaseListActivity{
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_ADD_MEDICINE:
-            return createAddOrEditMedicineDialog();
+            return MedicineUtil.addDimissControl(createAddOrEditMedicineDialog());
         default:
             return super.onCreateDialog(id);
         }
@@ -261,7 +261,8 @@ public class MedicineListActivity extends BaseListActivity{
         builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 if(illegalInput(name.getText(), amount.getText())){
-                    showDialog(DIALOG_INPUT_EMPTY);
+                    Toast.makeText(MedicineListActivity.this, getString(R.string.dialog_empty_message),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     mItemCache.mAmount = amount.getText().toString();
                     mItemCache.mName = (String) name.getText().toString();
@@ -276,7 +277,13 @@ public class MedicineListActivity extends BaseListActivity{
                 }
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.no, new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                removeDialog(DIALOG_ADD_MEDICINE);
+            }
+        });
         return builder.create();
     }
 
@@ -298,7 +305,8 @@ public class MedicineListActivity extends BaseListActivity{
                     try{
                         if(isIlleagalInput(cursor, cache)){
                             removeDialog(DIALOG_WAITING);
-                            showDialog(DIALOG_NAME_EXSIT);
+                            Toast.makeText(MedicineListActivity.this, getString(R.string.dialog_exsit_message),
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             mOldName = "";
                             ContentValues values = new ContentValues(1);
@@ -310,6 +318,7 @@ public class MedicineListActivity extends BaseListActivity{
                                 values.put(MedicineColumn.AMOUNT, cache.mAmount);
                                 startInsert(TOKEN_INSERT_MEDICINE_AMOUNT, cookie, MedicineColumn.CONTENT_URI, values);
                             }
+                            removeDialog(DIALOG_ADD_MEDICINE);
                         }
                     } finally {
                         cursor.close();
@@ -402,4 +411,5 @@ public class MedicineListActivity extends BaseListActivity{
             mIsUpdated = false;
         }
     }
+
 }

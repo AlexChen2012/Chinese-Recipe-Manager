@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.alex.recipemanager.R;
 import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.ui.base.BaseListActivity;
+import com.alex.recipemanager.util.MedicineUtil;
 
 public class AliasListActivity extends BaseListActivity{
     public final static String EXTRA_STRING_VALUE_MEDICINE_NAME_ID = "extra_string_value_medicine_name_id";
@@ -129,7 +130,7 @@ public class AliasListActivity extends BaseListActivity{
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_ADD_ALIAS:
-            return createAliasDialog();
+            return MedicineUtil.addDimissControl(createAliasDialog());
         default:
             return super.onCreateDialog(id);
         }
@@ -153,13 +154,19 @@ public class AliasListActivity extends BaseListActivity{
                     cookie.mName = name.getText().toString();
                     String selection = MedicineNameColumn.MEDICINE_NAME + " = ?";
                     String []selectionArgs = new String[]{cookie.mName};
-                        mAsyncQuery.startQuery(TOKEN_QUERY_MEDICINE_NAME, cookie,
+                    mAsyncQuery.startQuery(TOKEN_QUERY_MEDICINE_NAME, cookie,
                                 MedicineNameColumn.CONTENT_URI, null, selection, selectionArgs, null);
-                        showDialog(DIALOG_WAITING);
+                    removeDialog(DIALOG_ADD_ALIAS);
+                    showDialog(DIALOG_WAITING);
                 }
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                removeDialog(DIALOG_ADD_ALIAS);
+            }
+        });
         return builder.create();
     }
 

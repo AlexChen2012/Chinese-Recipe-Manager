@@ -1,10 +1,15 @@
 package com.alex.recipemanager.util;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 
 import com.alex.recipemanager.util.HanziToPinyin.Token;
@@ -50,5 +55,41 @@ public class MedicineUtil {
             abbrSb.append(token.target.charAt(0));
         }
         return abbrSb.toString();
+    }
+
+    public static Dialog addDimissControl(Dialog dialog) {
+        try 
+        {
+            Field field = dialog.getClass().getDeclaredField("mAlert");
+            field.setAccessible(true);
+            Object obj = field.get(dialog);
+            field = obj.getClass().getDeclaredField("mHandler");
+            field.setAccessible(true);
+            field.set(obj, new ButtonHandler(dialog));
+        }
+        catch (Exception e) {}
+        return dialog;
+    }
+
+
+    private static class ButtonHandler extends Handler {
+
+        private WeakReference<DialogInterface> mDialog;
+
+        public ButtonHandler(DialogInterface dialog) {
+            mDialog = new WeakReference<DialogInterface>(dialog);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+
+                case DialogInterface.BUTTON_POSITIVE:
+                case DialogInterface.BUTTON_NEGATIVE:
+                case DialogInterface.BUTTON_NEUTRAL:
+                    ((DialogInterface.OnClickListener) msg.obj).onClick(mDialog.get(), msg.what);
+                    break;
+            }
+        }
     }
 }
