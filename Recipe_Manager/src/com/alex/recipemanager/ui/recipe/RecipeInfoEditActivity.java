@@ -35,6 +35,8 @@ public class RecipeInfoEditActivity extends BaseActivity{
 
     private static final String TAG = "RecipeInfoEditActivity";
 
+    private static final int FIRST_POSITION = 1;
+
     private static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[]{
         MedicineNameColumn.MEDICINE_NAME,
         RecipeMedicineColumn.MEDICINE_KEY,
@@ -147,8 +149,10 @@ public class RecipeInfoEditActivity extends BaseActivity{
                     info.mMedicineId = c.getLong(RECIPE_MEDICINE_KEY);
                     info.mWeight = c.getInt(RECIPE_MEDICINE_WEIGHT_COLUMN);
                     info.mName = c.getString(RECIPE_MEDICINE_NAME_COLUMN);
-                    addMedicineEditView(info);
-                    mMedicineInfo.add(info);
+                    if (!matchMedicineId(info.mMedicineId)) {
+                        addMedicineEditView(info);
+                        mMedicineInfo.add(info);
+                    }
                 }
             } finally {
                 c.close();
@@ -206,7 +210,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
                 Log.v(TAG, "weight changed to: " + info.mWeight + "the info.mMedicineId = " + info.mMedicineId);
             }
         });
-        mRecipeLayout.addView(view, mRecipeLayout.getChildCount());
+        mRecipeLayout.addView(view, FIRST_POSITION);
     }
 
     public void onDeleteButtonClick(View v){

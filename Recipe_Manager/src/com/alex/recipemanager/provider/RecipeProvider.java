@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 26;
+    public static final int DATABASE_VERSION = 29;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -46,9 +46,9 @@ public class RecipeProvider extends ContentProvider {
 
     private static final String REFERENCE_RECIPE_ID_AS_FOREIGN_KEY =
             "references "
-            + RecipeMedicineColumn.TABLE_NAME
+            + RecipeColumn.TABLE_NAME
             + " ( "
-            + RecipeMedicineColumn._ID + " )";
+            + RecipeColumn._ID + " )";
 
     private static HashMap<String, String> sMedicineJoinAliasProjectionMap;
     private static HashMap<String, String> sRecipeMedicineJoinMedicineNameMap;
@@ -402,7 +402,7 @@ public class RecipeProvider extends ContentProvider {
             createRecipeTable(db);
             // Nation Table should not be modified.Only used to query.
             createNationTable(db);
-            createTriggers(db);
+//            createTriggers(db);
         }
 
         void createTriggers(SQLiteDatabase db) {
@@ -473,7 +473,7 @@ public class RecipeProvider extends ContentProvider {
             db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
             onCreate(db);
-            createTriggers(db);
+//            createTriggers(db);
         }
     }
 
