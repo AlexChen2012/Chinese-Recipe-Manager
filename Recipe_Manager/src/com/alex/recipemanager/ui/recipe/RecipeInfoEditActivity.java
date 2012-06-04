@@ -191,6 +191,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
         view.setRecordId(info.mMedicineId);
         EditText medicineWeight = (EditText) view.findViewById(R.id.recipe_medicine_weight_edit);
         medicineWeight.setText(info.mWeight > 0 ? String.valueOf(info.mWeight) : "");
+        medicineWeight.requestFocus();
         medicineWeight.addTextChangedListener(new TextWatcher() {
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
