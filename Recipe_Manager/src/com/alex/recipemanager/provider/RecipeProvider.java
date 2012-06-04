@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 29;
+    public static final int DATABASE_VERSION = 30;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -402,7 +402,7 @@ public class RecipeProvider extends ContentProvider {
             createRecipeTable(db);
             // Nation Table should not be modified.Only used to query.
             createNationTable(db);
-//            createTriggers(db);
+            createTriggers(db);
         }
 
         void createTriggers(SQLiteDatabase db) {
