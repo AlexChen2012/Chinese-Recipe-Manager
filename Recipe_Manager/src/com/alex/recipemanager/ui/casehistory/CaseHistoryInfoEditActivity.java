@@ -26,7 +26,7 @@ import com.alex.recipemanager.ui.base.RemoveableLayoutView;
 import com.alex.recipemanager.ui.recipe.RecipeInfoEditActivity;
 import com.alex.recipemanager.util.MedicineUtil;
 
-public class CaseHistoryInfoEditActivity extends BaseActivity{
+public class CaseHistoryInfoEditActivity extends BaseActivity {
 
     private static final String TAG = "CaseHistoryInfoEditActivity";
 

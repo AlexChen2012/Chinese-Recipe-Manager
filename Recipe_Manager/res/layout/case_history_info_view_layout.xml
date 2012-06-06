@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView style="@style/MiddleText"
+                android:id="@+id/case_history_symptom_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dip"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical"/>
+
+        <View android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/case_history_description_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"/>
+
+        <View android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/recipes_list"
+            android:onClick="onCheckRecipesListClicked"
+            android:focusable="true"
+            android:clickable="true"
+            android:gravity="center"/>
+
+        <View android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+    </LinearLayout>
+</ScrollView>

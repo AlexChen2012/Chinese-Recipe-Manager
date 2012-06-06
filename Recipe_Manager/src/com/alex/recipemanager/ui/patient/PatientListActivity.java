@@ -33,7 +33,7 @@ import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
 import com.alex.recipemanager.ui.base.BaseListActivity;
 
-public class PatientListActivity extends BaseListActivity{
+public class PatientListActivity extends BaseListActivity {
 
     public static final String[] PATIENT_PROJECTION = new String[]{
         PatientColumns._ID,
@@ -78,7 +78,17 @@ public class PatientListActivity extends BaseListActivity{
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        //TODO
+        switch (mAdapter.getType(position)) {
+            case SEARCH_TYPE_CASE_HISTORY:
+                break;
+            case SEARCH_TYPE_PATIENT:
+                Intent intent = new Intent(this, PatientInfoViewActivity.class);
+                intent.putExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, id);
+                startActivity(intent);
+                break;
+            case SEARCH_TYPE_RECIPE:
+                break;
+        }
     }
 
     @Override

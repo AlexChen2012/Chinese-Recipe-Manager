@@ -9,8 +9,10 @@ import android.content.DialogInterface.OnClickListener;
 
 import com.alex.recipemanager.R;
 import com.alex.recipemanager.provider.RecipeContent.CaseHistoryColumn;
+import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeContent.PatientColumns;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
+import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.util.MedicineUtil;
 
 public class BaseActivity extends Activity{
@@ -60,12 +62,28 @@ public class BaseActivity extends Activity{
     public static final String[] RECIPE_TABLE_PROJECTION = new String[]{
         RecipeColumn._ID,
         RecipeColumn.NAME,
-        RecipeColumn.NUMBER
+        RecipeColumn.NUMBER,
+        RecipeColumn.TIMESTAMP
     };
 
     public static final int COLUMN_RECIPE_ID    = 0;
     public static final int COLUMN_RECIPE_NAME  = 1;
     public static final int COLUMN_RECIPE_COUNT = 2;
+    public static final int COLUMN_RECIPE_TIMESTAMP = 3;
+
+    public static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[] {
+        MedicineNameColumn._ID,
+        MedicineNameColumn.MEDICINE_NAME,
+        RecipeMedicineColumn.MEDICINE_KEY,
+        RecipeMedicineColumn.RECIPE_KEY,
+        RecipeMedicineColumn.WEIGHT
+    };
+
+    public static final int COLUMN_RECIPE_MEDICINE_ID         = 0;
+    public static final int COLUMN_RECIPE_MEDICINE_NAME       = 1;
+    public static final int COLUMN_RECIPE_MEDICINE_KEY        = 2;
+    public static final int COLUMN_RECIPE_MEDICINE_RECIPE_KEY = 3;
+    public static final int COLUMN_RECIPE_MEDICINE_WEIGHT     = 4;
 
     //use negative number to define dialog, since subclass may define it's own dialog.
     protected static final int DIALOG_WAITING      = -1;

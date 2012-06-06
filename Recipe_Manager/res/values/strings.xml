@@ -55,6 +55,7 @@
     <string name="case_history_symptom">病症</string>
     <string name="case_history_description_hint">描述</string>
     <string name="case_history_recipe">添加处方</string>
+    <string name="case_history_view">查看病历</string>
     <!-- recipe activity define -->
     <string name="recipe_name_hint">处方名称</string>
     <string name="recipe_count">数量</string>
@@ -62,4 +63,5 @@
     <string name="recipe_medicine_unit">克</string>
     <string name="recipe_count_with_unit">%1$d /副</string>
     <string name="recipe_recipping_medicine">开药</string>
+    <string name="recipes_list">浏览处方</string>
 </resources>

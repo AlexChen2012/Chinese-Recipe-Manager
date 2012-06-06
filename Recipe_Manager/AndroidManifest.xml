@@ -70,10 +70,45 @@
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTop">
         </activity>
-    </application>
 
-    <supports-screens android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:anyDensity="true" />
+        <activity android:name=".ui.patient.PatientInfoViewActivity"
+            android:theme="@style/compose_titlebar"
+            android:label="@string/medicine_manage"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop">
+        </activity>
+
+        <activity android:name=".ui.casehistory.CaseHistoryListActivity"
+            android:theme="@style/compose_titlebar"
+            android:label="@string/medicine_manage"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop">
+        </activity>
+
+        <activity android:name=".ui.casehistory.CaseHistoryInfoViewActivity"
+            android:theme="@style/compose_titlebar"
+            android:label="@string/medicine_manage"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop">
+        </activity>
+
+        <activity android:name=".ui.recipe.RecipesListActivity"
+            android:theme="@style/compose_titlebar"
+            android:label="@string/medicine_manage"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop">
+        </activity>
+
+        <activity android:name=".ui.recipe.RecipeInfoViewActivity"
+            android:theme="@style/compose_titlebar"
+            android:label="@string/medicine_manage"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop">
+        </activity>
+
+        <supports-screens android:largeScreens="true"
+            android:normalScreens="true"
+            android:smallScreens="true"
+            android:anyDensity="true" />
+    </application>
 </manifest>

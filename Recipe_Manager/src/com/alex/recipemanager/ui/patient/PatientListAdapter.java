@@ -59,4 +59,8 @@ public class PatientListAdapter extends BaseAdapter {
         mItems = items;
         notifyDataSetChanged();
     }
+
+    public int getType(int position) {
+        return mItems.get(position).type;
+    }
 }

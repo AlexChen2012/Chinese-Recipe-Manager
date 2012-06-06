@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+        <RelativeLayout android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dip">
+
+            <TextView style="@style/MiddleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/recipe_count_view"
+                android:paddingRight="5dip"
+                android:text="@string/recipe_count"
+                android:gravity="center_vertical"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView style="@style/MiddleText"
+                android:id="@+id/recipe_count_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/recipe_count_unit_view"/>
+
+            <TextView style="@style/MiddleText"
+                android:id="@+id/recipe_count_unit_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/recipe_count_view"
+                android:paddingRight="5dip"
+                android:text="@string/recipe_unit"
+                android:gravity="center_vertical"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+
+        <View android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <include layout="@layout/list_view_layout"/>
+
+</LinearLayout>

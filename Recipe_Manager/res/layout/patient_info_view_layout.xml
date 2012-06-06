@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView android:id="@+id/patient_name_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"/>
+
+        <LinearLayout android:id="@+id/patient_gender_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_gender"
+                android:layout_weight="0.2"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_gender_view"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/patient_age_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_age"
+                android:layout_weight="0.2"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_age_view"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/patient_nation_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_nation"
+                android:layout_weight="0.2"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_nation_view"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/patient_telephone_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_telephone"
+                android:layout_weight="0.2"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_telephone_view"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/patient_address_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_telephone"
+                android:layout_weight="0.2"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_address_view"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
+
+        <View android:layout_width="fill_parent"
+             android:layout_height="1dip"
+             android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <LinearLayout android:id="@+id/patient_history_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:orientation="vertical">
+
+            <TextView android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_history"/>
+
+            <View android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+
+            <TextView android:id="@+id/patient_history_view"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <View android:layout_width="fill_parent"
+             android:layout_height="1dip"
+             android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <LinearLayout android:id="@+id/patient_case_history_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:onClick="onCaseHistroyButtonClick"
+            android:orientation="horizontal">
+
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:text="@string/patient_case_history"/>
+
+            <View android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="3dip"
+                android:layout_marginRight="3dip"
+                android:background="@android:drawable/divider_horizontal_textfield"/>
+        </LinearLayout>
+
+        <View android:layout_width="fill_parent"
+             android:layout_height="1dip"
+             android:background="@android:drawable/divider_horizontal_textfield"/>
+
+    </LinearLayout>
+</ScrollView>

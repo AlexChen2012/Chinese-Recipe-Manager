@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alex.recipemanager.R;
-import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
@@ -36,17 +35,6 @@ public class RecipeInfoEditActivity extends BaseActivity{
     private static final String TAG = "RecipeInfoEditActivity";
 
     private static final int FIRST_POSITION = 1;
-
-    private static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[]{
-        MedicineNameColumn.MEDICINE_NAME,
-        RecipeMedicineColumn.MEDICINE_KEY,
-        RecipeMedicineColumn.RECIPE_KEY,
-        RecipeMedicineColumn.WEIGHT
-    };
-    private static final int RECIPE_MEDICINE_NAME_COLUMN             = 0;
-    private static final int RECIPE_MEDICINE_KEY                     = 1;
-    private static final int RECIPE_MEDICINE_RECIPE_KEY_COLUMN       = 2;
-    private static final int RECIPE_MEDICINE_WEIGHT_COLUMN           = 3;
 
     private static final int DIALOG_ILLEGAL_INPUT = 0;
     private static final int DIALOG_EMPTY_WEIGHT  = 1;
@@ -146,9 +134,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
             try {
                 while (c.moveToNext()) {
                     MedicineInfo info = new MedicineInfo();
-                    info.mMedicineId = c.getLong(RECIPE_MEDICINE_KEY);
-                    info.mWeight = c.getInt(RECIPE_MEDICINE_WEIGHT_COLUMN);
-                    info.mName = c.getString(RECIPE_MEDICINE_NAME_COLUMN);
+                    info.mMedicineId = c.getLong(COLUMN_RECIPE_MEDICINE_KEY);
+                    info.mWeight = c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT);
+                    info.mName = c.getString(COLUMN_RECIPE_MEDICINE_NAME);
                     if (!matchMedicineId(info.mMedicineId)) {
                         addMedicineEditView(info);
                         mMedicineInfo.add(info);
