@@ -30,8 +30,7 @@
 
         <View android:layout_width="1dip"
             android:layout_height="fill_parent"
-            android:layout_marginLeft="3dip"
-            android:layout_marginRight="3dip"
+            android:layout_marginRight="17dip"
             android:background="@android:drawable/divider_horizontal_textfield"/>
 
         <TextView style="@style/MiddleText"
@@ -50,7 +49,59 @@
             android:gravity="center"
             android:singleLine="true"
             android:layout_gravity="center_vertical"/>
-    
+
+    </LinearLayout>
+
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:drawable/divider_horizontal_textfield"/>
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.2">
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_medicine_gross_weight"
+            android:layout_marginLeft="5dip"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_gross_weight"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dip"
+            android:gravity="center"
+            android:singleLine="true"
+            android:layout_gravity="center_vertical"/>
+
+        <View android:layout_width="1dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="3dip"
+            android:layout_marginRight="3dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_medicine_threshold"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_threshold"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dip"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:singleLine="true"
+            android:layout_gravity="center_vertical"/>
+
     </LinearLayout>
 
     <View android:layout_width="fill_parent"

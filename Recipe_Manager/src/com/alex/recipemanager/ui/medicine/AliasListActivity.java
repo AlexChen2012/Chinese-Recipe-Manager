@@ -77,8 +77,12 @@ public class AliasListActivity extends BaseListActivity{
                 mMedicineKey = c.getLong(MedicineListActivity.MEDICINE_KEY_COLUMN);
                 TextView name = (TextView) findViewById(R.id.medicine_name);
                 TextView amount = (TextView) findViewById(R.id.medicine_amount);
+                TextView grossWeight = (TextView) findViewById(R.id.medicine_gross_weight);
+                TextView threshold = (TextView) findViewById(R.id.medicine_threshold);
                 name.setText(c.getString(MedicineListActivity.MEDICINE_NAME_COLUMN));
                 amount.setText(String.valueOf(c.getInt(MedicineListActivity.MEDICINE_AMOUNT_COLUMN)));
+                grossWeight.setText(String.valueOf(c.getInt(MedicineListActivity.MEDICINE_GROSS_WEIGHT_COLUMN)));
+                threshold.setText(String.valueOf(c.getInt(MedicineListActivity.MEDICINE_THRESHOLD_COLUMN)));
             } finally {
                 c.close();
             }
