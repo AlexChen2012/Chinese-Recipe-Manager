@@ -271,8 +271,12 @@ public class MedicineListActivity extends BaseListActivity{
                     String selection = MedicineNameColumn.MEDICINE_NAME + " =?";
                     String[] selectionArgs = new String[] { mItemCache.mName };
                     mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
-                            mItemCache, MedicineNameColumn.CONTENT_URI,
-                            null, selection, selectionArgs, null);
+                            mItemCache,
+                            MedicineNameColumn.FETCH_MEDICINE_AND_NAME_URI,
+                            MEDINE_NAME_JOIN_AMOUNT_PROJECTION,
+                            selection,
+                            selectionArgs,
+                            null);
                     showDialog(DIALOG_WAITING);
                 }
             }
@@ -303,7 +307,7 @@ public class MedicineListActivity extends BaseListActivity{
                 ItemCache cache = (ItemCache) cookie;
                 if(cursor != null){
                     try{
-                        if(isIlleagalInput(cursor, cache)){
+                        if(isEmptyInput(cursor, cache)){
                             removeDialog(DIALOG_WAITING);
                             Toast.makeText(MedicineListActivity.this, getString(R.string.dialog_exsit_message),
                                     Toast.LENGTH_LONG).show();
@@ -337,7 +341,7 @@ public class MedicineListActivity extends BaseListActivity{
             }
         }
 
-        private boolean isIlleagalInput(Cursor c, ItemCache cache) {
+        private boolean isEmptyInput(Cursor c, ItemCache cache) {
             if (cache.mIsUpdated == true) {
                 return (isNameExist(c) && c.moveToFirst()
                         && !TextUtils.equals(c.getString(MEDICINE_NAME_COLUMN), mOldName));
