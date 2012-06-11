@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CursorAdapter;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import com.alex.recipemanager.R;
@@ -25,7 +25,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
     private long mRecipeId;
     private TextView mRecipeCountView;
     private RecipeMedicineAdapter mAdapter;
-    private ListView mListView;
+    private GridView mGridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -33,7 +33,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.recipe_info_view_layout);
         mRecipeCountView = (TextView) findViewById(R.id.recipe_count_view);
-        mListView = (ListView) findViewById(R.id.list_view);
+        mGridView = (GridView) findViewById(R.id.recipe_info_grid_view);
         mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
 
         if( mRecipeId == DEFAULT_ID_VALUE) {
@@ -65,7 +65,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
                 null);
         startManagingCursor(c);
         mAdapter = new RecipeMedicineAdapter(this, c);
-        mListView.setAdapter(mAdapter);
+        mGridView.setAdapter(mAdapter);
     }
 
     private class RecipeMedicineAdapter extends CursorAdapter {
@@ -79,10 +79,10 @@ public class RecipeInfoViewActivity extends BaseActivity {
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = mInflater.inflate(R.layout.patient_list_item, null);
+            View view = mInflater.inflate(R.layout.recipe_medicine_list_item, null);
             ViewHolder holder = new ViewHolder();
-            holder.medicineNameView = (TextView) view.findViewById(R.id.patient_name);
-            holder.weightView = (TextView) view.findViewById(R.id.first_time);
+            holder.medicineNameView = (TextView) view.findViewById(R.id.medicine_name);
+            holder.weightView = (TextView) view.findViewById(R.id.medicine_weight);
             view.setTag(holder);
             return view;
         }

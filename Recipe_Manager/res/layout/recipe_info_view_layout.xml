@@ -7,6 +7,7 @@
 
         <RelativeLayout android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:paddingTop="5dip">
 
             <TextView style="@style/MiddleText"
@@ -37,8 +38,16 @@
 
         <View android:layout_width="fill_parent"
             android:layout_height="1dip"
+            android:visibility="gone"
             android:background="@android:drawable/divider_horizontal_textfield"/>
 
-        <include layout="@layout/list_view_layout"/>
+        <GridView android:id="@+id/recipe_info_grid_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:horizontalSpacing="3dip"
+            android:verticalSpacing="3dip"
+            android:stretchMode="columnWidth"
+            android:numColumns="3"
+            android:gravity="center"/>
 
 </LinearLayout>

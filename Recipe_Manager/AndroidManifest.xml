@@ -103,7 +103,8 @@
             android:theme="@style/compose_titlebar"
             android:label="@string/medicine_manage"
             android:configChanges="orientation|keyboardHidden"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape">"
         </activity>
 
         <supports-screens android:largeScreens="true"
