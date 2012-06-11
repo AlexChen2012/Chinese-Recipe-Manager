@@ -26,6 +26,8 @@
     <string name="dialog_add_alias_title">添加别名</string>
     <string name="dialog_illegal_input">数量不能为负</string>
     <string name="dialog_empty_weight">药品重量不能为空</string>
+    <string name="dialog_medicine_threshold">警戒值:</string>
+    <string name="dialog_medicine_gross_weight">总数:</string>
     <!-- Toast info -->
     <string name="toast_add_success">添加成功</string>
     <string name="toast_edit_success">修改成功</string>

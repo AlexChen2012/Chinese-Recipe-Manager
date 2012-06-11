@@ -65,6 +65,10 @@ public final class RecipeContent {
 
         //amount of the medicine
         public static final String AMOUNT = "amount";
+        //gross weight of the medicine
+        public static final String GROSS_WEIGHT = "gross_weight";
+        //threshold of the medicine
+        public static final String THRESHOLD = "threshold";
     }
 
     public interface MedicineNameColumn extends BaseColumns {

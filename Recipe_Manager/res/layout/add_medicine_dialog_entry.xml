@@ -58,4 +58,65 @@
 
     </LinearLayout>
 
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip">
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dip"
+            android:text="@string/dialog_medicine_gross_weight"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <EditText android:id="@+id/medicine_gross_weight_edit"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:numeric="integer"/>
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dip"
+            android:text="@string/recipe_medicine_unit"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip">
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dip"
+            android:text="@string/dialog_medicine_threshold"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <EditText android:id="@+id/medicine_threshold_edit"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:numeric="integer"/>
+
+        <TextView style="@style/MiddleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dip"
+            android:text="@string/recipe_medicine_unit"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>

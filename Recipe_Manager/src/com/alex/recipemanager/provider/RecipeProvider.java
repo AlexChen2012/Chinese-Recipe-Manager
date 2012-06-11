@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 30;
+    public static final int DATABASE_VERSION = 31;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -191,6 +191,8 @@ public class RecipeProvider extends ContentProvider {
     static void createMedicineTable(SQLiteDatabase db) {
         String s = " (" + MedicineColumn._ID
                 + " integer primary key autoincrement, "
+                + MedicineColumn.GROSS_WEIGHT + " integer, "
+                + MedicineColumn.THRESHOLD + " integer, "
                 + MedicineColumn.AMOUNT + " integer" + ");";
         db.execSQL("create table " + MedicineColumn.TABLE_NAME + s);
     }
@@ -737,6 +739,10 @@ public class RecipeProvider extends ContentProvider {
                 + MedicineColumn._ID);
         sMedicineJoinAliasProjectionMap.put(MedicineColumn.AMOUNT,
                 MedicineColumn.AMOUNT);
+        sMedicineJoinAliasProjectionMap.put(MedicineColumn.GROSS_WEIGHT,
+                MedicineColumn.GROSS_WEIGHT);
+        sMedicineJoinAliasProjectionMap.put(MedicineColumn.THRESHOLD,
+                MedicineColumn.THRESHOLD);
         sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_NAME,
                 MedicineNameColumn.MEDICINE_NAME);
         sMedicineJoinAliasProjectionMap.put(MedicineNameColumn.MEDICINE_KEY,

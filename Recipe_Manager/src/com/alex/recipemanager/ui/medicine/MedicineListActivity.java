@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alex.recipemanager.R;
@@ -42,12 +41,16 @@ public class MedicineListActivity extends BaseListActivity{
         MedicineNameColumn._ID,
         MedicineColumn.AMOUNT,
         MedicineNameColumn.MEDICINE_NAME,
-        MedicineNameColumn.MEDICINE_KEY
+        MedicineNameColumn.MEDICINE_KEY,
+        MedicineColumn.GROSS_WEIGHT,
+        MedicineColumn.THRESHOLD
     };
-    public static final int MEDICINE_NAME_ID_COLUMN = 0;
-    public static final int MEDICINE_AMOUNT_COLUMN  = 1;
-    public static final int MEDICINE_NAME_COLUMN    = 2;
-    public static final int MEDICINE_KEY_COLUMN     = 3;
+    public static final int MEDICINE_NAME_ID_COLUMN      = 0;
+    public static final int MEDICINE_AMOUNT_COLUMN       = 1;
+    public static final int MEDICINE_NAME_COLUMN         = 2;
+    public static final int MEDICINE_KEY_COLUMN          = 3;
+    public static final int MEDICINE_GROSS_WEIGHT_COLUMN = 4;
+    public static final int MEDICINE_THRESHOLD_COLUMN    = 5;
 
     private static final int MENU_CREATE = 0;
 //    private static final int MENU_SEARCH = 1;
@@ -57,7 +60,7 @@ public class MedicineListActivity extends BaseListActivity{
     private static final int INVALIDE_POSITION = -1;
 
     private static final int TOKEN_QUERY_MEDICINE_NAME     = 0;
-    private static final int TOKEN_INSERT_MEDICINE_AMOUNT  = 1;
+    private static final int TOKEN_INSERT_MEDICINE_TABLE  = 1;
     private static final int TOKEN_INSERT_MEDICINE_NAME    = 2;
     private static final int TOKEN_UPGRADE_MEDICINE_NAME   = 3;
     private static final int TOKEN_UPGRADE_MEDICINE_AMOUNT = 4;
@@ -225,8 +228,10 @@ public class MedicineListActivity extends BaseListActivity{
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         if(id == DIALOG_ADD_MEDICINE){
-            TextView name = (TextView)dialog.findViewById(R.id.medicine_name_edit);
-            TextView amount = (TextView)dialog.findViewById(R.id.medicine_amount_edit);
+            EditText name = (EditText)dialog.findViewById(R.id.medicine_name_edit);
+            EditText amount = (EditText)dialog.findViewById(R.id.medicine_amount_edit);
+            EditText grossWeight = (EditText)dialog.findViewById(R.id.medicine_gross_weight_edit);
+            EditText threshold = (EditText)dialog.findViewById(R.id.medicine_threshold_edit);
 
             mItemCache.clean();
             if (mPosition != INVALIDE_POSITION) {
@@ -234,11 +239,15 @@ public class MedicineListActivity extends BaseListActivity{
                 mItemCache.mIsUpdated = true;
                 mItemCache.mMedicineNameId = String.valueOf(c.getLong(MEDICINE_NAME_ID_COLUMN));
                 mItemCache.mMedicineId = String.valueOf(c.getLong(MEDICINE_KEY_COLUMN));
+                mItemCache.mGrossWeight = String.valueOf(c.getLong(MEDICINE_GROSS_WEIGHT_COLUMN));
+                mItemCache.mThreshold = String.valueOf(c.getLong(MEDICINE_THRESHOLD_COLUMN));
 
                 mOldName = c.getString(MEDICINE_NAME_COLUMN);
                 name.setText(mOldName);
                 amount.setText(String.valueOf(c.getInt(MEDICINE_AMOUNT_COLUMN)));
-                mPosition = INVALIDE_POSITION;
+                grossWeight.setText(String.valueOf(c.getInt(MEDICINE_GROSS_WEIGHT_COLUMN)));
+                threshold.setText(String.valueOf(c.getInt(MEDICINE_THRESHOLD_COLUMN)));
+                cleanPosition();
             } else {
                 mItemCache.mIsUpdated = false;
 
@@ -249,24 +258,32 @@ public class MedicineListActivity extends BaseListActivity{
         super.onPrepareDialog(id, dialog);
     }
 
+    private void cleanPosition() {
+        mPosition = INVALIDE_POSITION;
+    }
+
     private Dialog createAddOrEditMedicineDialog() {
         LayoutInflater factory = LayoutInflater.from(this);
         final View textEntryView = factory.inflate(R.layout.add_medicine_dialog_entry, null);
-        final TextView name = (TextView)textEntryView.findViewById(R.id.medicine_name_edit);
-        final TextView amount = (TextView)textEntryView.findViewById(R.id.medicine_amount_edit);
+        final EditText name = (EditText)textEntryView.findViewById(R.id.medicine_name_edit);
+        final EditText amount = (EditText)textEntryView.findViewById(R.id.medicine_amount_edit);
+        final EditText grossWeight = (EditText)textEntryView.findViewById(R.id.medicine_gross_weight_edit);
+        final EditText threshold = (EditText)textEntryView.findViewById(R.id.medicine_threshold_edit);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.dialog_add_medicine_title);
         builder.setView(textEntryView);
         builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                if(illegalInput(name.getText(), amount.getText())){
+                if(isEmptyInput(name.getText(), amount.getText(), grossWeight.getText(), threshold.getText())){
                     Toast.makeText(MedicineListActivity.this, getString(R.string.dialog_empty_message),
                             Toast.LENGTH_LONG).show();
                 } else {
                     mItemCache.mAmount = amount.getText().toString();
                     mItemCache.mName = (String) name.getText().toString();
                     mItemCache.mAbbr = MedicineUtil.getPinyinAbbr(mItemCache.mName);
+                    mItemCache.mGrossWeight = grossWeight.getText().toString();
+                    mItemCache.mThreshold = threshold.getText().toString();
 
                     String selection = MedicineNameColumn.MEDICINE_NAME + " =?";
                     String[] selectionArgs = new String[] { mItemCache.mName };
@@ -291,8 +308,9 @@ public class MedicineListActivity extends BaseListActivity{
         return builder.create();
     }
 
-    private boolean illegalInput(CharSequence name, CharSequence amount) {
-        return TextUtils.isEmpty(name) || TextUtils.isEmpty(amount);
+    private boolean isEmptyInput(CharSequence name, CharSequence amount, CharSequence weight, CharSequence threshold) {
+        return TextUtils.isEmpty(name) || TextUtils.isEmpty(amount)
+                || TextUtils.isEmpty(weight) || TextUtils.isEmpty(threshold);
     }
 
     private class MedicineAsyncQueryHandler extends AsyncQueryHandler{
@@ -307,7 +325,7 @@ public class MedicineListActivity extends BaseListActivity{
                 ItemCache cache = (ItemCache) cookie;
                 if(cursor != null){
                     try{
-                        if(isEmptyInput(cursor, cache)){
+                        if(isIlleagelInput(cursor, cache)){
                             removeDialog(DIALOG_WAITING);
                             Toast.makeText(MedicineListActivity.this, getString(R.string.dialog_exsit_message),
                                     Toast.LENGTH_LONG).show();
@@ -320,7 +338,9 @@ public class MedicineListActivity extends BaseListActivity{
                                 startUpdate(TOKEN_UPGRADE_MEDICINE_NAME, cookie, uri, values, null, null);
                             } else {
                                 values.put(MedicineColumn.AMOUNT, cache.mAmount);
-                                startInsert(TOKEN_INSERT_MEDICINE_AMOUNT, cookie, MedicineColumn.CONTENT_URI, values);
+                                values.put(MedicineColumn.GROSS_WEIGHT, cache.mGrossWeight);
+                                values.put(MedicineColumn.THRESHOLD, cache.mThreshold);
+                                startInsert(TOKEN_INSERT_MEDICINE_TABLE, cookie, MedicineColumn.CONTENT_URI, values);
                             }
                             removeDialog(DIALOG_ADD_MEDICINE);
                         }
@@ -341,7 +361,7 @@ public class MedicineListActivity extends BaseListActivity{
             }
         }
 
-        private boolean isEmptyInput(Cursor c, ItemCache cache) {
+        private boolean isIlleagelInput(Cursor c, ItemCache cache) {
             if (cache.mIsUpdated == true) {
                 return (isNameExist(c) && c.moveToFirst()
                         && !TextUtils.equals(c.getString(MEDICINE_NAME_COLUMN), mOldName));
@@ -356,7 +376,7 @@ public class MedicineListActivity extends BaseListActivity{
 
         @Override
         protected void onInsertComplete(int token, Object cookie, Uri uri) {
-            if(token == TOKEN_INSERT_MEDICINE_AMOUNT){
+            if(token == TOKEN_INSERT_MEDICINE_TABLE){
                 if(uri != null) {
                     ItemCache cache = (ItemCache) cookie;
                     int id = Integer.valueOf(uri.getPathSegments().get(1));
@@ -382,6 +402,8 @@ public class MedicineListActivity extends BaseListActivity{
                 ItemCache cache = (ItemCache) cookie;
                 ContentValues values = new ContentValues();
                 values.put(MedicineColumn.AMOUNT, cache.mAmount);
+                values.put(MedicineColumn.GROSS_WEIGHT, cache.mGrossWeight);
+                values.put(MedicineColumn.THRESHOLD, cache.mThreshold);
                 Uri uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, cache.mMedicineId);
                 startUpdate(TOKEN_UPGRADE_MEDICINE_AMOUNT, cookie, uri, values, null, null);
             }
@@ -402,6 +424,8 @@ public class MedicineListActivity extends BaseListActivity{
         String mName;
         String mAbbr;
         String mAmount;
+        String mGrossWeight;
+        String mThreshold;
         boolean mIsUpdated;
         String mMedicineNameId;
         String mMedicineId;
@@ -412,6 +436,8 @@ public class MedicineListActivity extends BaseListActivity{
             mAmount = null;
             mMedicineId = null;
             mMedicineNameId = null;
+            mGrossWeight = null;
+            mThreshold = null;
             mIsUpdated = false;
         }
     }
