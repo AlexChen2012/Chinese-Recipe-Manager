@@ -3,6 +3,7 @@
     <string name="app_name">病历管理</string>
     <string name="medicine_amount">%1$d (克/分)</string>
     <string name="title_bar_button_name">保存</string>
+    <string name="title_bar_button_browse">浏览</string>
     <string name="title_bar_text_edit">编辑</string>
     <string name="title_bar_text_create">新建</string>
     <string name="title_bar_text_edit_recipe">开药</string>

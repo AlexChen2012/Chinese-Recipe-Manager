@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
     private long mPatientId;
     private long mCaseHistoryId;
     private long mRecipeId;
+    private boolean mViewRecipe;
     private boolean mNewRecipe;
     private EditText mNameEdit;
     private EditText mCountEidt;
@@ -243,6 +245,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
         } else {
             title.setText(R.string.title_bar_text_edit);
         }
+        Button leftButton = (Button) findViewById(R.id.title_left_button);
+        leftButton.setVisibility(View.VISIBLE);
+        leftButton.setText(R.string.title_bar_button_browse);
     }
 
     private boolean isNewRecipe() {
@@ -285,6 +290,11 @@ public class RecipeInfoEditActivity extends BaseActivity{
             return ;
         }
         saveReicpe();
+    }
+
+    public void onTitlebarLeftButtonClicked(View v) {
+        mViewRecipe = true;
+        confirmToSave(null);
     }
 
     private boolean hasEmptyWeight() {
@@ -379,8 +389,14 @@ public class RecipeInfoEditActivity extends BaseActivity{
             removeDialog(DIALOG_WAITING);
             Intent intent = new Intent();
             intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, mRecipeId);
-            setResult(RESULT_OK, intent);
-            finish();
+            if (mViewRecipe) {
+                mViewRecipe = false;
+                intent.setClass(RecipeInfoEditActivity.this, RecipeInfoViewActivity.class);
+                startActivity(intent);
+            } else {
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
     }
 }

@@ -4,8 +4,20 @@
     android:layout_height="fill_parent"
     style="@style/compose_titlebar"
     android:id="@+id/header" >
+
+    <Button style="@style/MiddleText"
+        android:id="@+id/title_left_button"
+        android:onClick="onTitlebarLeftButtonClicked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dip"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
+
     <TextView
         android:id="@+id/title_bar_text"
+        android:gravity="center"
         style="@style/titlebarText"/>
 
     <Button style="@style/MiddleText"
