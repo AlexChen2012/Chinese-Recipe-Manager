@@ -1,11 +1,14 @@
 package com.alex.recipemanager.ui.recipe;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -22,7 +25,11 @@ public class RecipeInfoViewActivity extends BaseActivity {
 
     private static final String TAG = "RecipeInfoViewActivity";
 
+    private static final int MENU_CREATE = 0;
+
     private long mRecipeId;
+    private long mPatientId;
+    private long mCaseHistoryId;
     private TextView mRecipeCountView;
     private RecipeMedicineAdapter mAdapter;
     private GridView mGridView;
@@ -35,11 +42,38 @@ public class RecipeInfoViewActivity extends BaseActivity {
         mRecipeCountView = (TextView) findViewById(R.id.recipe_count_view);
         mGridView = (GridView) findViewById(R.id.recipe_info_grid_view);
         mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         if( mRecipeId == DEFAULT_ID_VALUE) {
             Log.e(TAG, "Can not get RecipeId from intent");
         }
         setValueToView();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_CREATE, 0, R.string.title_bar_text_edit).setIcon(
+                android.R.drawable.ic_menu_edit);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case MENU_CREATE:
+            Intent intent = new Intent(this, RecipeInfoEditActivity.class);
+            intent.putExtra(EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
+            intent.putExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, mCaseHistoryId);
+            intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, mRecipeId);
+            startActivity(intent);
+            break;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
 
     private void setValueToView() {
@@ -50,6 +84,8 @@ public class RecipeInfoViewActivity extends BaseActivity {
                 if (c.moveToFirst()) {
                     setTitle(c.getString(c.getColumnIndexOrThrow(RecipeColumn.NAME)));
                     mRecipeCountView.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.NUMBER)));
+                    mPatientId = c.getLong(c.getColumnIndexOrThrow(RecipeColumn.PATIENT_KEY));
+                    mCaseHistoryId = c.getLong(c.getColumnIndexOrThrow(RecipeColumn.CASE_HISTORY_KEY));
                 }
             } finally {
                 c.close();

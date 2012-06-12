@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -17,6 +19,8 @@ import com.alex.recipemanager.ui.casehistory.CaseHistoryListActivity;
 public class PatientInfoViewActivity extends BaseActivity{
 
     private static final String TAG = "PatientInfoViewActivity";
+
+    private static final int MENU_CREATE = 0;
 
     private TextView mNameView;
     private TextView mGenderView;
@@ -35,6 +39,45 @@ public class PatientInfoViewActivity extends BaseActivity{
         initialize();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mPatientId == DEFAULT_ID_VALUE) {
+            Log.e(TAG, "Can not get mPatientId from intent");
+        }
+        Uri uri = Uri.withAppendedPath(PatientColumns.CONTENT_URI, String.valueOf(mPatientId));
+        Cursor c = getContentResolver().query(uri, PATIENT_TABLE_PROJECTION, null, null, null);
+        if (c != null) {
+            c.moveToFirst();
+            startManagingCursor(c);
+            fillDataToView(c);
+        } else {
+            finish();
+            Log.e(TAG, "Can not get the patient info from Patient table, mPatientId: " + mPatientId);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_CREATE, 0, R.string.title_bar_text_edit).setIcon(
+                android.R.drawable.ic_menu_edit);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case MENU_CREATE:
+            Intent intent = new Intent(this, PatientInfoEditActivity.class);
+            intent.putExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
+            startActivity(intent);
+            break;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
     public void onCaseHistroyButtonClick(View v) {
         Intent intent = new Intent(this, CaseHistoryListActivity.class);
         intent.putExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
@@ -50,19 +93,6 @@ public class PatientInfoViewActivity extends BaseActivity{
         mTelephoneView = (TextView) findViewById(R.id.patient_telephone_view);
         mHistroyLayout = (View) findViewById(R.id.patient_history_layout);
         mPatientId = getIntent().getLongExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
-        if (mPatientId == DEFAULT_ID_VALUE) {
-            Log.e(TAG, "Can not get mPatientId from intent");
-        }
-        Uri uri = Uri.withAppendedPath(PatientColumns.CONTENT_URI, String.valueOf(mPatientId));
-        Cursor c = getContentResolver().query(uri, PATIENT_TABLE_PROJECTION, null, null, null);
-        if (c != null) {
-            c.moveToFirst();
-            startManagingCursor(c);
-            fillDataToView(c);
-        } else {
-            finish();
-            Log.e(TAG, "Can not get the patient info from Patient table, mPatientId: " + mPatientId);
-        }
     }
 
     private void fillDataToView(Cursor c) {

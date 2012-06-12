@@ -199,7 +199,7 @@ public class MedicineListActivity extends BaseListActivity{
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item){
+    public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         mPosition = info.position;
         switch (item.getItemId()) {

@@ -139,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/black"
-                android:text="@string/patient_telephone"
+                android:text="@string/patient_address"
                 android:layout_weight="0.2"/>
 
             <View android:layout_width="1dip"

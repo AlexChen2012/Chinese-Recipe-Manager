@@ -327,7 +327,6 @@ public class RecipeInfoEditActivity extends BaseActivity{
         mAsyncQuery.startUpdate(TOKEN_UPGRATE_RECIPE_TABLE, null, uri, values, null, null);
     }
 
-
     private void insertRecipeMedicines() {
         ContentValues[] contentValues = new ContentValues[mMedicineInfo.size()];
         int i = 0;

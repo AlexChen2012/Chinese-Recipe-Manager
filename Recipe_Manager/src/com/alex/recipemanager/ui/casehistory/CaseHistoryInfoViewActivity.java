@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -18,7 +20,10 @@ public class CaseHistoryInfoViewActivity extends BaseActivity {
 
     private static final String TAG = "CaseHistoryInfoEditActivity";
 
+    private static final int MENU_CREATE = 0;
+
     private long mCaseHistoryId;
+    private long mPatientId;
     private TextView mSymptomView;
     private TextView mDescriptionView;
 
@@ -31,6 +36,11 @@ public class CaseHistoryInfoViewActivity extends BaseActivity {
         mSymptomView = (TextView) findViewById(R.id.case_history_symptom_view);
         mDescriptionView = (TextView) findViewById(R.id.case_history_description_view);
         mCaseHistoryId = getIntent().getLongExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (mCaseHistoryId == DEFAULT_ID_VALUE) {
             Log.e(TAG, "can not get case history id from intent");
             finish();
@@ -40,6 +50,7 @@ public class CaseHistoryInfoViewActivity extends BaseActivity {
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
+                    mPatientId = Long.valueOf(c.getLong(c.getColumnIndexOrThrow(CaseHistoryColumn.PATIENT_KEY)));
                     mSymptomView.setText(c.getString(c.getColumnIndexOrThrow(CaseHistoryColumn.SYMPTOM)));
                     mDescriptionView.setText(c.getString(c.getColumnIndexOrThrow(CaseHistoryColumn.DESCRIPTION)));
                 }
@@ -47,6 +58,28 @@ public class CaseHistoryInfoViewActivity extends BaseActivity {
                 c.close();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_CREATE, 0, R.string.title_bar_text_edit).setIcon(
+                android.R.drawable.ic_menu_edit);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case MENU_CREATE:
+            Intent intent = new Intent(this, CaseHistoryInfoEditActivity.class);
+            intent.putExtra(EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
+            intent.putExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, mCaseHistoryId);
+            startActivity(intent);
+            break;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
 
     public void onCheckRecipesListClicked(View view) {
