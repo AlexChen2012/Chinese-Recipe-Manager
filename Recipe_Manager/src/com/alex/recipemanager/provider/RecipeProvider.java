@@ -527,10 +527,16 @@ public class RecipeProvider extends ContentProvider {
         switch (match) {
         case PATIENT:
         case CASE_HISTORY:
-        case RECIPE:
         case MEDICINE:
         case MEDICINE_NAME:
         case NATION:
+            c = db.query(TABLE_NAMES[table], projection, selection,
+                    selectionArgs, null, null, sortOrder);
+            break;
+        case RECIPE:
+            if (sortOrder == null) {
+                sortOrder = RecipeColumn.DEFAULT_ORDER;
+            }
             c = db.query(TABLE_NAMES[table], projection, selection,
                     selectionArgs, null, null, sortOrder);
             break;

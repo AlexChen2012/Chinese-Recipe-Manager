@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/register_fee_view"
                 android:text="0"
-                android:numeric="integer"/>
+                android:numeric="decimal"/>
 
             <TextView style="@style/MiddleText"
                 android:id="@+id/recipe_other_fee_unit_view"
@@ -105,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:numeric="integer"
+                android:numeric="decimal"
                 android:layout_toLeftOf="@+id/recipe_other_fee_unit_view"/>
 
             <TextView style="@style/MiddleText"

@@ -120,6 +120,8 @@ public final class RecipeContent {
 
         public static final int RECIPE_TYPE_CASE_HISTORY = 1;
         public static final int RECIPE_TYPE_CHARGE = 2;
+
+        public static final String DEFAULT_ORDER = TIMESTAMP + " desc";
     }
 
     public interface RecipeMedicineColumn extends BaseColumns {

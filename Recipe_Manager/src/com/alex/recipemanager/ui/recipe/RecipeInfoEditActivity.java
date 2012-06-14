@@ -91,6 +91,10 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+    @Override
     protected void onNewIntent(Intent newIntent) {
         super.onNewIntent(newIntent);
         setIntent(newIntent);
@@ -408,13 +412,15 @@ public class RecipeInfoEditActivity extends BaseActivity{
         @Override
         protected void onUpdateComplete(int token, Object cookie, int result) {
             if(token == TOKEN_UPGRATE_RECIPE_TABLE) {
-                if (!isNewRecipe()) {
-                    String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
-                    String[] selectionArgs = {String.valueOf(mRecipeId)};
-                    getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
-                }
+                deleteOldMedicines();
                 insertRecipeMedicines();
             }
+        }
+
+        private void deleteOldMedicines() {
+            String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
+            String[] selectionArgs = {String.valueOf(mRecipeId)};
+            getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
         }
     }
 

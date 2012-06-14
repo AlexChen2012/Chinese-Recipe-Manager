@@ -113,7 +113,13 @@ public class RecipeInfoViewActivity extends BaseActivity {
             medicinePrice += medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT)
                     * medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_AMOUNT);
         }
-        return formatPrice(medicinePrice);
+        medicinePrice = medicinePrice * recipeCursor.getInt(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT));
+        String register = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE));
+        String other = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.OTHER_FEE));
+        String price = String.valueOf(Float.valueOf(register) + Float.valueOf(other)
+                + Float.valueOf(formatPrice(medicinePrice)));
+        int index = price.indexOf('.');
+        return index != -1 && price.length() - index > 3 ? price.substring(0, index + 3): price;
     }
 
     private String formatPrice(int medicinePrice) {
