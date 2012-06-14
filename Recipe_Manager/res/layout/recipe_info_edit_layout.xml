@@ -17,6 +17,10 @@
             android:gravity="left|center_vertical"
             android:hint="@string/recipe_name_hint"/>
 
+        <View android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@android:drawable/divider_horizontal_textfield"/>
+
         <RelativeLayout android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:paddingTop="5dip">
@@ -52,6 +56,74 @@
         <View android:layout_width="fill_parent"
             android:layout_height="1dip"
             android:background="@android:drawable/divider_horizontal_textfield"/>
+
+        <RelativeLayout android:id="@+id/recipe_fee_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dip">
+
+            <TextView android:id="@+id/register_fee_view"
+                style="@style/MiddleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/recipe_register_fee_edit"
+                android:paddingRight="5dip"
+                android:text="@string/recipe_register_fee"
+                android:gravity="center_vertical"
+                android:layout_alignParentLeft="true"/>
+
+            <EditText style="@style/MiddleText"
+                android:id="@+id/recipe_register_fee_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/register_fee_view"
+                android:text="0"
+                android:numeric="integer"/>
+
+            <TextView style="@style/MiddleText"
+                android:id="@+id/recipe_other_fee_unit_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dip"
+                android:text="@string/recipe_fee_unit"
+                android:gravity="center_vertical"
+                android:layout_alignBaseline="@+id/recipe_other_fee_edit"
+                android:layout_toRightOf="@+id/recipe_register_fee_edit"/>
+
+            <TextView android:id="@+id/other_fee_view"
+                style="@style/MiddleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/recipe_other_fee_edit"
+                android:paddingRight="5dip"
+                android:layout_toLeftOf="@+id/recipe_other_fee_edit"
+                android:text="@string/recipe_other_fee"
+                android:gravity="center_vertical"/>
+
+            <EditText style="@style/MiddleText"
+                android:id="@+id/recipe_other_fee_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:numeric="integer"
+                android:layout_toLeftOf="@+id/recipe_other_fee_unit_view"/>
+
+            <TextView style="@style/MiddleText"
+                android:id="@+id/recipe_other_fee_unit_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dip"
+                android:text="@string/recipe_fee_unit"
+                android:gravity="center_vertical"
+                android:layout_alignBaseline="@+id/recipe_other_fee_edit"
+                android:layout_alignParentRight="true"/>
+
+            <View android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:background="@android:drawable/divider_horizontal_textfield"
+                android:layout_alignParentBottom="true"/>
+
+        </RelativeLayout>
 
         <LinearLayout android:id="@+id/add_recipe_layout"
             android:layout_width="fill_parent"

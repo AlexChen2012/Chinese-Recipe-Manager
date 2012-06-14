@@ -47,14 +47,18 @@ public class RecipeInfoEditActivity extends BaseActivity{
     private long mPatientId;
     private long mCaseHistoryId;
     private long mRecipeId;
-    private boolean mViewRecipe;
+    private boolean mScanRecipe;
     private boolean mNewRecipe;
     private EditText mNameEdit;
     private EditText mCountEidt;
     private LinearLayout mRecipeLayout;
+    private View mRecipeFeeLayout;
+    private EditText mRegisterFeeEdit;
+    private EditText mOtherFeeEdit;
     private LayoutInflater mInflater;
     private RecipeAsyncQueryHandler mAsyncQuery;
     private ArrayList<MedicineInfo> mMedicineInfo;
+    private int mMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -65,6 +69,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
         mPatientId = getIntent().getLongExtra(EXTRA_LONG_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
         mCaseHistoryId = getIntent().getLongExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
         mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
+        mMode = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipesListActivity.MODE_CASE_HISTROY);
         setRecipeState(mRecipeId == DEFAULT_ID_VALUE);
         setTitle();
         mInflater = LayoutInflater.from(this);
@@ -73,8 +78,10 @@ public class RecipeInfoEditActivity extends BaseActivity{
         bindView();
         if(isNewRecipe()){
             ContentValues values = new ContentValues();
-            values.put(RecipeColumn.PATIENT_KEY, mPatientId);
-            values.put(RecipeColumn.CASE_HISTORY_KEY, mCaseHistoryId);
+            if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+                values.put(RecipeColumn.PATIENT_KEY, mPatientId);
+                values.put(RecipeColumn.CASE_HISTORY_KEY, mCaseHistoryId);
+            }
             Uri uri = getContentResolver().insert(RecipeColumn.CONTENT_URI, values);
             mRecipeId = Integer.valueOf(uri.getLastPathSegment());
             Log.v(TAG, "new recipe id = " + mRecipeId);
@@ -118,7 +125,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
             try {
                 if (c.moveToFirst()) {
                     mNameEdit.setText(c.getString(c.getColumnIndexOrThrow(RecipeColumn.NAME)));
-                    mCountEidt.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.NUMBER)));
+                    mCountEidt.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.COUNT)));
                 }
             } finally {
                 c.close();
@@ -236,6 +243,14 @@ public class RecipeInfoEditActivity extends BaseActivity{
         mNameEdit = (EditText) findViewById(R.id.recipe_name_edit);
         mCountEidt = (EditText) findViewById(R.id.recipe_count_edit);
         mRecipeLayout = (LinearLayout) findViewById(R.id.add_recipe_layout);
+        mRecipeFeeLayout = findViewById(R.id.recipe_fee_layout);
+        if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+            mRecipeFeeLayout.setVisibility(View.GONE);
+        } else {
+            mRecipeFeeLayout.setVisibility(View.VISIBLE);
+        }
+        mRegisterFeeEdit = (EditText) findViewById(R.id.recipe_register_fee_edit);
+        mOtherFeeEdit = (EditText) findViewById(R.id.recipe_other_fee_edit);
     }
 
     private void setTitle() {
@@ -246,8 +261,15 @@ public class RecipeInfoEditActivity extends BaseActivity{
             title.setText(R.string.title_bar_text_edit);
         }
         Button leftButton = (Button) findViewById(R.id.title_left_button);
+        Button rightButton = (Button) findViewById(R.id.title_right_button);
         leftButton.setVisibility(View.VISIBLE);
-        leftButton.setText(R.string.title_bar_button_browse);
+        if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+            leftButton.setText(R.string.title_bar_button_browse);
+            rightButton.setText(R.string.title_bar_button_save);
+        } else {
+            leftButton.setText(R.string.title_bar_pricing);
+            rightButton.setText(R.string.title_bar_storege);
+        }
     }
 
     private boolean isNewRecipe() {
@@ -274,14 +296,29 @@ public class RecipeInfoEditActivity extends BaseActivity{
         }
     }
 
-    public void confirmToSave(View v){
+    public void onTitilebarRightButtonClicked(View v){
+        confirmToSave();
+    }
+
+    private void confirmToSave() {
         String name = mNameEdit.getText().toString();
         String count = mCountEidt.getText().toString();
-        if(TextUtils.isEmpty(name) || TextUtils.isEmpty(count)){
+        String registerFee = mRegisterFeeEdit.getText().toString();
+        String otherFee = mOtherFeeEdit.getText().toString();
+        if(TextUtils.isEmpty(name) || TextUtils.isEmpty(count)
+                || TextUtils.isEmpty(registerFee) || TextUtils.isEmpty(otherFee)){
             showDialog(DIALOG_INPUT_EMPTY);
             return ;
         }
-        if(illegalInput(Integer.valueOf(count))){
+        if(isLessEqualZero(Integer.valueOf(count))){
+            showDialog(DIALOG_ILLEGAL_INPUT);
+            return ;
+        }
+        if(isLessThanZero(Float.valueOf(registerFee))){
+            showDialog(DIALOG_ILLEGAL_INPUT);
+            return ;
+        }
+        if(isLessThanZero(Float.valueOf(otherFee))){
             showDialog(DIALOG_ILLEGAL_INPUT);
             return ;
         }
@@ -293,8 +330,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     public void onTitlebarLeftButtonClicked(View v) {
-        mViewRecipe = true;
-        confirmToSave(null);
+        mScanRecipe = true;
+        confirmToSave();
+
     }
 
     private boolean hasEmptyWeight() {
@@ -306,21 +344,34 @@ public class RecipeInfoEditActivity extends BaseActivity{
         return false;
     }
 
-    private boolean illegalInput(int count) {
-        return count <= 0;
+    private boolean isLessEqualZero(int value) {
+        return value <= 0;
+    }
+
+    private boolean isLessThanZero(Float value) {
+        return value < 0f;
     }
 
     private void saveReicpe() {
         ContentValues values = new ContentValues();
         String name = mNameEdit.getText().toString();
         String count = mCountEidt.getText().toString();
-        if(!TextUtils.isEmpty(name)){
+        if (!TextUtils.isEmpty(name)) {
             values.put(RecipeColumn.NAME, name);
             String abbr = MedicineUtil.getPinyinAbbr(name);
             values.put(RecipeColumn.NAME_ABBR, abbr);
         }
-        if(!TextUtils.isEmpty(count) && !illegalInput(Integer.valueOf(count))){
-            values.put(RecipeColumn.NUMBER, count);
+        if (!TextUtils.isEmpty(count) && !isLessEqualZero(Integer.valueOf(count))) {
+            values.put(RecipeColumn.COUNT, count);
+        }
+        if (mMode == RecipesListActivity.MODE_CHARE) {
+            String registerFee = mRegisterFeeEdit.getText().toString();
+            String otherFee = mOtherFeeEdit.getText().toString();
+            values.put(RecipeColumn.REGISTER_FEE, registerFee);
+            values.put(RecipeColumn.OTHER_FEE, otherFee);
+            values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CHARGE);
+        } else {
+            values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CASE_HISTORY);
         }
         showDialog(DIALOG_WAITING);
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
@@ -388,9 +439,12 @@ public class RecipeInfoEditActivity extends BaseActivity{
             removeDialog(DIALOG_WAITING);
             Intent intent = new Intent();
             intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, mRecipeId);
-            if (mViewRecipe) {
-                mViewRecipe = false;
+            if (mScanRecipe) {
+                mScanRecipe = false;
                 intent.setClass(RecipeInfoEditActivity.this, RecipeInfoViewActivity.class);
+                if (mMode == RecipesListActivity.MODE_CHARE) {
+                    intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE,  RecipesListActivity.MODE_CHARE);
+                }
                 startActivity(intent);
             } else {
                 setResult(RESULT_OK, intent);

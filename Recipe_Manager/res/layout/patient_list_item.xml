@@ -5,6 +5,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <View android:id="@+id/warehouse_view"
+        android:visibility="gone"
+        android:layout_marginLeft="3dip"
+        android:layout_width="15dip"
+        android:layout_height="fill_parent"
+        android:background="@color/orange"/>
+
     <TextView style="@style/MiddleText"
         android:id="@+id/patient_name"
         android:layout_width="0dip"
@@ -23,5 +30,5 @@
         android:layout_marginRight="5dip"
         android:gravity="center_vertical"
         android:singleLine="true"
-        android:layout_gravity="bottom|right"/>
+        android:layout_gravity="center_vertical|right"/>
 </LinearLayout>

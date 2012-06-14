@@ -211,7 +211,11 @@ public class PatientInfoEditActivity extends BaseActivity{
         return mAddHistoryLayout.getChildCount() == 2;
     }
 
-    public void confirmToSave(View v){
+    public void onTitilebarRightButtonClicked(View v) {
+        confirmToSave();
+    }
+
+    private void confirmToSave() {
         String name = mNameEdit.getText().toString();
         if(TextUtils.isEmpty(name)){
             showDialog(DIALOG_INPUT_NAME_EMPTY);

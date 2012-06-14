@@ -102,7 +102,24 @@ public final class RecipeContent {
         // recipe time
         public static final String TIMESTAMP = "recipe_time";
         // recipe count
-        public static final String NUMBER = "recipe_count";
+        public static final String COUNT = "recipe_count";
+        // medicines in recipe is put into storage.
+        public static final String IS_STORAGE = "is_storage";
+        // other fee
+        public static final String OTHER_FEE = "other_fee";
+        // recipe register fee
+        public static final String REGISTER_FEE = "register_fee";
+        // gross cost
+        public static final String GROSS_COST = "gross_price";
+
+        public static final int RECIPE_NOT_STORAGE = 0;
+        public static final int RECIPE_STORAGE = 1;
+
+        // recipe type case_history/charge.
+        public static final String RECIPE_TYPE = "recipe_type";
+
+        public static final int RECIPE_TYPE_CASE_HISTORY = 1;
+        public static final int RECIPE_TYPE_CHARGE = 2;
     }
 
     public interface RecipeMedicineColumn extends BaseColumns {

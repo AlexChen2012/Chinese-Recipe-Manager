@@ -21,9 +21,9 @@
         style="@style/titlebarText"/>
 
     <Button style="@style/MiddleText"
-        android:id="@+id/title_save_button"
-        android:text="@string/title_bar_button_name"
-        android:onClick="confirmToSave"
+        android:id="@+id/title_right_button"
+        android:text="@string/title_bar_button_save"
+        android:onClick="onTitilebarRightButtonClicked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dip"

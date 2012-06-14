@@ -9,6 +9,7 @@ import android.content.DialogInterface.OnClickListener;
 
 import com.alex.recipemanager.R;
 import com.alex.recipemanager.provider.RecipeContent.CaseHistoryColumn;
+import com.alex.recipemanager.provider.RecipeContent.MedicineColumn;
 import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeContent.PatientColumns;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
@@ -19,6 +20,7 @@ public class BaseActivity extends Activity{
     public static final String EXTRA_LONG_VALUE_PATIENT_ID = "extra_long_value_patient_id";
     public static final String EXTRA_LONG_VALUE_CASE_HISOTRY_ID = "extra_long_value_case_history_id";
     public static final String EXTRA_LONG_VALUE_RECIPE_ID = "extra_long_value_recipe_id";
+    public static final String EXTRA_INT_VALUE_RECIPE_MODE = "extra_long_value_recipe_mode";
     public static final long DEFAULT_ID_VALUE = -1L;
 
     public static final String[] PATIENT_TABLE_PROJECTION = new String[] {
@@ -62,28 +64,38 @@ public class BaseActivity extends Activity{
     public static final String[] RECIPE_TABLE_PROJECTION = new String[]{
         RecipeColumn._ID,
         RecipeColumn.NAME,
-        RecipeColumn.NUMBER,
-        RecipeColumn.TIMESTAMP
+        RecipeColumn.COUNT,
+        RecipeColumn.TIMESTAMP,
+        RecipeColumn.IS_STORAGE,
+        RecipeColumn.RECIPE_TYPE
     };
 
     public static final int COLUMN_RECIPE_ID    = 0;
     public static final int COLUMN_RECIPE_NAME  = 1;
     public static final int COLUMN_RECIPE_COUNT = 2;
     public static final int COLUMN_RECIPE_TIMESTAMP = 3;
+    public static final int COLUMN_RECIPE_IS_STORAGE = 4;
+    public static final int COLUMN_RECIPE_TYPE = 5;
 
     public static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[] {
         MedicineNameColumn._ID,
         MedicineNameColumn.MEDICINE_NAME,
         RecipeMedicineColumn.MEDICINE_KEY,
         RecipeMedicineColumn.RECIPE_KEY,
-        RecipeMedicineColumn.WEIGHT
+        RecipeMedicineColumn.WEIGHT,
+        MedicineColumn.AMOUNT,
+        MedicineColumn.GROSS_WEIGHT,
+        MedicineColumn.THRESHOLD
     };
 
-    public static final int COLUMN_RECIPE_MEDICINE_ID         = 0;
-    public static final int COLUMN_RECIPE_MEDICINE_NAME       = 1;
-    public static final int COLUMN_RECIPE_MEDICINE_KEY        = 2;
-    public static final int COLUMN_RECIPE_MEDICINE_RECIPE_KEY = 3;
-    public static final int COLUMN_RECIPE_MEDICINE_WEIGHT     = 4;
+    public static final int COLUMN_RECIPE_MEDICINE_ID           = 0;
+    public static final int COLUMN_RECIPE_MEDICINE_NAME         = 1;
+    public static final int COLUMN_RECIPE_MEDICINE_KEY          = 2;
+    public static final int COLUMN_RECIPE_MEDICINE_RECIPE_KEY   = 3;
+    public static final int COLUMN_RECIPE_MEDICINE_WEIGHT       = 4;
+    public static final int COLUMN_RECIPE_MEDICINE_AMOUNT       = 5;
+    public static final int COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT = 6;
+    public static final int COLUMN_RECIPE_MEDICINE_THRESHOLD    = 7;
 
     //use negative number to define dialog, since subclass may define it's own dialog.
     protected static final int DIALOG_WAITING      = -1;

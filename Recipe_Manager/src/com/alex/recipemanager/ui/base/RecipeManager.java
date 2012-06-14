@@ -1,14 +1,14 @@
 package com.alex.recipemanager.ui.base;
 
-import com.alex.recipemanager.R;
-import com.alex.recipemanager.ui.medicine.MedicineListActivity;
-import com.alex.recipemanager.ui.patient.PatientListActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
+
+import com.alex.recipemanager.R;
+import com.alex.recipemanager.ui.medicine.MedicineListActivity;
+import com.alex.recipemanager.ui.patient.PatientListActivity;
+import com.alex.recipemanager.ui.recipe.RecipesListActivity;
 
 public class RecipeManager extends Activity {
     /** Called when the activity is first created. */
@@ -24,7 +24,9 @@ public class RecipeManager extends Activity {
     }
 
     public void onPricingClick(View v){
-        Toast.makeText(this, "This function dose not implement in this version", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, RecipesListActivity.class);
+        intent.putExtra(BaseActivity.EXTRA_INT_VALUE_RECIPE_MODE, RecipesListActivity.MODE_CHARE);
+        startActivity(intent);
     }
 
     public void onMedicineManagerClick(View v){

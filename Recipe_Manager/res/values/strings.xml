@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">病历管理</string>
-    <string name="medicine_amount">%1$d (克/分)</string>
-    <string name="title_bar_button_name">保存</string>
+    <string name="medicine_amount">%1$d (克/厘)</string>
+    <string name="title_bar_button_save">保存</string>
     <string name="title_bar_button_browse">浏览</string>
     <string name="title_bar_text_edit">编辑</string>
     <string name="title_bar_text_create">新建</string>
     <string name="title_bar_text_edit_recipe">开药</string>
+    <string name="title_bar_pricing">划价</string>
+    <string name="title_bar_storege">入库</string>
     <!-- menu define -->
     <string name="menu_create">添加</string>
     <string name="menu_alias_create">添加别名</string>
@@ -18,7 +20,7 @@
     <string name="dialog_quit_edit_patient_message">确定要退出吗？编辑的信息未保存。</string>
     <string name="dialog_add_medicine_name">名称:</string>
     <string name="dialog_add_medicine_amount">金额:</string>
-    <string name="dialog_add_medicine_unit">(克/分)</string>
+    <string name="dialog_add_medicine_unit">(克/厘)</string>
     <string name="dialog_waiting">请等待</string>
     <string name="dialog_alter_title">提醒</string>
     <string name="dialog_empty_message">输入不能为空</string>
@@ -67,4 +69,7 @@
     <string name="recipe_count_with_unit">%1$d /副</string>
     <string name="recipe_recipping_medicine">开药</string>
     <string name="recipes_list">浏览处方</string>
+    <string name="recipe_register_fee">门诊费:</string>
+    <string name="recipe_other_fee">其他费用:</string>
+    <string name="recipe_fee_unit">元</string>
 </resources>

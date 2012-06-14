@@ -100,7 +100,11 @@ public class CaseHistoryInfoEditActivity extends BaseActivity {
         mAsyncQuery.startDelete(token, null, RecipeColumn.CONTENT_URI, where, null);
     }
 
-    public void confirmToSave(View v){
+    public void onTitilebarRightButtonClicked(View v){
+        comfirmToSave();
+    }
+
+    private void comfirmToSave() {
         String symptom = mSymptomEdit.getText().toString();
         String description = mDesriptionEidt.getText().toString();
         if(TextUtils.isEmpty(symptom) || TextUtils.isEmpty(description)){

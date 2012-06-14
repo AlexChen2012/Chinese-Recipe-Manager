@@ -67,13 +67,13 @@ public class PatientInfoViewActivity extends BaseActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case MENU_CREATE:
-            Intent intent = new Intent(this, PatientInfoEditActivity.class);
-            intent.putExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
-            startActivity(intent);
-            break;
-        default:
-            return super.onOptionsItemSelected(item);
+            case MENU_CREATE:
+                Intent intent = new Intent(this, PatientInfoEditActivity.class);
+                intent.putExtra(BaseActivity.EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
+                startActivity(intent);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
         return true;
     }

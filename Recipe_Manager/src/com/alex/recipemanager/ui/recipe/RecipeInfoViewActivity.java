@@ -25,7 +25,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
 
     private static final String TAG = "RecipeInfoViewActivity";
 
-    private static final int MENU_CREATE = 0;
+    private static final int MENU_EDIT = 0;
 
     private long mRecipeId;
     private long mPatientId;
@@ -33,6 +33,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
     private TextView mRecipeCountView;
     private RecipeMedicineAdapter mAdapter;
     private GridView mGridView;
+    private String mPrice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -55,7 +56,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, MENU_CREATE, 0, R.string.title_bar_text_edit).setIcon(
+        menu.add(0, MENU_EDIT, 0, R.string.title_bar_text_edit).setIcon(
                 android.R.drawable.ic_menu_edit);
         return true;
     }
@@ -63,7 +64,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case MENU_CREATE:
+        case MENU_EDIT:
             Intent intent = new Intent(this, RecipeInfoEditActivity.class);
             intent.putExtra(EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
             intent.putExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, mCaseHistoryId);
@@ -78,30 +79,59 @@ public class RecipeInfoViewActivity extends BaseActivity {
 
     private void setValueToView() {
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
-        Cursor c = getContentResolver().query(uri, null, null, null, null);
-        if (c != null) {
+        Cursor recipeCursor = getContentResolver().query(uri, null, null, null, null);
+        Cursor medicineCursor = null;
+        if (recipeCursor != null) {
             try {
-                if (c.moveToFirst()) {
-                    setTitle(c.getString(c.getColumnIndexOrThrow(RecipeColumn.NAME)));
-                    mRecipeCountView.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.NUMBER)));
-                    mPatientId = c.getLong(c.getColumnIndexOrThrow(RecipeColumn.PATIENT_KEY));
-                    mCaseHistoryId = c.getLong(c.getColumnIndexOrThrow(RecipeColumn.CASE_HISTORY_KEY));
+                if (recipeCursor.moveToFirst()) {
+                    setTitle(recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.NAME)));
+                    mRecipeCountView.setText(recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT)));
+                    mPatientId = recipeCursor.getLong(recipeCursor.getColumnIndexOrThrow(RecipeColumn.PATIENT_KEY));
+                    mCaseHistoryId = recipeCursor.getLong(recipeCursor.getColumnIndexOrThrow(RecipeColumn.CASE_HISTORY_KEY));
                 }
+                String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
+                String[] selectionArgs = {String.valueOf(mRecipeId)};
+                medicineCursor = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
+                        RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION,
+                        selection,
+                        selectionArgs,
+                        null);
+                mPrice = getPrice(recipeCursor, medicineCursor);
+                Log.d(TAG, "recipe price is: " + mPrice);
             } finally {
-                c.close();
-                c = null;
+                recipeCursor.close();
             }
         }
-        String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
-        String[] selectionArgs = {String.valueOf(mRecipeId)};
-        c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
-                RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION,
-                selection,
-                selectionArgs,
-                null);
-        startManagingCursor(c);
-        mAdapter = new RecipeMedicineAdapter(this, c);
+        startManagingCursor(medicineCursor);
+        mAdapter = new RecipeMedicineAdapter(this, medicineCursor);
         mGridView.setAdapter(mAdapter);
+    }
+
+    private String getPrice(Cursor recipeCursor, Cursor medicineCursor) {
+        int medicinePrice = 0;
+        while (medicineCursor.moveToNext()) {
+            medicinePrice += medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT)
+                    * medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_AMOUNT);
+        }
+        return formatPrice(medicinePrice);
+    }
+
+    private String formatPrice(int medicinePrice) {
+        medicinePrice = medicinePrice / 10;
+        String price = String.valueOf(medicinePrice);
+        StringBuilder sb = new StringBuilder();
+        if (price.length() == 1) {
+            sb.append("0.0");
+            sb.append(price);
+        } else if (price.length() == 2) {
+            sb.append("0.");
+            sb.append(price);
+        } else {
+            sb.append(price.substring(0, price.length() - 2));
+            sb.append(".");
+            sb.append(price.substring(price.length() - 2));
+        }
+        return sb.toString();
     }
 
     private class RecipeMedicineAdapter extends CursorAdapter {

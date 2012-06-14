@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 31;
+    public static final int DATABASE_VERSION = 34;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -101,16 +101,26 @@ public class RecipeProvider extends ContentProvider {
 
     private static final String TABLE_RECIPE_JOINED_MEDICINE_QUERY =
             MedicineNameColumn.TABLE_NAME
-                + " left join "
-                + RecipeMedicineColumn.TABLE_NAME
-                + " on "
-                + RecipeMedicineColumn.TABLE_NAME
-                + "."
-                + RecipeMedicineColumn.MEDICINE_KEY
-                + "="
-                + MedicineNameColumn.TABLE_NAME
-                + "."
-                + MedicineNameColumn.MEDICINE_KEY;
+            + " left join "
+            + RecipeMedicineColumn.TABLE_NAME
+            + " on "
+            + RecipeMedicineColumn.TABLE_NAME
+            + "."
+            + RecipeMedicineColumn.MEDICINE_KEY
+            + "="
+            + MedicineNameColumn.TABLE_NAME
+            + "."
+            + MedicineNameColumn.MEDICINE_KEY
+            + " left join "
+            + MedicineColumn.TABLE_NAME
+            + " on "
+            + MedicineColumn.TABLE_NAME
+            + "."
+            + MedicineColumn._ID
+            + "="
+            + MedicineNameColumn.TABLE_NAME
+            + "."
+            + MedicineNameColumn.MEDICINE_KEY;
 
     static {
         // Email URI matching table
@@ -219,7 +229,12 @@ public class RecipeProvider extends ContentProvider {
                 + REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY + " , "
                 + RecipeColumn.NAME + " text, "
                 + RecipeColumn.NAME_ABBR + " text, "
-                + RecipeColumn.NUMBER + " integer, "
+                + RecipeColumn.COUNT + " integer, "
+                + RecipeColumn.RECIPE_TYPE + " integer not null default " + RecipeColumn.RECIPE_TYPE_CASE_HISTORY + ", "
+                + RecipeColumn.IS_STORAGE + " integer, "
+                + RecipeColumn.OTHER_FEE + " text, "
+                + RecipeColumn.REGISTER_FEE + " text, "
+                + RecipeColumn.GROSS_COST + " text, "
                 + RecipeColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + RecipeColumn.TABLE_NAME + s);
         db.execSQL(createIndex(RecipeColumn.TABLE_NAME,
@@ -475,7 +490,7 @@ public class RecipeProvider extends ContentProvider {
             db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
             onCreate(db);
-//            createTriggers(db);
+            createTriggers(db);
         }
     }
 
@@ -765,6 +780,11 @@ public class RecipeProvider extends ContentProvider {
                 RecipeMedicineColumn.RECIPE_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.WEIGHT,
                 RecipeMedicineColumn.WEIGHT);
-        
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineColumn.AMOUNT,
+                MedicineColumn.AMOUNT);
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineColumn.GROSS_WEIGHT,
+                MedicineColumn.GROSS_WEIGHT);
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineColumn.THRESHOLD,
+                MedicineColumn.THRESHOLD);
     }
 }

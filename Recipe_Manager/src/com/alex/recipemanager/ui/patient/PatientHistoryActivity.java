@@ -31,7 +31,11 @@ public class PatientHistoryActivity extends BaseActivity{
         mHistoryEdit.setText(exsitHistory);
     }
 
-    public void confirmToSave(View v){
+    public void onTitilebarRightButtonClicked(View v){
+        confirmToSave();
+    }
+
+    private void confirmToSave() {
         String history = mHistoryEdit.getText().toString();
         if(TextUtils.isEmpty(history)){
             showDialog(DIALOG_INPUT_EMPTY);
