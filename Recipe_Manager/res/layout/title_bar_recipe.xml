@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    style="@style/compose_titlebar"
+    android:id="@+id/header" >
+
+    <TextView android:id="@+id/title_bar_name_view"
+        android:gravity="center"
+        style="@style/titlebarText"
+        android:layout_marginLeft="5dip"
+        android:layout_alignParentLeft="true"/>
+
+    <TextView android:id="@+id/title_bar_count_view"
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/title_bar_count_unit_view"
+        style="@style/titlebarText"/>
+
+    <TextView android:id="@+id/title_bar_count_unit_view"
+        android:gravity="center"
+        style="@style/titlebarText"
+        android:text="@string/recipe_unit"
+        android:layout_toLeftOf="@+id/title_bar_recipe_fee_layout"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="25dip"/>
+
+    <LinearLayout android:id="@+id/title_bar_recipe_fee_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true">
+
+        <TextView android:id="@+id/title_bar_price_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingRight="5dip"
+            style="@style/titlebarText"/>
+
+        <TextView android:id="@+id/title_bar_recipe_unit_view"
+            android:gravity="center"
+            style="@style/titlebarText"
+            android:text="@string/recipe_fee_unit"
+            android:layout_marginRight="5dip"/>
+    </LinearLayout>
+</RelativeLayout>

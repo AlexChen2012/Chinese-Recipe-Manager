@@ -36,10 +36,11 @@ public class RecipeInfoViewActivity extends BaseActivity {
     private String mPrice;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.recipe_info_view_layout);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_recipe);
         mRecipeCountView = (TextView) findViewById(R.id.recipe_count_view);
         mGridView = (GridView) findViewById(R.id.recipe_info_grid_view);
         mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
@@ -81,10 +82,15 @@ public class RecipeInfoViewActivity extends BaseActivity {
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
         Cursor recipeCursor = getContentResolver().query(uri, null, null, null, null);
         Cursor medicineCursor = null;
+        String recipeName = null;
+        int type = RecipeColumn.RECIPE_TYPE_CASE_HISTORY;
+        int count = 0;
         if (recipeCursor != null) {
             try {
                 if (recipeCursor.moveToFirst()) {
-                    setTitle(recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.NAME)));
+                    count = recipeCursor.getInt(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT));
+                    recipeName = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.NAME));
+                    type = recipeCursor.getInt(recipeCursor.getColumnIndexOrThrow(RecipeColumn.RECIPE_TYPE));
                     mRecipeCountView.setText(recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT)));
                     mPatientId = recipeCursor.getLong(recipeCursor.getColumnIndexOrThrow(RecipeColumn.PATIENT_KEY));
                     mCaseHistoryId = recipeCursor.getLong(recipeCursor.getColumnIndexOrThrow(RecipeColumn.CASE_HISTORY_KEY));
@@ -96,8 +102,9 @@ public class RecipeInfoViewActivity extends BaseActivity {
                         selection,
                         selectionArgs,
                         null);
-                mPrice = getPrice(recipeCursor, medicineCursor);
-                Log.d(TAG, "recipe price is: " + mPrice);
+                String  price = getPrice(recipeCursor, medicineCursor);
+                setTitle(recipeName, count, type, price);
+                Log.d(TAG, "recipe price is: " + price);
             } finally {
                 recipeCursor.close();
             }
@@ -105,6 +112,20 @@ public class RecipeInfoViewActivity extends BaseActivity {
         startManagingCursor(medicineCursor);
         mAdapter = new RecipeMedicineAdapter(this, medicineCursor);
         mGridView.setAdapter(mAdapter);
+    }
+
+    private void setTitle(String recipeName, int count,int type, String price) {
+        TextView nameView = (TextView) findViewById(R.id.title_bar_name_view);
+        nameView.setText(recipeName);
+        TextView countView = (TextView) findViewById(R.id.title_bar_count_view);
+        countView.setText(String.valueOf(count));
+        if (type == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
+            findViewById(R.id.title_bar_recipe_fee_layout).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.title_bar_recipe_fee_layout).setVisibility(View.VISIBLE);
+            TextView priceView = (TextView) findViewById(R.id.title_bar_price_view);
+            priceView.setText(price);
+        }
     }
 
     private String getPrice(Cursor recipeCursor, Cursor medicineCursor) {

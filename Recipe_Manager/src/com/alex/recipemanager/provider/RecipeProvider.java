@@ -27,7 +27,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 34;
+    public static final int DATABASE_VERSION = 35;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -232,8 +232,8 @@ public class RecipeProvider extends ContentProvider {
                 + RecipeColumn.COUNT + " integer, "
                 + RecipeColumn.RECIPE_TYPE + " integer not null default " + RecipeColumn.RECIPE_TYPE_CASE_HISTORY + ", "
                 + RecipeColumn.IS_STORAGE + " integer, "
-                + RecipeColumn.OTHER_FEE + " text, "
-                + RecipeColumn.REGISTER_FEE + " text, "
+                + RecipeColumn.OTHER_FEE + " text default 0, "
+                + RecipeColumn.REGISTER_FEE + " text default 0, "
                 + RecipeColumn.GROSS_COST + " text, "
                 + RecipeColumn.TIMESTAMP + " integer" + ");";
         db.execSQL("create table " + RecipeColumn.TABLE_NAME + s);
