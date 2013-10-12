@@ -58,16 +58,14 @@ public class MedicineUtil {
     }
 
     public static Dialog addDimissControl(Dialog dialog) {
-        try 
-        {
+        try {
             Field field = dialog.getClass().getDeclaredField("mAlert");
             field.setAccessible(true);
             Object obj = field.get(dialog);
             field = obj.getClass().getDeclaredField("mHandler");
             field.setAccessible(true);
             field.set(obj, new ButtonHandler(dialog));
-        }
-        catch (Exception e) {}
+        } catch (Exception e) {}
         return dialog;
     }
 

@@ -75,7 +75,7 @@ public class CaseHistoryInfoEditActivity extends BaseActivity {
     }
 
     @Override
-    public void exitActivityWithoutSave() {
+    public void confirmToExistActivity() {
         showDialog(DIALOG_WAITING);
         deleteRemovedRecipe(isCreateCaseHistory() ?
                 TOKEN_NEED_DELETE_CASE_HISTORY : 0);

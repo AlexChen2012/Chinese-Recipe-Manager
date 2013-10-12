@@ -155,7 +155,7 @@ public class PatientInfoEditActivity extends BaseActivity{
     }
 
     @Override
-    public void exitActivityWithoutSave() {
+    public void confirmToExistActivity() {
         deleteRemovedCaseHistory(isCreatePatient() ?
                 TOKEN_NEED_DELETE_PATIENT : 0);
     }

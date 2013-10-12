@@ -7,12 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -21,7 +20,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.alex.recipemanager.R;
-import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
 import com.alex.recipemanager.util.TimeUtil;
@@ -29,11 +27,6 @@ import com.alex.recipemanager.util.TimeUtil;
 public class RecipesListActivity extends BaseActivity {
 
     private static final String TAG = "RecipesListActivity";
-
-    public static final int MODE_CASE_HISTROY = 0;
-    public static final int MODE_CHARE = 1;
-
-    private static final int MENU_CREATE = 0;
 
     private static final int CONTEXT_MENU_EDIT   = 0;
     private static final int CONTEXT_MENU_DELETE = 1;
@@ -48,14 +41,16 @@ public class RecipesListActivity extends BaseActivity {
         setContentView(R.layout.list_view_layout);
         setTitle(R.string.recipes_list);
 
-        mMode = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_MODE, MODE_CASE_HISTROY);
+      //TODO: Forbid other mode for version only has pricing recipe function.
+//        mMode = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_MODE, MODE_CASE_HISTROY);
+        mMode = RecipeColumn.RECIPE_TYPE_CHARGE;
         long caseHistoryId = getIntent().getLongExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
         if (caseHistoryId == DEFAULT_ID_VALUE) {
             Log.d(TAG, "Can not get caseHistoryId from intent");
         }
         String selection;
         String []selectionArgs;
-        if (mMode == MODE_CASE_HISTROY) {
+        if (mMode == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
             selection = RecipeColumn.CASE_HISTORY_KEY + "=?";
             selectionArgs = new String[]{String.valueOf(caseHistoryId)};
         } else {
@@ -65,8 +60,8 @@ public class RecipesListActivity extends BaseActivity {
         Cursor cursor = getContentResolver().query(
                 RecipeColumn.CONTENT_URI,
                 RECIPE_TABLE_PROJECTION,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 null);
         startManagingCursor(cursor);
         mAdapter = new RecipesAdapter(this, cursor);
@@ -76,43 +71,22 @@ public class RecipesListActivity extends BaseActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                long recipeId = mAdapter.getItemId(position);
+                Log.d(TAG, "id from onItemClick = " + id + " Adapter.getItemId() = " + recipeId);
                 Intent intent = new Intent(RecipesListActivity.this, RecipeInfoViewActivity.class);
                 intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, id);
-                if (mMode == MODE_CHARE) {
-                    intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, MODE_CHARE);
+                if (mMode == RecipeColumn.RECIPE_TYPE_CHARGE) {
+                    intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipeColumn.RECIPE_TYPE_CHARGE);
                 }
                 startActivity(intent);
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if(mMode == MODE_CASE_HISTROY) {
-            return true;
-        }
-        menu.add(0, MENU_CREATE, 0, R.string.menu_create).setIcon(
-                android.R.drawable.ic_menu_add);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case MENU_CREATE:
-                Intent intent = new Intent(RecipesListActivity.this, RecipeInfoEditActivity.class);
-                intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, MODE_CHARE);
-                startActivity(intent);
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
+        registerForContextMenu(mListView);
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
-        if(mMode == MODE_CASE_HISTROY) {
+        if(mMode == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
             return ;
         }
         menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.context_menu_edit);
@@ -122,16 +96,18 @@ public class RecipesListActivity extends BaseActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        Log.d(TAG, "context menu info.id = " + info.id);
         switch (item.getItemId()) {
         case CONTEXT_MENU_EDIT:
             Intent intent = new Intent(this, RecipeInfoEditActivity.class);
-            intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, MODE_CHARE);
+            intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipeColumn.RECIPE_TYPE_CHARGE);
+            intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, info.id);
             startActivity(intent);
             return true;
         case CONTEXT_MENU_DELETE:
-            showDialog(DIALOG_WAITING);
-            Uri uri = Uri.withAppendedPath(MedicineNameColumn.CONTENT_URI, String.valueOf(info.id));
+            Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(info.id));
             getContentResolver().delete(uri, null, null);
+            mAdapter.getCursor().requery();
             return true;
         }
         return super.onContextItemSelected(item);
@@ -142,7 +118,7 @@ public class RecipesListActivity extends BaseActivity {
         private LayoutInflater mInflater;
 
         public RecipesAdapter(Context context, Cursor c) {
-            super(context, c);
+            super(context, c, true);
             mInflater = LayoutInflater.from(context);
         }
 

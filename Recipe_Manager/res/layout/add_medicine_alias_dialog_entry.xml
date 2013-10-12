@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip">
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dip"
+            android:text="@string/dialog_add_medicine_name"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"/>
+
+        <EditText android:id="@+id/medicine_name_edit"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+</LinearLayout>

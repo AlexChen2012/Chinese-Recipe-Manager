@@ -15,7 +15,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="left|center_vertical"
-            android:hint="@string/recipe_name_hint"/>
+            android:hint="@string/recipe_name_hint"
+            android:text="@string/recipe_name_defualt"/>
 
         <View android:layout_width="fill_parent"
             android:layout_height="1dip"
@@ -77,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/register_fee_view"
-                android:text="0"
+                android:text="10"
                 android:numeric="decimal"/>
 
             <TextView style="@style/MiddleText"

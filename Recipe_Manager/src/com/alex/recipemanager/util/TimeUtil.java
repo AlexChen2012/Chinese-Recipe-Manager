@@ -11,7 +11,7 @@ public class TimeUtil {
 
     public static String translateTimeMillisToDate(long timeMillis) {
         Date date = new Date(timeMillis);
-        SimpleDateFormat dateFormat=new SimpleDateFormat ("yyyy-MM-dd");
+        SimpleDateFormat dateFormat=new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
         return dateFormat.format(date);
     }
 }

@@ -142,8 +142,7 @@ public class AliasListActivity extends BaseListActivity{
 
     private Dialog createAliasDialog() {
         LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.add_medicine_dialog_entry, null);
-        textEntryView.findViewById(R.id.set_amount_layout).setVisibility(View.GONE);
+        final View textEntryView = factory.inflate(R.layout.add_medicine_alias_dialog_entry, null);
         final TextView name = (TextView)textEntryView.findViewById(R.id.medicine_name_edit);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -210,6 +209,8 @@ public class AliasListActivity extends BaseListActivity{
                             ContentValues values = new ContentValues();
                             values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
                             values.put(MedicineNameColumn.MEDICINE_KEY, mMedicineKey);
+                            values.put(MedicineNameColumn.MEDICINE_NAME_ABBR,
+                                    MedicineUtil.getPinyinAbbr(cache.mName));
                             startInsert(0, null, MedicineNameColumn.CONTENT_URI, values);
                         }
                     } finally {

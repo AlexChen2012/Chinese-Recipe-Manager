@@ -80,7 +80,7 @@ public class BaseActivity extends Activity{
     public static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[] {
         MedicineNameColumn._ID,
         MedicineNameColumn.MEDICINE_NAME,
-        RecipeMedicineColumn.MEDICINE_KEY,
+        RecipeMedicineColumn.MEDICINE_NAME_KEY,
         RecipeMedicineColumn.RECIPE_KEY,
         RecipeMedicineColumn.WEIGHT,
         MedicineColumn.AMOUNT,
@@ -88,7 +88,7 @@ public class BaseActivity extends Activity{
         MedicineColumn.THRESHOLD
     };
 
-    public static final int COLUMN_RECIPE_MEDICINE_ID           = 0;
+    public static final int COLUMN_RECIPE_MEDICINE_NAME_ID      = 0;
     public static final int COLUMN_RECIPE_MEDICINE_NAME         = 1;
     public static final int COLUMN_RECIPE_MEDICINE_KEY          = 2;
     public static final int COLUMN_RECIPE_MEDICINE_RECIPE_KEY   = 3;
@@ -123,7 +123,7 @@ public class BaseActivity extends Activity{
                 .setMessage(R.string.dialog_quit_edit_patient_message)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        exitActivityWithoutSave();
+                        confirmToExistActivity();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -133,7 +133,7 @@ public class BaseActivity extends Activity{
         }
     }
 
-    public void exitActivityWithoutSave() {
+    public void confirmToExistActivity() {
         //Need be implement in subclass.
     }
 }

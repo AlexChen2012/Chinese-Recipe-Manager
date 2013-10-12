@@ -1,5 +1,6 @@
 package com.alex.recipemanager.provider;
 
+import java.io.File;
 import java.util.HashMap;
 
 import android.content.ContentProvider;
@@ -12,6 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import com.alex.recipemanager.provider.RecipeContent.CaseHistoryColumn;
@@ -27,15 +29,15 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 35;
+    public static final int DATABASE_VERSION = 43;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
             + " ( " + PatientColumns._ID + " )";
 
-    private static final String REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY =
-            "references " + MedicineColumn.TABLE_NAME
-            + " ( " + MedicineColumn._ID + " )";
+    private static final String REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY =
+            "references " + MedicineNameColumn.TABLE_NAME
+            + " ( " + MedicineNameColumn._ID + " )";
 
     private static final String REFERENCE_CASE_HISTORY_ID_AS_FOREIGN_KEY =
             "references "
@@ -106,11 +108,11 @@ public class RecipeProvider extends ContentProvider {
             + " on "
             + RecipeMedicineColumn.TABLE_NAME
             + "."
-            + RecipeMedicineColumn.MEDICINE_KEY
+            + RecipeMedicineColumn.MEDICINE_NAME_KEY
             + "="
             + MedicineNameColumn.TABLE_NAME
             + "."
-            + MedicineNameColumn.MEDICINE_KEY
+            + MedicineNameColumn._ID
             + " left join "
             + MedicineColumn.TABLE_NAME
             + " on "
@@ -211,7 +213,7 @@ public class RecipeProvider extends ContentProvider {
         String s = " (" + MedicineNameColumn._ID
                 + " integer primary key autoincrement, "
                 + MedicineNameColumn.MEDICINE_KEY + " integer "
-                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY + " , "
                 + MedicineNameColumn.MEDICINE_NAME_ABBR + " text, "
                 + MedicineNameColumn.MEDICINE_NAME + " text, " + "unique ("
                 + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
@@ -246,14 +248,14 @@ public class RecipeProvider extends ContentProvider {
     static void createRecipeMedicineTable(SQLiteDatabase db) {
         String s = " (" + RecipeMedicineColumn._ID
                 + " integer primary key autoincrement, "
-                + RecipeMedicineColumn.MEDICINE_KEY + " integer "
-                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
+                + RecipeMedicineColumn.MEDICINE_NAME_KEY + " integer "
+                + REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.RECIPE_KEY + " integer "
                 + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.WEIGHT + " integer" + ");";
         db.execSQL("create table " + RecipeMedicineColumn.TABLE_NAME + s);
         db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
-                RecipeMedicineColumn.MEDICINE_KEY));
+                RecipeMedicineColumn.MEDICINE_NAME_KEY));
         db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
                 RecipeMedicineColumn.RECIPE_KEY));
     }
@@ -267,117 +269,117 @@ public class RecipeProvider extends ContentProvider {
 
     private static void initializeNationTable(SQLiteDatabase db) {
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 1
-                + "','ºº×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 2
-                + "','ÃÉ¹Å×å')");
+                + "','ï¿½É¹ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 3
-                + "','»Ø×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 4
-                + "','²Ø×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 5
-                + "','Î¬Îá¶û×å')");
+                + "','Î¬ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 6
-                + "','Ãç×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 7
-                + "','ÒÍ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 8
-                + "','×³×å')");
+                + "','×³ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 9
-                + "','²¼ÒÀ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 10
-                + "','³¯ÏÊ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 11
-                + "','Âú×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 12
-                + "','¶±×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 13
-                + "','Ñþ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 14
-                + "','°××å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 15
-                + "','ÍÁ¼Ò×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 16
-                + "','¹þÄá×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 17
-                + "','¹þÈø¿Ë×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 18
-                + "','´ö×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 19
-                + "','Àè×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 20
-                + "','ÀüËÛ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 21
-                + "','Øô×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 22
-                + "','î´×å')");
+                + "','ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 23
-                + "','¸ßÉ½×å')");
+                + "','ï¿½ï¿½É½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 24
-                + "','À­ìï×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 25
-                + "','¶«Ïç×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 26
-                + "','ÄÉÎ÷×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 27
-                + "','¾°ÆÄ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 28
-                + "','¿Â¶û¿Ë×Î×å')");
+                + "','ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 29
-                + "','ÍÁ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 30
-                + "','´ïÎÓ¶û×å')");
+                + "','ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 31
-                + "','ØïÀÐ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 32
-                + "','Ç¼×å')");
+                + "','Ç¼ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 33
-                + "','²¼ÀÊ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 34
-                + "','ÈöÀ­×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 35
-                + "','Ã«ÄÑ×å')");
+                + "','Ã«ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 36
-                + "','Ë®×å')");
+                + "','Ë®ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 37
-                + "','ØîÀÐ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 38
-                + "','Îý²®×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 39
-                + "','°¢²ý×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 40
-                + "','ÆÕÃ××å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 41
-                + "','Ëþ¼ª¿Ë×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 42
-                + "','Å­×å')");
+                + "','Å­ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 43
-                + "','ÎÚ×Î±ð¿Ë×å')");
+                + "','ï¿½ï¿½ï¿½Î±ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 44
-                + "','¶íÂÞË¹×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 45
-                + "','¶õÎÂ¿Ë×å')");
+                + "','ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 46
-                + "','±ÀÁú×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 47
-                + "','±£°²×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 48
-                + "','Ô£¹Ì×å')");
+                + "','Ô£ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 49
-                + "','¾©×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 50
-                + "','ËþËþ¶û×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 51
-                + "','¶ÀÁú×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 52
-                + "','¶õÂ×´º×å')");
+                + "','ï¿½ï¿½ï¿½×´ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 53
-                + "','ºÕÕÜ×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 54
-                + "','ÃÅ°Í×å')");
+                + "','ï¿½Å°ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 55
-                + "','çó°Í×å')");
+                + "','ï¿½ï¿½ï¿½ï¿½ï¿½')");
         db.execSQL("insert into " + NationColumn.TABLE_NAME + " values('" + 56
-                + "','»ùÅµ×å')");
+                + "','ï¿½ï¿½Åµï¿½ï¿½')");
     }
 
     /*
@@ -404,11 +406,54 @@ public class RecipeProvider extends ContentProvider {
         return mDatabase;
     }
 
+    public static final String DB_DIR = Environment.getExternalStorageDirectory().getPath()
+            + File.separator + "recipe_manager" + File.separator;
+
+    static {
+        while(! Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+        File dbFolder = new File(DB_DIR);
+        if (!dbFolder.exists()) {
+            dbFolder.mkdirs();
+        }
+    }
+
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+            super(context, DB_DIR + DATABASE_NAME, null, DATABASE_VERSION);
         }
+
+//        public SQLiteDatabase getWritableDatabase() {
+//            SQLiteDatabase db = null;
+//            File dbp = new File(DATABASE_PATH);
+//            File dbf = new File(DATABASE_PATH + File.pathSeparator + DATABASE_FILENAME);
+//
+//            if (!dbp.exists()) {
+//                dbp.mkdir();
+//            }
+//
+//            boolean isFileCreateSuccess = false;
+//
+//            if (!dbf.exists()) {
+//                try {
+//                    isFileCreateSuccess = dbf.createNewFile();
+//                } catch (IOException ioex) {}
+//
+//            } else {
+//                isFileCreateSuccess = true;
+//            }
+//            if (isFileCreateSuccess) {
+//                db = SQLiteDatabase.openOrCreateDatabase(dbf, null);
+//            }
+//            return db;
+//        }
 
         public void onCreate(SQLiteDatabase db) {
             createPatientTable(db);
@@ -780,8 +825,8 @@ public class RecipeProvider extends ContentProvider {
                 MedicineNameColumn.MEDICINE_NAME);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID,
                 RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn._ID);
-        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.MEDICINE_KEY,
-                RecipeMedicineColumn.MEDICINE_KEY);
+        sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.MEDICINE_NAME_KEY,
+                RecipeMedicineColumn.MEDICINE_NAME_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.RECIPE_KEY,
                 RecipeMedicineColumn.RECIPE_KEY);
         sRecipeMedicineJoinMedicineNameMap.put(RecipeMedicineColumn.WEIGHT,

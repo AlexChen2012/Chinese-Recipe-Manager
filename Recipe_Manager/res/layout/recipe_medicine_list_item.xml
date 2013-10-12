@@ -5,7 +5,7 @@
     android:layout_height="fill_parent">
 
     <TextView android:id="@+id/medicine_name"
-        android:textSize="16sp"
+        android:textSize="34sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dip"
@@ -17,7 +17,7 @@
     <TextView android:id="@+id/medicine_weight"
         android:layout_alignBaseline="@+id/medicine_name"
         android:layout_toRightOf="@+id/medicine_name"
-        android:textSize="8sp"
+        android:textSize="24sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="2dip"

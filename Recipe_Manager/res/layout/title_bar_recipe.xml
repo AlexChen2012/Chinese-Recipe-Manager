@@ -8,18 +8,66 @@
     <TextView android:id="@+id/title_bar_name_view"
         android:gravity="center"
         style="@style/titlebarText"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="5dip"
         android:layout_alignParentLeft="true"/>
+
+    <TextView android:id="@+id/title_bar_register_fee_name_view"
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/title_bar_register_fee_view"
+        android:layout_centerVertical="true"
+        android:text="@string/recipe_register_fee"
+        style="@style/titlebarText"/>
+
+    <TextView android:id="@+id/title_bar_register_fee_view"
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/title_bar_register_fee_unit_view"
+        android:layout_centerVertical="true"
+        style="@style/titlebarText"/>
+
+    <TextView android:id="@+id/title_bar_register_fee_unit_view"
+        android:gravity="center"
+        style="@style/titlebarText"
+        android:text="@string/recipe_fee_unit"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/title_bar_other_fee_name_text_view"
+        android:layout_alignWithParentIfMissing="true"
+        android:paddingRight="25dip"/>
+
+    
+    <TextView android:id="@+id/title_bar_other_fee_name_text_view"
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/title_bar_other_fee_view"
+        android:layout_centerVertical="true"
+        android:text="@string/recipe_other_fee"
+        style="@style/titlebarText"/>
+
+    <TextView android:id="@+id/title_bar_other_fee_view"
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/title_bar_other_fee_unit_view"
+        android:layout_centerVertical="true"
+        style="@style/titlebarText"/>
+
+    <TextView android:id="@+id/title_bar_other_fee_unit_view"
+        android:gravity="center"
+        style="@style/titlebarText"
+        android:text="@string/recipe_fee_unit"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/title_bar_count_view"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="25dip"/>
 
     <TextView android:id="@+id/title_bar_count_view"
         android:gravity="center"
         android:layout_toLeftOf="@+id/title_bar_count_unit_view"
+        android:layout_centerVertical="true"
         style="@style/titlebarText"/>
 
     <TextView android:id="@+id/title_bar_count_unit_view"
         android:gravity="center"
         style="@style/titlebarText"
         android:text="@string/recipe_unit"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/title_bar_recipe_fee_layout"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginRight="25dip"/>
@@ -27,6 +75,7 @@
     <LinearLayout android:id="@+id/title_bar_recipe_fee_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_alignParentRight="true">
 
         <TextView android:id="@+id/title_bar_price_view"

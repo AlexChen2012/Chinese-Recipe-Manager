@@ -130,8 +130,8 @@ public final class RecipeContent {
 
         // foreign key to corresponding RecipeMedicine with Recipe.
         public static final String RECIPE_KEY = "recipe_medicine_recipe_key";
-        // foreign key to corresponding Case RecipeMedicine with medicine
-        public static final String MEDICINE_KEY = "recipe_medicine_medicine_key";
+        // foreign key to corresponding Case RecipeMedicine with medicine name id
+        public static final String MEDICINE_NAME_KEY = "recipe_medicine_name_key";
         // medicine count unit g
         public static final String WEIGHT = "weight";
     }

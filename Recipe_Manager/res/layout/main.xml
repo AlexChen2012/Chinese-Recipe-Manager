@@ -13,11 +13,13 @@
         android:focusable="true"
         android:clickable="true"
         android:onClick="onRecipeClick"
-        android:background="@android:drawable/list_selector_background"/>
+        android:background="@android:drawable/list_selector_background"
+        android:visibility="gone"/>
 
     <View android:layout_width="fill_parent"
         android:layout_height="1dip"
-        android:background="@color/gray"/>
+        android:background="@color/gray"
+        android:visibility="gone"/>
 
     <TextView style="@style/LargeText"
         android:layout_width="fill_parent"
@@ -36,6 +38,20 @@
     <TextView style="@style/LargeText"
         android:layout_width="fill_parent"
         android:layout_height="80dip"
+        android:text="@string/recipe_history"
+        android:gravity="center_vertical"
+        android:focusable="true"
+        android:clickable="true"
+        android:onClick="onRecipeHistoryClicked"
+        android:background="@android:drawable/list_selector_background"/>
+
+    <View android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/gray"/>
+
+    <TextView style="@style/LargeText"
+        android:layout_width="fill_parent"
+        android:layout_height="80dip"
         android:text="@string/medicine_manage"
         android:gravity="center_vertical"
         android:focusable="true"
@@ -46,5 +62,4 @@
     <View android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:background="@color/gray"/>
-
 </LinearLayout>

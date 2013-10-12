@@ -1,9 +1,11 @@
 package com.alex.recipemanager.test;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.test.ProviderTestCase2;
 
 import com.alex.recipemanager.provider.RecipeContent;
@@ -11,6 +13,7 @@ import com.alex.recipemanager.provider.RecipeContent.MedicineColumn;
 import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
 import com.alex.recipemanager.provider.RecipeProvider;
 
+@SuppressWarnings("rawtypes")
 public class RecipeProviderTest extends ProviderTestCase2 {
 
     private static final String DEFAULT_MEDICINE_NAME1 = "juhua";
@@ -20,10 +23,12 @@ public class RecipeProviderTest extends ProviderTestCase2 {
     private ContentResolver mResolver;
     private ContentValues mValues = new ContentValues();
 
+    @TargetApi(Build.VERSION_CODES.CUPCAKE) @SuppressWarnings("unchecked")
     public RecipeProviderTest() {
         super(RecipeProvider.class, RecipeContent.AUTHORITY);
     }
 
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     protected void setUp() throws Exception {
         super.setUp();

@@ -7,10 +7,12 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -29,9 +31,10 @@ import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
 import com.alex.recipemanager.ui.base.RemoveableLayoutView;
 import com.alex.recipemanager.ui.medicine.MedicineListActivity;
+import com.alex.recipemanager.util.Consts;
 import com.alex.recipemanager.util.MedicineUtil;
 
-public class RecipeInfoEditActivity extends BaseActivity{
+public class RecipeInfoEditActivity extends BaseActivity {
 
     private static final String TAG = "RecipeInfoEditActivity";
 
@@ -69,7 +72,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
         mPatientId = getIntent().getLongExtra(EXTRA_LONG_VALUE_PATIENT_ID, DEFAULT_ID_VALUE);
         mCaseHistoryId = getIntent().getLongExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, DEFAULT_ID_VALUE);
         mRecipeId = getIntent().getLongExtra(EXTRA_LONG_VALUE_RECIPE_ID, DEFAULT_ID_VALUE);
-        mMode = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipesListActivity.MODE_CASE_HISTROY);
+        mMode = getIntent().getIntExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipeColumn.RECIPE_TYPE_CHARGE);
         setRecipeState(mRecipeId == DEFAULT_ID_VALUE);
         setTitle();
         mInflater = LayoutInflater.from(this);
@@ -78,12 +81,14 @@ public class RecipeInfoEditActivity extends BaseActivity{
         bindView();
         if(isNewRecipe()){
             ContentValues values = new ContentValues();
-            if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+            if (mMode == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
                 values.put(RecipeColumn.PATIENT_KEY, mPatientId);
                 values.put(RecipeColumn.CASE_HISTORY_KEY, mCaseHistoryId);
             }
             Uri uri = getContentResolver().insert(RecipeColumn.CONTENT_URI, values);
             mRecipeId = Integer.valueOf(uri.getLastPathSegment());
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            mRegisterFeeEdit.setText(sp.getString(Consts.EXTRA_STRING_VALUE_REGISTER_FEE, "10"));
             Log.v(TAG, "new recipe id = " + mRecipeId);
         } else {
             setValueToView();
@@ -130,6 +135,8 @@ public class RecipeInfoEditActivity extends BaseActivity{
                 if (c.moveToFirst()) {
                     mNameEdit.setText(c.getString(c.getColumnIndexOrThrow(RecipeColumn.NAME)));
                     mCountEidt.setText( c.getString(c.getColumnIndexOrThrow(RecipeColumn.COUNT)));
+                    mRegisterFeeEdit.setText(c.getString(c.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE)));
+                    mOtherFeeEdit.setText(c.getString(c.getColumnIndexOrThrow(RecipeColumn.OTHER_FEE)));
                 }
             } finally {
                 c.close();
@@ -150,9 +157,13 @@ public class RecipeInfoEditActivity extends BaseActivity{
                     info.mMedicineId = c.getLong(COLUMN_RECIPE_MEDICINE_KEY);
                     info.mWeight = c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT);
                     info.mName = c.getString(COLUMN_RECIPE_MEDICINE_NAME);
+                    info.mMedicineNameId = c.getLong(COLUMN_RECIPE_MEDICINE_NAME_ID);
                     if (!matchMedicineId(info.mMedicineId)) {
                         addMedicineEditView(info);
                         mMedicineInfo.add(info);
+                    } else {
+                        Log.e(TAG, "mutiple medicine insert into recipe, it should not happened, mMedicineId = "
+                                + info.mMedicineId);
                     }
                 }
             } finally {
@@ -172,6 +183,8 @@ public class RecipeInfoEditActivity extends BaseActivity{
                 if(!matchMedicineId(id)){
                     MedicineInfo info = new MedicineInfo();
                     info.mMedicineId = id;
+                    info.mMedicineNameId = data.getLongExtra(MedicineListActivity.EXTRA_LONG_VALUE_MEDICINE_NAME_ID,
+                            DEFAULT_ID_VALUE);
                     info.mName = data.getStringExtra(MedicineListActivity.EXTRA_STRING_VALUE_MEDICINE_NAME);
                     mMedicineInfo.add(info);
                     addMedicineEditView(info);
@@ -248,7 +261,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
         mCountEidt = (EditText) findViewById(R.id.recipe_count_edit);
         mRecipeLayout = (LinearLayout) findViewById(R.id.add_recipe_layout);
         mRecipeFeeLayout = findViewById(R.id.recipe_fee_layout);
-        if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+        if (mMode == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
             mRecipeFeeLayout.setVisibility(View.GONE);
         } else {
             mRecipeFeeLayout.setVisibility(View.VISIBLE);
@@ -267,7 +280,9 @@ public class RecipeInfoEditActivity extends BaseActivity{
         Button leftButton = (Button) findViewById(R.id.title_left_button);
         Button rightButton = (Button) findViewById(R.id.title_right_button);
         leftButton.setVisibility(View.VISIBLE);
-        if (mMode == RecipesListActivity.MODE_CASE_HISTROY) {
+        //TODO: Forbid for version only has pricing recipe function.
+        rightButton.setVisibility(View.GONE);
+        if (mMode == RecipeColumn.RECIPE_TYPE_CASE_HISTORY) {
             leftButton.setText(R.string.title_bar_button_browse);
             rightButton.setText(R.string.title_bar_button_save);
         } else {
@@ -290,7 +305,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     @Override
-    public void exitActivityWithoutSave() {
+    public void confirmToExistActivity() {
         if(isNewRecipe()){
             showDialog(DIALOG_WAITING);
             Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
@@ -301,6 +316,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     public void onTitilebarRightButtonClicked(View v){
+        //TODO: Forbid for version only has pricing recipe function.
         confirmToSave();
     }
 
@@ -368,15 +384,16 @@ public class RecipeInfoEditActivity extends BaseActivity{
         if (!TextUtils.isEmpty(count) && !isLessEqualZero(Integer.valueOf(count))) {
             values.put(RecipeColumn.COUNT, count);
         }
-        if (mMode == RecipesListActivity.MODE_CHARE) {
+        if (mMode == RecipeColumn.RECIPE_TYPE_CHARGE) {
             String registerFee = mRegisterFeeEdit.getText().toString();
             String otherFee = mOtherFeeEdit.getText().toString();
             values.put(RecipeColumn.REGISTER_FEE, registerFee);
             values.put(RecipeColumn.OTHER_FEE, otherFee);
             values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CHARGE);
-        } else {
-            values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CASE_HISTORY);
         }
+//        else {
+//            values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CASE_HISTORY);
+//        }
         showDialog(DIALOG_WAITING);
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
         mAsyncQuery.startUpdate(TOKEN_UPGRATE_RECIPE_TABLE, null, uri, values, null, null);
@@ -389,7 +406,7 @@ public class RecipeInfoEditActivity extends BaseActivity{
             ContentValues values = new ContentValues();
             values.put(RecipeMedicineColumn.RECIPE_KEY, mRecipeId);
             values.put(RecipeMedicineColumn.WEIGHT, info.mWeight);
-            values.put(RecipeMedicineColumn.MEDICINE_KEY, info.mMedicineId);
+            values.put(RecipeMedicineColumn.MEDICINE_NAME_KEY, info.mMedicineNameId);
             contentValues[i] = values;
             i++;
         }
@@ -425,7 +442,8 @@ public class RecipeInfoEditActivity extends BaseActivity{
     }
 
     static class MedicineInfo{
-        long mMedicineId;
+        long mMedicineId;  //used for avoid same medicine insert into recipe(include alias medicine name)
+        long mMedicineNameId;  // used for distinguish the special medicine name.
         String mName;
         int mWeight;
     }
@@ -448,10 +466,11 @@ public class RecipeInfoEditActivity extends BaseActivity{
             if (mScanRecipe) {
                 mScanRecipe = false;
                 intent.setClass(RecipeInfoEditActivity.this, RecipeInfoViewActivity.class);
-                if (mMode == RecipesListActivity.MODE_CHARE) {
-                    intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE,  RecipesListActivity.MODE_CHARE);
+                if (mMode == RecipeColumn.RECIPE_TYPE_CHARGE) {
+                    intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE,  RecipeColumn.RECIPE_TYPE_CHARGE);
                 }
                 startActivity(intent);
+                finish();
             } else {
                 setResult(RESULT_OK, intent);
                 finish();

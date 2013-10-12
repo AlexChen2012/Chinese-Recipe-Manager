@@ -2,9 +2,12 @@ package com.alex.recipemanager.ui.recipe;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,7 @@ import com.alex.recipemanager.R;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
+import com.alex.recipemanager.util.Consts;
 
 public class RecipeInfoViewActivity extends BaseActivity {
 
@@ -33,7 +37,6 @@ public class RecipeInfoViewActivity extends BaseActivity {
     private TextView mRecipeCountView;
     private RecipeMedicineAdapter mAdapter;
     private GridView mGridView;
-    private String mPrice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +73,9 @@ public class RecipeInfoViewActivity extends BaseActivity {
             intent.putExtra(EXTRA_LONG_VALUE_PATIENT_ID, mPatientId);
             intent.putExtra(EXTRA_LONG_VALUE_CASE_HISOTRY_ID, mCaseHistoryId);
             intent.putExtra(EXTRA_LONG_VALUE_RECIPE_ID, mRecipeId);
+            intent.putExtra(EXTRA_INT_VALUE_RECIPE_MODE, RecipeColumn.RECIPE_TYPE_CHARGE);
             startActivity(intent);
+            finish();
             break;
         default:
             return super.onOptionsItemSelected(item);
@@ -83,7 +88,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
         Cursor recipeCursor = getContentResolver().query(uri, null, null, null, null);
         Cursor medicineCursor = null;
         String recipeName = null;
-        int type = RecipeColumn.RECIPE_TYPE_CASE_HISTORY;
+        int type = RecipeColumn.RECIPE_TYPE_CHARGE;
         int count = 0;
         if (recipeCursor != null) {
             try {
@@ -102,8 +107,16 @@ public class RecipeInfoViewActivity extends BaseActivity {
                         selection,
                         selectionArgs,
                         null);
-                String  price = getPrice(recipeCursor, medicineCursor);
-                setTitle(recipeName, count, type, price);
+                String price = getPrice(recipeCursor, medicineCursor);
+                String registerFee = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE));
+                if (TextUtils.isEmpty(registerFee)) {
+                    registerFee = "0";
+                }
+                String otherFee = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.OTHER_FEE));
+                if (TextUtils.isEmpty(otherFee)) {
+                    otherFee = "0";
+                }
+                setTitle(recipeName, count, type, price, registerFee, otherFee);
                 Log.d(TAG, "recipe price is: " + price);
             } finally {
                 recipeCursor.close();
@@ -114,7 +127,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
         mGridView.setAdapter(mAdapter);
     }
 
-    private void setTitle(String recipeName, int count,int type, String price) {
+    private void setTitle(String recipeName, int count, int type, String price, String registerFee, String otherFee) {
         TextView nameView = (TextView) findViewById(R.id.title_bar_name_view);
         nameView.setText(recipeName);
         TextView countView = (TextView) findViewById(R.id.title_bar_count_view);
@@ -124,6 +137,10 @@ public class RecipeInfoViewActivity extends BaseActivity {
         } else {
             findViewById(R.id.title_bar_recipe_fee_layout).setVisibility(View.VISIBLE);
             TextView priceView = (TextView) findViewById(R.id.title_bar_price_view);
+            TextView registerFeeView = (TextView) findViewById(R.id.title_bar_register_fee_view);
+            registerFeeView.setText(registerFee);
+            TextView otherFeeTextView = (TextView) findViewById(R.id.title_bar_other_fee_view);
+            otherFeeTextView.setText(otherFee);
             priceView.setText(price);
         }
     }
@@ -134,10 +151,15 @@ public class RecipeInfoViewActivity extends BaseActivity {
             medicinePrice += medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT)
                     * medicineCursor.getInt(COLUMN_RECIPE_MEDICINE_AMOUNT);
         }
-        medicinePrice = medicinePrice * recipeCursor.getInt(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT));
+        int count = recipeCursor.getInt(recipeCursor.getColumnIndexOrThrow(RecipeColumn.COUNT));
+        medicinePrice = medicinePrice * count;
         String register = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE));
         String other = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.OTHER_FEE));
-        String price = String.valueOf(Float.valueOf(register) + Float.valueOf(other)
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String bagFee = sp.getString(Consts.EXTRA_STRING_VALUE_BAG_FEE, "0.2");
+        Log.d(TAG, "sharepreference bag fee = " + bagFee);
+        String bagPrice = String.valueOf(count * Float.valueOf(bagFee));
+        String price = String.valueOf(Float.valueOf(register) + Float.valueOf(other) + Float.valueOf(bagPrice)
                 + Float.valueOf(formatPrice(medicinePrice)));
         int index = price.indexOf('.');
         return index != -1 && price.length() - index > 3 ? price.substring(0, index + 3): price;
