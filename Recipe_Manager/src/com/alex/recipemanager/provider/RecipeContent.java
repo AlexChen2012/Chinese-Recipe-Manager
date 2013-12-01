@@ -134,6 +134,10 @@ public final class RecipeContent {
         public static final String MEDICINE_NAME_KEY = "recipe_medicine_name_key";
         // medicine count unit g
         public static final String WEIGHT = "weight";
+        // recording the index of this medicine appears in corresponding recipe
+        public static final String INDEX = "recipe_index";
+
+        public static final String DEFAULT_ORDER = INDEX + " asc";
     }
 
     public interface NationColumn extends BaseColumns {

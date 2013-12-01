@@ -331,7 +331,7 @@ public class MedicineListActivity extends BaseListActivity{
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if(token == TOKEN_QUERY_MEDICINE_NAME){
                 ItemCache cache = (ItemCache) cookie;
-                if(cursor != null){
+                if(cursor != null) {
                     try{
                         if(isIlleagelInput(cursor, cache)){
                             removeDialog(DIALOG_WAITING);

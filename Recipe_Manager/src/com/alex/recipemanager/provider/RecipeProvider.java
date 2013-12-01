@@ -29,7 +29,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 43;
+    public static final int DATABASE_VERSION = 45;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -252,6 +252,7 @@ public class RecipeProvider extends ContentProvider {
                 + REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.RECIPE_KEY + " integer "
                 + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
+//                + RecipeMedicineColumn.INDEX + " integer default 0, "
                 + RecipeMedicineColumn.WEIGHT + " integer" + ");";
         db.execSQL("create table " + RecipeMedicineColumn.TABLE_NAME + s);
         db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
@@ -526,16 +527,38 @@ public class RecipeProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS "
-                    + RecipeMedicineColumn.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
-            onCreate(db);
-            createTriggers(db);
+            Log.d(TAG, "old db version = " + oldVersion + " new version = " + newVersion);
+            switch (oldVersion) {
+                case 44:
+                    if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
+                            RecipeMedicineColumn.TABLE_NAME)) {
+                        Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+                        db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
+                                + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
+                    }
+                    break;
+                default:
+                    // handle default upgrade. drop all tables and create them again.
+                    db.execSQL("DROP TABLE IF EXISTS "
+                            + RecipeMedicineColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
+                    onCreate(db);
+                    createTriggers(db);
+            }
+        }
+
+        private boolean isColumnExisting(SQLiteDatabase db, String columnName, String tableName){
+            try{
+                db.execSQL("SELECT " + columnName + " from " + tableName);
+            }catch(Exception e){
+                return false;
+            }
+            return true;
         }
     }
 

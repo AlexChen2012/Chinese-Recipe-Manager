@@ -103,10 +103,10 @@ public class RecipeInfoViewActivity extends BaseActivity {
                 String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
                 String[] selectionArgs = {String.valueOf(mRecipeId)};
                 medicineCursor = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
-                        RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION,
+                        RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION,
                         selection,
                         selectionArgs,
-                        null);
+                        RecipeMedicineColumn.DEFAULT_ORDER);
                 String price = getPrice(recipeCursor, medicineCursor);
                 String registerFee = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE));
                 if (TextUtils.isEmpty(registerFee)) {

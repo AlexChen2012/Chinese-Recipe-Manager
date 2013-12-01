@@ -146,7 +146,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
         String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
         String[] selectionArgs = {String.valueOf(mRecipeId)};
         c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
-                RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION,
+                RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION,
                 selection,
                 selectionArgs,
                 null);
@@ -407,6 +407,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
             values.put(RecipeMedicineColumn.RECIPE_KEY, mRecipeId);
             values.put(RecipeMedicineColumn.WEIGHT, info.mWeight);
             values.put(RecipeMedicineColumn.MEDICINE_NAME_KEY, info.mMedicineNameId);
+            values.put(RecipeMedicineColumn.INDEX, i);
             contentValues[i] = values;
             i++;
         }

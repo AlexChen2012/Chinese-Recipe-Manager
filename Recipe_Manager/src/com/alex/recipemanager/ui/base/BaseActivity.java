@@ -77,7 +77,7 @@ public class BaseActivity extends Activity{
     public static final int COLUMN_RECIPE_IS_STORAGE = 4;
     public static final int COLUMN_RECIPE_TYPE = 5;
 
-    public static final String[] RECIPE_MEDINE_JOIN_MEDICINE_NAME_PROJECTION = new String[] {
+    public static final String[] RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION = new String[] {
         MedicineNameColumn._ID,
         MedicineNameColumn.MEDICINE_NAME,
         RecipeMedicineColumn.MEDICINE_NAME_KEY,
