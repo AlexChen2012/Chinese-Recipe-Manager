@@ -4,14 +4,17 @@ import java.util.ArrayList;
 
 import android.app.Dialog;
 import android.content.AsyncQueryHandler;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -26,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alex.recipemanager.R;
+import com.alex.recipemanager.provider.RecipeContent;
 import com.alex.recipemanager.provider.RecipeContent.RecipeColumn;
 import com.alex.recipemanager.provider.RecipeContent.RecipeMedicineColumn;
 import com.alex.recipemanager.ui.base.BaseActivity;
@@ -346,7 +350,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
             showDialog(DIALOG_EMPTY_WEIGHT);
             return ;
         }
-        saveReicpe();
+        saveRecipe();
     }
 
     public void onTitlebarLeftButtonClicked(View v) {
@@ -372,7 +376,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
         return value < 0f;
     }
 
-    private void saveReicpe() {
+    private void saveRecipe() {
         ContentValues values = new ContentValues();
         String name = mNameEdit.getText().toString();
         String count = mCountEidt.getText().toString();
@@ -436,9 +440,50 @@ public class RecipeInfoEditActivity extends BaseActivity {
         }
 
         private void deleteOldMedicines() {
+            revertGrossWeight();
+
             String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
             String[] selectionArgs = {String.valueOf(mRecipeId)};
             getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
+        }
+
+        private void revertGrossWeight() {
+            String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
+            String[] selectionArgs = {String.valueOf(mRecipeId)};
+            Cursor c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
+                    RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION,
+                    selection,
+                    selectionArgs,
+                    null);
+
+            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+            if (c != null) {
+                try {
+                    while (c.moveToNext()) {
+                        ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(RecipeContent.MedicineColumn.CONTENT_URI);
+                        builder.withValue(RecipeContent.MedicineColumn.GROSS_WEIGHT,
+                                c.getInt(COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT)
+                                        + c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT));
+                        operations.add(builder.build());
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+
+            if (!operations.isEmpty()) {
+                try {
+                    getContentResolver().applyBatch(RecipeContent.AUTHORITY, operations);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "failed to  update medicine gross weight column");
+                } catch (OperationApplicationException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "failed to  update medicine gross weight column");
+                }
+            }
+
         }
     }
 

@@ -252,7 +252,7 @@ public class RecipeProvider extends ContentProvider {
                 + REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY + " , "
                 + RecipeMedicineColumn.RECIPE_KEY + " integer "
                 + REFERENCE_RECIPE_ID_AS_FOREIGN_KEY + " , "
-//                + RecipeMedicineColumn.INDEX + " integer default 0, "
+                + RecipeMedicineColumn.INDEX + " integer default 0, "
                 + RecipeMedicineColumn.WEIGHT + " integer" + ");";
         db.execSQL("create table " + RecipeMedicineColumn.TABLE_NAME + s);
         db.execSQL(createIndex(RecipeMedicineColumn.TABLE_NAME,
@@ -522,6 +522,48 @@ public class RecipeProvider extends ContentProvider {
                     + "     WHERE " + RecipeMedicineColumn.RECIPE_KEY
                                     + "=OLD." + RecipeColumn._ID
                                     + ";"
+                    + " END");
+
+            /**
+             * Recipe medicine delete trigger
+             * If a medicine deleted in RecipeMedicineColumn.TABLE_NAME then the same medicine in
+             * MedicineColumn.TABLE_NAME should plus corresponding gross weight
+             */
+//            db.execSQL("DROP TRIGGER IF EXISTS "
+//                    + RecipeMedicineColumn.TABLE_NAME + "_deleted;");
+//            db.execSQL("CREATE TRIGGER "
+//                    + RecipeMedicineColumn.TABLE_NAME + "_deleted "
+//                    + "   BEFORE DELETE ON " + RecipeMedicineColumn.TABLE_NAME
+//                    + " BEGIN "
+//                    + "   UPDATE " + MedicineColumn.TABLE_NAME
+//                    + "   SET " + MedicineColumn.GROSS_WEIGHT  + "=" + MedicineColumn.GROSS_WEIGHT
+//                                + "+OLD." + RecipeMedicineColumn.WEIGHT
+//                    + "   WHERE " + MedicineColumn._ID + " IN (SELECT "
+//                                  + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY
+//                                  + " FROM " + TABLE_RECIPE_JOINED_MEDICINE_QUERY
+//                                  + " WHERE " + "OLD." + RecipeMedicineColumn.MEDICINE_NAME_KEY + "=" + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID + ")"
+//                    + ";"
+//                    + " END");
+
+            /**
+             * Recipe medicine update trigger
+             * If a medicine updated in RecipeMedicineColumn.TABLE_NAME then the same medicine in
+             * MedicineColumn.TABLE_NAME should minus corresponding gross weight
+             */
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + RecipeMedicineColumn.TABLE_NAME + "_insert;");
+            db.execSQL("CREATE TRIGGER "
+                    + RecipeMedicineColumn.TABLE_NAME + "_insert "
+                    + "   AFTER INSERT ON " + RecipeMedicineColumn.TABLE_NAME
+                    + " BEGIN "
+                    + "   UPDATE " + MedicineColumn.TABLE_NAME
+                    + "   SET " + MedicineColumn.GROSS_WEIGHT  + "=" + MedicineColumn.GROSS_WEIGHT
+                    + "-NEW." + RecipeMedicineColumn.WEIGHT
+                    + "   WHERE " + MedicineColumn._ID + " IN (SELECT "
+                    + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY
+                    + " FROM " + TABLE_RECIPE_JOINED_MEDICINE_QUERY
+                    + " WHERE " + "NEW." + RecipeMedicineColumn.MEDICINE_NAME_KEY + "=" + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID + ")"
+                    + ";"
                     + " END");
         }
 
