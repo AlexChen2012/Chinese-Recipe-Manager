@@ -132,7 +132,7 @@
             android:orientation="vertical">
 
             <LinearLayout android:layout_width="fill_parent"
-                android:layout_height="?android:attr/listPreferredItemHeight"
+                android:layout_height="70dip"
                 android:orientation="horizontal">
 
                 <TextView style="@style/SmallText"
@@ -152,8 +152,8 @@
                     android:background="@android:drawable/divider_horizontal_textfield"/>
 
                 <ImageView android:id="@+id/patient_case_history_add"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
+                    android:layout_width="70dip"
+                    android:layout_height="70dip"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="5dip"
                     android:src="@drawable/ic_input_add"

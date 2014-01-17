@@ -69,6 +69,8 @@ public final class RecipeContent {
         public static final String GROSS_WEIGHT = "gross_weight";
         //threshold of the medicine
         public static final String THRESHOLD = "threshold";
+
+        public static final String ORDER_BY_WEIGHT_MINUS_THRESHOLD = GROSS_WEIGHT + "-" + THRESHOLD + " asc";
     }
 
     public interface MedicineNameColumn extends BaseColumns {

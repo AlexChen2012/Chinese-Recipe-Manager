@@ -92,7 +92,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
             Uri uri = getContentResolver().insert(RecipeColumn.CONTENT_URI, values);
             mRecipeId = Integer.valueOf(uri.getLastPathSegment());
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            mRegisterFeeEdit.setText(sp.getString(Consts.EXTRA_STRING_VALUE_REGISTER_FEE, "10"));
+            mRegisterFeeEdit.setText(sp.getString(Consts.PREFERENCE_STRING_VALUE_REGISTER_FEE, "10"));
             Log.v(TAG, "new recipe id = " + mRecipeId);
         } else {
             setValueToView();
@@ -291,7 +291,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
             rightButton.setText(R.string.title_bar_button_save);
         } else {
             leftButton.setText(R.string.title_bar_pricing);
-            rightButton.setText(R.string.title_bar_storege);
+            rightButton.setText(R.string.title_bar_storage);
         }
     }
 

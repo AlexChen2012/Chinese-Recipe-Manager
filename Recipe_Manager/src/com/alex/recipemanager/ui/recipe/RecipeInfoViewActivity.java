@@ -156,7 +156,7 @@ public class RecipeInfoViewActivity extends BaseActivity {
         String register = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.REGISTER_FEE));
         String other = recipeCursor.getString(recipeCursor.getColumnIndexOrThrow(RecipeColumn.OTHER_FEE));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String bagFee = sp.getString(Consts.EXTRA_STRING_VALUE_BAG_FEE, "0.2");
+        String bagFee = sp.getString(Consts.PREFERENCE_STRING_VALUE_BAG_FEE, "0.2");
         Log.d(TAG, "sharepreference bag fee = " + bagFee);
         String bagPrice = String.valueOf(count * Float.valueOf(bagFee));
         String price = String.valueOf(Float.valueOf(register) + Float.valueOf(other) + Float.valueOf(bagPrice)

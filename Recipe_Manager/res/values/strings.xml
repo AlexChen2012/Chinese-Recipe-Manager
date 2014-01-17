@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">病历管理</string>
-    <string name="medicine_amount">%1$d (克/厘)</string>
     <string name="title_bar_button_save">保存</string>
     <string name="title_bar_button_browse">浏览</string>
     <string name="title_bar_text_edit">编辑</string>
     <string name="title_bar_text_create">新建</string>
     <string name="title_bar_text_edit_recipe">开药</string>
     <string name="title_bar_pricing">划价</string>
-    <string name="title_bar_storege">入库</string>
+    <string name="title_bar_storage">入库</string>
+
+    <!-- medicine -->
+    <string name="medicine_amount">%1$d (克/厘)</string>
+    <string name="medicine_danger">(危险: %1$d 克)</string>
+    <string name="medicine_lack">(少: %1$d 克)</string>
+
     <!-- menu define -->
     <string name="menu_create">添加</string>
     <string name="menu_alias_create">添加别名</string>
@@ -80,4 +85,5 @@
     <!-- Settings -->
     <string name="setting_register_fee_text">挂号费</string>
     <string name="setting_bag_price_text">口袋费</string>
+    <string name="setting_medicine_lack_text">库存显示“少”</string>
 </resources>

@@ -69,7 +69,7 @@ public class AliasListActivity extends BaseListActivity{
     private void initialize() {
         mAliasId = getIntent().getStringExtra(EXTRA_STRING_VALUE_MEDICINE_NAME_ID);
         Uri uri = Uri.withAppendedPath(MedicineNameColumn.FETCH_MEDICINE_AND_NAME_URI, mAliasId);
-        Cursor c = getContentResolver().query(uri, MedicineListActivity.MEDINE_NAME_JOIN_AMOUNT_PROJECTION,
+        Cursor c = getContentResolver().query(uri, MedicineListActivity.MEDICINE_NAME_JOIN_AMOUNT_PROJECTION,
                 null, null, null);
         if(c != null){
             try{

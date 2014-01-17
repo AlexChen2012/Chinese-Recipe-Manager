@@ -5,4 +5,6 @@
     <color name="gray">#FFcccccc</color>
     <color name="orange">#FFFFA500</color>
     <color name="springgreen">#FF00FF7F</color>
+    <color name="medicine_danger">#FFF25936</color>
+    <color name="medicine_lack">#FFFFCD1E</color>
 </resources>

@@ -5,16 +5,28 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <TextView style="@style/MiddleText"
-        android:id="@+id/medicine_name"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginLeft="5dip"
-        android:gravity="center_vertical"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:layout_gravity="center_vertical"/>
+    <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+        <TextView style="@style/MiddleText"
+            android:id="@+id/medicine_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView style="@style/MiddleText"
+                  android:id="@+id/warning_info"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
     <TextView style="@style/MiddleText"
         android:id="@+id/medicine_amount"

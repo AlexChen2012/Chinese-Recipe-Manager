@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.test.ProviderTestCase2;
 
+import android.util.Log;
 import com.alex.recipemanager.provider.RecipeContent;
 import com.alex.recipemanager.provider.RecipeContent.MedicineColumn;
 import com.alex.recipemanager.provider.RecipeContent.MedicineNameColumn;
@@ -15,6 +16,8 @@ import com.alex.recipemanager.provider.RecipeProvider;
 
 @SuppressWarnings("rawtypes")
 public class RecipeProviderTest extends ProviderTestCase2 {
+
+    static final String TAG = "RecipeProviderTest";
 
     private static final String DEFAULT_MEDICINE_NAME1 = "juhua";
     private static final String DEFAULT_MEDICINE_NAME2 = "guihua";
@@ -33,11 +36,22 @@ public class RecipeProviderTest extends ProviderTestCase2 {
     protected void setUp() throws Exception {
         super.setUp();
         mResolver = getMockContentResolver();
+        cleanTables();
+        dump();
+    }
+
+    private void cleanTables() {
+        Log.d(TAG, "clean tables");
+        mResolver.delete(MedicineColumn.CONTENT_URI, null, null);
+        mResolver.delete(MedicineNameColumn.CONTENT_URI, null, null);
+        mResolver.delete(RecipeContent.RecipeColumn.CONTENT_URI, null, null);
+        mResolver.delete(RecipeContent.RecipeMedicineColumn.CONTENT_URI, null, null);
     }
 
     public void testInsertMedicine() {
         String id = insertMedicine(DEFAULT_MEDICINE_MOUNT);
         assertEquals(true, isMedicineExist(id));
+        dump();
     }
 
     public void testInsertMedicineName() {
@@ -93,7 +107,9 @@ public class RecipeProviderTest extends ProviderTestCase2 {
     }
 
     private String insertMedicineName(ContentValues values) {
+        Log.d(TAG, "insert medicine name mValues = " + values.toString());
         Uri uri = mResolver.insert(MedicineNameColumn.CONTENT_URI, values);
+        Log.d(TAG, "inserted uri = " + uri);
         return uri.getLastPathSegment();
     }
 
@@ -104,4 +120,17 @@ public class RecipeProviderTest extends ProviderTestCase2 {
         return uri.getLastPathSegment();
     }
 
+    private void dump() {
+        Log.d(TAG, "dumping MedicineName table");
+        Cursor c = mResolver.query(MedicineNameColumn.CONTENT_URI, null, null, null, null);
+        if (c != null) {
+            try {
+                while (c.moveToNext()) {
+                    Log.d(TAG, c.toString());
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
 }

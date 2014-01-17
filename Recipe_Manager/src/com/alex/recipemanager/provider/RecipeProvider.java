@@ -1,6 +1,7 @@
 package com.alex.recipemanager.provider;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import android.content.ContentProvider;
@@ -34,6 +35,10 @@ public class RecipeProvider extends ContentProvider {
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
             + " ( " + PatientColumns._ID + " )";
+
+    private static final String REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY =
+            "references " + MedicineColumn.TABLE_NAME
+                    + " ( " + MedicineColumn._ID + " )";
 
     private static final String REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY =
             "references " + MedicineNameColumn.TABLE_NAME
@@ -213,10 +218,10 @@ public class RecipeProvider extends ContentProvider {
         String s = " (" + MedicineNameColumn._ID
                 + " integer primary key autoincrement, "
                 + MedicineNameColumn.MEDICINE_KEY + " integer "
-                + REFERENCE_MEDICINE_NAME_ID_AS_FOREIGN_KEY + " , "
+                + REFERENCE_MEDICINE_ID_AS_FOREIGN_KEY + " , "
                 + MedicineNameColumn.MEDICINE_NAME_ABBR + " text, "
-                + MedicineNameColumn.MEDICINE_NAME + " text, " + "unique ("
-                + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
+                + MedicineNameColumn.MEDICINE_NAME + " text, "
+                + "unique (" + MedicineNameColumn.MEDICINE_NAME + ")" + ");";
         db.execSQL("create table " + MedicineNameColumn.TABLE_NAME + s);
         db.execSQL(createIndex(MedicineNameColumn.TABLE_NAME,
                 MedicineNameColumn.MEDICINE_KEY));
@@ -404,6 +409,8 @@ public class RecipeProvider extends ContentProvider {
         mDatabase = helper.getWritableDatabase();
         mDatabase.execSQL("PRAGMA foreign_keys = ON;");
 
+        Log.d(TAG, "mDatabase.getPath() = " + mDatabase.getPath());
+
         return mDatabase;
     }
 
@@ -431,32 +438,34 @@ public class RecipeProvider extends ContentProvider {
             super(context, DB_DIR + DATABASE_NAME, null, DATABASE_VERSION);
         }
 
-//        public SQLiteDatabase getWritableDatabase() {
-//            SQLiteDatabase db = null;
-//            File dbp = new File(DATABASE_PATH);
-//            File dbf = new File(DATABASE_PATH + File.pathSeparator + DATABASE_FILENAME);
-//
-//            if (!dbp.exists()) {
-//                dbp.mkdir();
-//            }
-//
-//            boolean isFileCreateSuccess = false;
-//
-//            if (!dbf.exists()) {
-//                try {
-//                    isFileCreateSuccess = dbf.createNewFile();
-//                } catch (IOException ioex) {}
-//
-//            } else {
-//                isFileCreateSuccess = true;
-//            }
-//            if (isFileCreateSuccess) {
-//                db = SQLiteDatabase.openOrCreateDatabase(dbf, null);
-//            }
-//            return db;
-//        }
+        @Override
+        public SQLiteDatabase getWritableDatabase() {
+            SQLiteDatabase db = null;
+            File dbp = new File(DB_DIR);
+            File dbf = new File(DB_DIR + DATABASE_NAME);
+
+            if (!dbp.exists()) {
+                dbp.mkdir();
+            }
+
+            boolean isFileCreateSuccess = false;
+
+            if (!dbf.exists()) {
+                try {
+                    isFileCreateSuccess = dbf.createNewFile();
+                } catch (IOException ex) {}
+
+            } else {
+                isFileCreateSuccess = true;
+            }
+            if (isFileCreateSuccess) {
+                db = SQLiteDatabase.openOrCreateDatabase(dbf, null);
+            }
+            return db;
+        }
 
         public void onCreate(SQLiteDatabase db) {
+            Log.d(TAG, "enter onCreate");
             createPatientTable(db);
             createCaseHistoryTable(db);
             createMedicineNameTable(db);
@@ -570,28 +579,48 @@ public class RecipeProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.d(TAG, "old db version = " + oldVersion + " new version = " + newVersion);
-            switch (oldVersion) {
-                case 44:
-                    if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
-                            RecipeMedicineColumn.TABLE_NAME)) {
-                        Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
-                        db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
-                                + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
-                    }
-                    break;
-                default:
-                    // handle default upgrade. drop all tables and create them again.
-                    db.execSQL("DROP TABLE IF EXISTS "
-                            + RecipeMedicineColumn.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
-                    db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
-                    onCreate(db);
-                    createTriggers(db);
+            if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
+                    RecipeMedicineColumn.TABLE_NAME)) {
+                Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+                db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
+                        + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
+                createTriggers(db);
+            } else {
+                // handle default upgrade. drop all tables and create them again.
+                db.execSQL("DROP TABLE IF EXISTS "
+                        + RecipeMedicineColumn.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
+                db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
+                onCreate(db);
+                createTriggers(db);
             }
+//            switch (oldVersion) {
+//                case 44:
+//                    if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
+//                            RecipeMedicineColumn.TABLE_NAME)) {
+//                        Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+//                        db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
+//                                + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
+//                        createTriggers(db);
+//                    }
+//                    break;
+//                default:
+//                    // handle default upgrade. drop all tables and create them again.
+//                    db.execSQL("DROP TABLE IF EXISTS "
+//                            + RecipeMedicineColumn.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
+//                    db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
+//                    onCreate(db);
+//                    createTriggers(db);
+//            }
         }
 
         private boolean isColumnExisting(SQLiteDatabase db, String columnName, String tableName){
@@ -606,6 +635,8 @@ public class RecipeProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        Log.d(TAG, "DB_DIR =" + DB_DIR);
+        Log.d(TAG, "Environment.getExternalStorageDirectory() = " + Environment.getExternalStorageDirectory());
         return true;
     }
 

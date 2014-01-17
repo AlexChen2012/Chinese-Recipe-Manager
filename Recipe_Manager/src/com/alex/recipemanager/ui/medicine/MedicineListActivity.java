@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -33,12 +34,14 @@ import com.alex.recipemanager.util.MedicineUtil;
 
 public class MedicineListActivity extends BaseListActivity{
 
+    static final String TAG = "MedicineListActivity";
+
     public static final String EXTRA_BOOLEAN_VALUE_START_FROM_MEDICINE_SELECTOR = "exatra_boolean_value_selector";
     public static final String EXTRA_STRING_VALUE_MEDICINE_NAME = "exatra_string_value_medicine_name";
     public static final String EXTRA_LONG_VALUE_MEDICINE_ID = "exatra_long_value_medicine_id";
     public static final String EXTRA_LONG_VALUE_MEDICINE_NAME_ID = "extra_long_value_medicine_name_id";
 
-    public static final String[] MEDINE_NAME_JOIN_AMOUNT_PROJECTION = new String[]{
+    public static final String[] MEDICINE_NAME_JOIN_AMOUNT_PROJECTION = new String[]{
         MedicineNameColumn._ID,
         MedicineColumn.AMOUNT,
         MedicineNameColumn.MEDICINE_NAME,
@@ -106,10 +109,10 @@ public class MedicineListActivity extends BaseListActivity{
         mQueryHandler.startQuery(TOKEN_QUERY_FOR_UPDATE_LIST,
                 null,
                 MedicineNameColumn.FETCH_MEDICINE_AND_NAME_URI,
-                MEDINE_NAME_JOIN_AMOUNT_PROJECTION,
+                MEDICINE_NAME_JOIN_AMOUNT_PROJECTION,
                 selection,
                 null,
-                MedicineNameColumn.DEFAULT_ORDER);
+                MedicineColumn.ORDER_BY_WEIGHT_MINUS_THRESHOLD);
     }
 
     private void initSearchView() {
@@ -288,7 +291,7 @@ public class MedicineListActivity extends BaseListActivity{
                             Toast.LENGTH_LONG).show();
                 } else {
                     mItemCache.mAmount = amount.getText().toString();
-                    mItemCache.mName = (String) name.getText().toString();
+                    mItemCache.mName = name.getText().toString();
                     mItemCache.mAbbr = MedicineUtil.getPinyinAbbr(mItemCache.mName);
                     mItemCache.mGrossWeight = grossWeight.getText().toString();
                     mItemCache.mThreshold = threshold.getText().toString();
@@ -298,7 +301,7 @@ public class MedicineListActivity extends BaseListActivity{
                     mQueryHandler.startQuery(TOKEN_QUERY_MEDICINE_NAME,
                             mItemCache,
                             MedicineNameColumn.FETCH_MEDICINE_AND_NAME_URI,
-                            MEDINE_NAME_JOIN_AMOUNT_PROJECTION,
+                            MEDICINE_NAME_JOIN_AMOUNT_PROJECTION,
                             selection,
                             selectionArgs,
                             null);
@@ -387,8 +390,12 @@ public class MedicineListActivity extends BaseListActivity{
         protected void onInsertComplete(int token, Object cookie, Uri uri) {
             if(token == TOKEN_INSERT_MEDICINE_TABLE){
                 if(uri != null) {
+                    Log.d(TAG, "enter onInsertComplete and token = TOKEN_INSERT_MEDICINE_TABLE");
                     ItemCache cache = (ItemCache) cookie;
                     int id = Integer.valueOf(uri.getPathSegments().get(1));
+                    Log.d(TAG, "MedicineNameColumn.MEDICINE_KEY = " + id);
+                    Log.d(TAG, "MedicineNameColumn.MEDICINE_NAME = " + cache.mName);
+                    Log.d(TAG, "MedicineNameColumn.MEDICINE_NAME_ABBR = " + cache.mAbbr);
                     ContentValues values = new ContentValues();
                     values.put(MedicineNameColumn.MEDICINE_KEY, id);
                     values.put(MedicineNameColumn.MEDICINE_NAME, cache.mName);
@@ -399,7 +406,9 @@ public class MedicineListActivity extends BaseListActivity{
                     removeDialog(DIALOG_WAITING);
                 }
             }
-            if(token == TOKEN_INSERT_MEDICINE_NAME){
+            if(token == TOKEN_INSERT_MEDICINE_NAME) {
+                Log.d(TAG, "enter onInsertComplete and token = TOKEN_INSERT_MEDICINE_NAME");
+                Log.d(TAG, "insert url = " + uri);
                 Toast.makeText(MedicineListActivity.this, R.string.toast_add_success, Toast.LENGTH_LONG).show();
                 updateList(null);
             }

@@ -17,6 +17,7 @@ public class RecipeManagerSettingActivity extends Activity {
 
     private EditText mRegisterFeeEdit;
     private EditText mBagFeeEdit;
+    private EditText mMedicineLackEdit;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,9 +25,12 @@ public class RecipeManagerSettingActivity extends Activity {
         setContentView(R.layout.setting_activity_layout);
         mRegisterFeeEdit = (EditText) findViewById(R.id.setting_register_fee_edit);
         mBagFeeEdit = (EditText) findViewById(R.id.setting_bag_price_edit);
+        mMedicineLackEdit = (EditText) findViewById(R.id.setting_medicine_lack_edit);
+
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        mRegisterFeeEdit.setText(sp.getString(Consts.EXTRA_STRING_VALUE_REGISTER_FEE, "10"));
-        mBagFeeEdit.setText(sp.getString(Consts.EXTRA_STRING_VALUE_BAG_FEE, "0.2"));
+        mRegisterFeeEdit.setText(sp.getString(Consts.PREFERENCE_STRING_VALUE_REGISTER_FEE, "10"));
+        mBagFeeEdit.setText(sp.getString(Consts.PREFERENCE_STRING_VALUE_BAG_FEE, "0.2"));
+        mMedicineLackEdit.setText(String.valueOf(sp.getInt(Consts.PREFERENCE_INT_VALUE_MEDICINE_LACK, 500)));
     }
 
     @Override
@@ -38,8 +42,9 @@ public class RecipeManagerSettingActivity extends Activity {
         .setPositiveButton(android.R.string.ok, new OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Editor editor = PreferenceManager.getDefaultSharedPreferences(RecipeManagerSettingActivity.this).edit();
-                editor.putString(Consts.EXTRA_STRING_VALUE_REGISTER_FEE, mRegisterFeeEdit.getText().toString());
-                editor.putString(Consts.EXTRA_STRING_VALUE_BAG_FEE, mBagFeeEdit.getText().toString());
+                editor.putString(Consts.PREFERENCE_STRING_VALUE_REGISTER_FEE, mRegisterFeeEdit.getText().toString());
+                editor.putString(Consts.PREFERENCE_STRING_VALUE_BAG_FEE, mBagFeeEdit.getText().toString());
+                editor.putInt(Consts.PREFERENCE_INT_VALUE_MEDICINE_LACK, Integer.valueOf(mMedicineLackEdit.getText().toString()));
                 editor.commit();
                 finish();
             }
