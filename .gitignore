@@ -1,0 +1,11 @@
+*.ap_
+*.dex
+*.class
+
+bin/
+gen/
+local.properties
+*.iml
+*.swp
+.idea/
+.gradle
