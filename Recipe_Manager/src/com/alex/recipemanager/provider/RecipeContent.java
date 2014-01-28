@@ -105,12 +105,18 @@ public final class RecipeContent {
         public static final String TIMESTAMP = "recipe_time";
         // recipe count
         public static final String COUNT = "recipe_count";
+
+        // Doesn't use this column, all gross of stored recipe medicines are minus its
+        // corresponding weight from MedicineColumn
         // medicines in recipe is put into storage.
         public static final String IS_STORAGE = "is_storage";
         // other fee
         public static final String OTHER_FEE = "other_fee";
         // recipe register fee
         public static final String REGISTER_FEE = "register_fee";
+
+        // Doesn't use this column, each recipe price is dramatically calculated when recipe shows
+        // to user.
         // gross cost
         public static final String GROSS_COST = "gross_price";
 

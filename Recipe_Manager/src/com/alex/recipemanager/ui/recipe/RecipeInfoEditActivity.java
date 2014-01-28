@@ -235,7 +235,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
     public void onDeleteButtonClick(View v){
         RemoveableLayoutView view = (RemoveableLayoutView)v.getParent().getParent();
         mRecipeLayout.removeView(view);
-        deleteMeidincineInfoById(view.getRecordId());
+        deleteMedincineInfoById(view.getRecordId());
     }
 
     private boolean matchMedicineId(long id) {
@@ -248,7 +248,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
         return false;
     }
 
-    private void deleteMeidincineInfoById(long id) {
+    private void deleteMedincineInfoById(long id) {
         Log.v(TAG, "view id = " + id);
         for(MedicineInfo info : mMedicineInfo) {
             if(info.mMedicineId == id){
@@ -394,10 +394,11 @@ public class RecipeInfoEditActivity extends BaseActivity {
             values.put(RecipeColumn.REGISTER_FEE, registerFee);
             values.put(RecipeColumn.OTHER_FEE, otherFee);
             values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CHARGE);
-        }
-//        else {
+        } else {
+            // Hide RECIPE_TYPE_CASE_HISTORY feature
 //            values.put(RecipeColumn.RECIPE_TYPE, RecipeColumn.RECIPE_TYPE_CASE_HISTORY);
-//        }
+            Log.e(TAG, "Should not enter here");
+        }
         showDialog(DIALOG_WAITING);
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
         mAsyncQuery.startUpdate(TOKEN_UPGRATE_RECIPE_TABLE, null, uri, values, null, null);
