@@ -443,6 +443,7 @@ public class RecipeProvider extends ContentProvider {
             SQLiteDatabase db = null;
             File dbp = new File(DB_DIR);
             File dbf = new File(DB_DIR + DATABASE_NAME);
+            boolean isCreate = false;
 
             if (!dbp.exists()) {
                 dbp.mkdir();
@@ -453,6 +454,7 @@ public class RecipeProvider extends ContentProvider {
             if (!dbf.exists()) {
                 try {
                     isFileCreateSuccess = dbf.createNewFile();
+                    isCreate = true;
                 } catch (IOException ex) {}
 
             } else {
@@ -460,10 +462,14 @@ public class RecipeProvider extends ContentProvider {
             }
             if (isFileCreateSuccess) {
                 db = SQLiteDatabase.openOrCreateDatabase(dbf, null);
+                if (isCreate) {
+                    onCreate(db);
+                }
             }
             return db;
         }
 
+        @Override
         public void onCreate(SQLiteDatabase db) {
             Log.d(TAG, "enter onCreate");
             createPatientTable(db);
@@ -492,6 +498,18 @@ public class RecipeProvider extends ContentProvider {
                                     + " WHERE " + MedicineNameColumn.MEDICINE_KEY
                                     + " =OLD." + MedicineNameColumn.MEDICINE_KEY
                                     + ")=1;"
+                    + " END");
+
+            db.execSQL("DROP TRIGGER IF EXISTS "
+                    + MedicineColumn.TABLE_NAME + "_deleted;");
+            db.execSQL("CREATE TRIGGER "
+                    + MedicineColumn.TABLE_NAME + "_deleted "
+                    + "   BEFORE DELETE ON " + MedicineColumn.TABLE_NAME
+                    + " BEGIN "
+                    + "   DELETE FROM " + MedicineNameColumn.TABLE_NAME
+                    + "     WHERE " + MedicineNameColumn.MEDICINE_KEY
+                    + "=OLD." + MedicineColumn._ID
+                    + ";"
                     + " END");
 
             //patient delete trigger

@@ -42,15 +42,15 @@ public class RecipeProviderTest extends ProviderTestCase2 {
 
     private void cleanTables() {
         Log.d(TAG, "clean tables");
-        mResolver.delete(MedicineColumn.CONTENT_URI, null, null);
         mResolver.delete(MedicineNameColumn.CONTENT_URI, null, null);
-        mResolver.delete(RecipeContent.RecipeColumn.CONTENT_URI, null, null);
+        mResolver.delete(MedicineColumn.CONTENT_URI, null, null);
         mResolver.delete(RecipeContent.RecipeMedicineColumn.CONTENT_URI, null, null);
+        mResolver.delete(RecipeContent.RecipeColumn.CONTENT_URI, null, null);
     }
 
     public void testInsertMedicine() {
         String id = insertMedicine(DEFAULT_MEDICINE_MOUNT);
-        assertEquals(true, isMedicineExist(id));
+        assertEquals(true, isRowExist(MedicineColumn.CONTENT_URI, id));
         dump();
     }
 
@@ -66,7 +66,7 @@ public class RecipeProviderTest extends ProviderTestCase2 {
             try {
                 assertEquals(c.getCount(), 1);
                 c.moveToFirst();
-                assertEquals(c.getString(c.getColumnIndex(MedicineNameColumn.MEDICINE_KEY)), nameId);
+                assertEquals(c.getString(c.getColumnIndex(MedicineNameColumn.MEDICINE_KEY)), id);
                 assertEquals(c.getString(c.getColumnIndex(MedicineNameColumn.MEDICINE_NAME)), DEFAULT_MEDICINE_NAME1);
             } finally {
                 c.close();
@@ -82,14 +82,34 @@ public class RecipeProviderTest extends ProviderTestCase2 {
         String nameId = insertMedicineName(mValues);
         mValues.put(MedicineNameColumn.MEDICINE_NAME, DEFAULT_MEDICINE_NAME2);
         String aliasId = insertMedicineName(mValues);
-        deleteMedicineName(nameId);
-        assertEquals(true, isMedicineExist(id));
-        deleteMedicineName(aliasId);
-        assertEquals(false, isMedicineExist(id));
+        deleteRow(MedicineNameColumn.CONTENT_URI, nameId);
+        assertEquals(true, isRowExist(MedicineColumn.CONTENT_URI, id));
+        deleteRow(MedicineNameColumn.CONTENT_URI, aliasId);
+        assertEquals(false, isRowExist(MedicineColumn.CONTENT_URI, id));
     }
 
-    private Object isMedicineExist(String id) {
-        Uri uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, id);
+    public void testMedicineNameDeleteTrigger2() {
+        String id = insertMedicine(DEFAULT_MEDICINE_MOUNT);
+        mValues.clear();
+        mValues.put(MedicineNameColumn.MEDICINE_KEY, id);
+        mValues.put(MedicineNameColumn.MEDICINE_NAME, DEFAULT_MEDICINE_NAME1);
+        String nameId = insertMedicineName(mValues);
+        mValues.put(MedicineNameColumn.MEDICINE_NAME, DEFAULT_MEDICINE_NAME2);
+        String aliasId = insertMedicineName(mValues);
+
+        assertEquals(true, isRowExist(MedicineNameColumn.CONTENT_URI, nameId));
+        assertEquals(true, isRowExist(MedicineNameColumn.CONTENT_URI, aliasId));
+        assertEquals(true, isRowExist(MedicineColumn.CONTENT_URI, id));
+
+        deleteRow(MedicineColumn.CONTENT_URI, id);
+
+        assertEquals(false, isRowExist(MedicineColumn.CONTENT_URI, id));
+        assertEquals(false, isRowExist(MedicineNameColumn.CONTENT_URI, nameId));
+        assertEquals(false, isRowExist(MedicineNameColumn.CONTENT_URI, aliasId));
+    }
+
+    private Object isRowExist(Uri uri, String id) {
+        uri = Uri.withAppendedPath(uri, id);
         Cursor c = mResolver.query(uri, null, null, null, null);
         if(c != null) {
             try {
@@ -101,8 +121,8 @@ public class RecipeProviderTest extends ProviderTestCase2 {
         return false;
     }
 
-    private void deleteMedicineName(String id) {
-        Uri uri = Uri.withAppendedPath(MedicineNameColumn.CONTENT_URI, id);
+    private void deleteRow(Uri uri, String id) {
+        uri = Uri.withAppendedPath(uri, id);
         mResolver.delete(uri, null, null);
     }
 
