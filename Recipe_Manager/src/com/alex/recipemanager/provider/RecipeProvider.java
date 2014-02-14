@@ -93,6 +93,19 @@ public class RecipeProvider extends ContentProvider {
     private static final UriMatcher sURIMatcher = new UriMatcher(
             UriMatcher.NO_MATCH);
 
+    private static final String TABLE_RECIPE_JOINED_MEDICINE =
+            RecipeColumn.TABLE_NAME
+                    + " left join "
+                    + RecipeMedicineColumn.TABLE_NAME
+                    + " on "
+                    + RecipeColumn.TABLE_NAME
+                    + "."
+                    + MedicineColumn._ID
+                    + "="
+                    + RecipeMedicineColumn.TABLE_NAME
+                    + "."
+                    + RecipeMedicineColumn.RECIPE_KEY;
+
     private static final String TABLE_MEDICINE_JOINED_ALIAS_QUERY =
             MedicineNameColumn.TABLE_NAME
             + " left join "
@@ -498,6 +511,11 @@ public class RecipeProvider extends ContentProvider {
                                     + " WHERE " + MedicineNameColumn.MEDICINE_KEY
                                     + " =OLD." + MedicineNameColumn.MEDICINE_KEY
                                     + ")=1;"
+
+                    + "   DELETE FROM " + RecipeMedicineColumn.TABLE_NAME
+                    + "     WHERE " + RecipeMedicineColumn.MEDICINE_NAME_KEY
+                                    + " =OLD." + MedicineNameColumn._ID
+                                    + ";"
                     + " END");
 
             db.execSQL("DROP TRIGGER IF EXISTS "
@@ -508,7 +526,7 @@ public class RecipeProvider extends ContentProvider {
                     + " BEGIN "
                     + "   DELETE FROM " + MedicineNameColumn.TABLE_NAME
                     + "     WHERE " + MedicineNameColumn.MEDICINE_KEY
-                    + "=OLD." + MedicineColumn._ID
+                    + "     =OLD." + MedicineColumn._ID
                     + ";"
                     + " END");
 
@@ -585,11 +603,13 @@ public class RecipeProvider extends ContentProvider {
                     + " BEGIN "
                     + "   UPDATE " + MedicineColumn.TABLE_NAME
                     + "   SET " + MedicineColumn.GROSS_WEIGHT  + "=" + MedicineColumn.GROSS_WEIGHT
-                    + "-NEW." + RecipeMedicineColumn.WEIGHT
+                                + "-NEW." + RecipeMedicineColumn.WEIGHT + "* (SELECT " + RecipeColumn.TABLE_NAME + "." + RecipeColumn.COUNT
+                                + " FROM " + TABLE_RECIPE_JOINED_MEDICINE + " WHERE " + RecipeColumn.TABLE_NAME + "." + RecipeColumn._ID + "=" + RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn.RECIPE_KEY + ")"
                     + "   WHERE " + MedicineColumn._ID + " IN (SELECT "
-                    + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY
-                    + " FROM " + TABLE_RECIPE_JOINED_MEDICINE_QUERY
-                    + " WHERE " + "NEW." + RecipeMedicineColumn.MEDICINE_NAME_KEY + "=" + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID + ")"
+                                + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY
+                                + " FROM " + TABLE_RECIPE_JOINED_MEDICINE_QUERY
+                                           + " WHERE "
+                                           + "NEW." + RecipeMedicineColumn.MEDICINE_NAME_KEY + "=" + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn._ID + ")"
                     + ";"
                     + " END");
         }

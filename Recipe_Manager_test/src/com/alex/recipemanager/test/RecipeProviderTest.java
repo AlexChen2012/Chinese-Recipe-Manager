@@ -114,7 +114,7 @@ public class RecipeProviderTest extends ProviderTestCase2 {
     }
 
     public void testRecipeFunction() {
-        String recipeId = buildRecipe(1, "2", "3");
+        String recipeId = buildRecipe(2, "2", "3");
 
         //create medicines
         String medicineId1 = insertMedicine(40, 100, 101);
@@ -149,7 +149,7 @@ public class RecipeProviderTest extends ProviderTestCase2 {
             }
         }
 
-        //create recipe medicines
+        //add recipeMedicineId1 in recipe.
         String recipeMedicineId1 = buildRecipeMedicine(nameId1, recipeId, 1, 40);
 
         uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, medicineId1);
@@ -158,7 +158,7 @@ public class RecipeProviderTest extends ProviderTestCase2 {
             try {
                 assertEquals(c.getCount(), 1);
                 c.moveToFirst();
-                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.GROSS_WEIGHT)), 60);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.GROSS_WEIGHT)), 20);
                 assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.THRESHOLD)), 101);
                 assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.AMOUNT)), 40);
             } finally {
@@ -180,7 +180,76 @@ public class RecipeProviderTest extends ProviderTestCase2 {
             }
         }
 
-        String recipeMedicineId2 = buildRecipeMedicine(nameId2, recipeId, 2, 50);
+        //add recipeMedicineId2 in recipe.
+        String recipeMedicineId2 = buildRecipeMedicine(nameId2, recipeId, 2, 51);
+
+        uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, medicineId1);
+        c = mResolver.query(uri, null, null, null, null);
+        if(c != null) {
+            try {
+                assertEquals(c.getCount(), 1);
+                c.moveToFirst();
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.GROSS_WEIGHT)), 20);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.THRESHOLD)), 101);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.AMOUNT)), 40);
+            } finally {
+                c.close();
+            }
+        }
+
+        uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, medicineId2);
+        c = mResolver.query(uri, null, null, null, null);
+        if(c != null) {
+            try {
+                assertEquals(c.getCount(), 1);
+                c.moveToFirst();
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.GROSS_WEIGHT)), 18);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.THRESHOLD)), 121);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.AMOUNT)), 50);
+            } finally {
+                c.close();
+            }
+        }
+
+        uri = Uri.withAppendedPath(MedicineColumn.CONTENT_URI, medicineId3);
+        c = mResolver.query(uri, null, null, null, null);
+        if(c != null) {
+            try {
+                assertEquals(c.getCount(), 1);
+                c.moveToFirst();
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.GROSS_WEIGHT)), 130);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.THRESHOLD)), 131);
+                assertEquals(c.getInt(c.getColumnIndex(MedicineColumn.AMOUNT)), 60);
+            } finally {
+                c.close();
+            }
+        }
+
+        //delete a exist medicine
+        c = mResolver.query(RecipeContent.RecipeMedicineColumn.CONTENT_URI, null, RecipeContent.RecipeMedicineColumn.RECIPE_KEY + "=" + recipeId, null, null);
+        try {
+            assertEquals(2, c.getCount());
+        } finally {
+            c.close();
+        }
+
+        deleteRow(MedicineNameColumn.CONTENT_URI, nameId1);
+
+        c = mResolver.query(RecipeContent.RecipeMedicineColumn.CONTENT_URI, null, RecipeContent.RecipeMedicineColumn.RECIPE_KEY + "=" + recipeId, null, null);
+        try {
+            assertEquals(1, c.getCount());
+        } finally {
+            c.close();
+        }
+
+        deleteRow(MedicineColumn.CONTENT_URI, medicineId2);
+        c = mResolver.query(RecipeContent.RecipeMedicineColumn.CONTENT_URI, null, RecipeContent.RecipeMedicineColumn.RECIPE_KEY + "=" + recipeId, null, null);
+        try {
+            assertEquals(0, c.getCount());
+        } finally {
+            c.close();
+        }
+
         String recipeMedicineId3 = buildRecipeMedicine(nameId3, recipeId, 3, 60);
     }
 
