@@ -441,14 +441,29 @@ public class RecipeInfoEditActivity extends BaseActivity {
         }
 
         private void deleteOldMedicines() {
-            revertGrossWeight();
+            Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
+            Cursor c = getContentResolver().query(uri, new String[]{RecipeColumn.COUNT}, null, null, null);
+            int count = -1;
+            if (c != null) {
+                try {
+                    c.moveToNext();
+                    count = c.getInt(0);
+                } finally {
+                    c.close();
+                }
+            }
+
+            if (count == -1) {
+                throw new IllegalArgumentException("can get recipe count from db.");
+            }
+            revertGrossWeight(count);
 
             String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
             String[] selectionArgs = {String.valueOf(mRecipeId)};
             getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
         }
 
-        private void revertGrossWeight() {
+        private void revertGrossWeight(int count) {
             String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
             String[] selectionArgs = {String.valueOf(mRecipeId)};
             Cursor c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
@@ -465,7 +480,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
                         ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(RecipeContent.MedicineColumn.CONTENT_URI);
                         builder.withValue(RecipeContent.MedicineColumn.GROSS_WEIGHT,
                                 c.getInt(COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT)
-                                        + c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT));
+                                        + c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT) * count);
                         operations.add(builder.build());
                     }
                 } finally {
