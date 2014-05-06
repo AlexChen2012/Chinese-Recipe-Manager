@@ -3,13 +3,7 @@ package com.alex.recipemanager.ui.recipe;
 import java.util.ArrayList;
 
 import android.app.Dialog;
-import android.content.AsyncQueryHandler;
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -158,7 +152,7 @@ public class RecipeInfoEditActivity extends BaseActivity {
             try {
                 while (c.moveToNext()) {
                     MedicineInfo info = new MedicineInfo();
-                    info.mMedicineId = c.getLong(COLUMN_RECIPE_MEDICINE_KEY);
+                    info.mMedicineId = c.getLong(COLUMN_RECIPE_MEDICINE_NAME_KEY);
                     info.mWeight = c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT);
                     info.mName = c.getString(COLUMN_RECIPE_MEDICINE_NAME);
                     info.mMedicineNameId = c.getLong(COLUMN_RECIPE_MEDICINE_NAME_ID);
@@ -400,8 +394,73 @@ public class RecipeInfoEditActivity extends BaseActivity {
             Log.e(TAG, "Should not enter here");
         }
         showDialog(DIALOG_WAITING);
+        deleteOldMedicines();
         Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
         mAsyncQuery.startUpdate(TOKEN_UPGRATE_RECIPE_TABLE, null, uri, values, null, null);
+    }
+
+    private void deleteOldMedicines() {
+        Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
+        Cursor c = getContentResolver().query(uri, new String[]{RecipeColumn.COUNT}, null, null, null);
+        int count = -1;
+        if (c != null) {
+            try {
+                c.moveToNext();
+                count = c.getInt(0);
+            } finally {
+                c.close();
+            }
+        }
+
+        if (count == -1) {
+            throw new IllegalArgumentException("cannot get recipe count from db.");
+        }
+        revertGrossWeight(count);
+
+        String[] selectionArgs = {String.valueOf(mRecipeId)};
+        String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
+        getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
+    }
+
+    private void revertGrossWeight(int count) {
+        String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
+        String[] selectionArgs = {String.valueOf(mRecipeId)};
+        Cursor c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
+                RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION,
+                selection,
+                selectionArgs,
+                null);
+
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+        if (c != null) {
+            try {
+                while (c.moveToNext()) {
+                    Uri uri = ContentUris.withAppendedId(RecipeContent.MedicineColumn.CONTENT_URI,
+                            c.getLong(COLUMN_RECIPE_MEDICINE_ID));
+                    ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(uri);
+                    builder.withValue(RecipeContent.MedicineColumn.GROSS_WEIGHT,
+                            c.getInt(COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT)
+                                    + c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT) * count);
+                    operations.add(builder.build());
+                }
+            } finally {
+                c.close();
+            }
+        }
+
+        if (!operations.isEmpty()) {
+            try {
+                getContentResolver().applyBatch(RecipeContent.AUTHORITY, operations);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Log.e(TAG, "failed to  update medicine gross weight column");
+            } catch (OperationApplicationException e) {
+                e.printStackTrace();
+                Log.e(TAG, "failed to  update medicine gross weight column");
+            }
+        }
+
     }
 
     private void insertRecipeMedicines() {
@@ -435,71 +494,8 @@ public class RecipeInfoEditActivity extends BaseActivity {
         @Override
         protected void onUpdateComplete(int token, Object cookie, int result) {
             if(token == TOKEN_UPGRATE_RECIPE_TABLE) {
-                deleteOldMedicines();
                 insertRecipeMedicines();
             }
-        }
-
-        private void deleteOldMedicines() {
-            Uri uri = Uri.withAppendedPath(RecipeColumn.CONTENT_URI, String.valueOf(mRecipeId));
-            Cursor c = getContentResolver().query(uri, new String[]{RecipeColumn.COUNT}, null, null, null);
-            int count = -1;
-            if (c != null) {
-                try {
-                    c.moveToNext();
-                    count = c.getInt(0);
-                } finally {
-                    c.close();
-                }
-            }
-
-            if (count == -1) {
-                throw new IllegalArgumentException("can get recipe count from db.");
-            }
-            revertGrossWeight(count);
-
-            String where = RecipeMedicineColumn.RECIPE_KEY + "=?";
-            String[] selectionArgs = {String.valueOf(mRecipeId)};
-            getContentResolver().delete(RecipeMedicineColumn.CONTENT_URI, where, selectionArgs);
-        }
-
-        private void revertGrossWeight(int count) {
-            String selection = RecipeMedicineColumn.RECIPE_KEY + "=?";
-            String[] selectionArgs = {String.valueOf(mRecipeId)};
-            Cursor c = getContentResolver().query(RecipeMedicineColumn.CONTENT_URI,
-                    RECIPE_MEDICINE_JOIN_MEDICINE_NAME_PROJECTION,
-                    selection,
-                    selectionArgs,
-                    null);
-
-            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-
-            if (c != null) {
-                try {
-                    while (c.moveToNext()) {
-                        ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(RecipeContent.MedicineColumn.CONTENT_URI);
-                        builder.withValue(RecipeContent.MedicineColumn.GROSS_WEIGHT,
-                                c.getInt(COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT)
-                                        + c.getInt(COLUMN_RECIPE_MEDICINE_WEIGHT) * count);
-                        operations.add(builder.build());
-                    }
-                } finally {
-                    c.close();
-                }
-            }
-
-            if (!operations.isEmpty()) {
-                try {
-                    getContentResolver().applyBatch(RecipeContent.AUTHORITY, operations);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "failed to  update medicine gross weight column");
-                } catch (OperationApplicationException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "failed to  update medicine gross weight column");
-                }
-            }
-
         }
     }
 

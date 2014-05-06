@@ -30,7 +30,7 @@ public class RecipeProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "RecipeManager.db";
 
-    public static final int DATABASE_VERSION = 45;
+    public static final int DATABASE_VERSION = 48;
 
     private static final String REFERENCE_PATIENT_ID_AS_FOREIGN_KEY =
             "references " + PatientColumns.TABLE_NAME
@@ -477,6 +477,9 @@ public class RecipeProvider extends ContentProvider {
                 db = SQLiteDatabase.openOrCreateDatabase(dbf, null);
                 if (isCreate) {
                     onCreate(db);
+                } else {
+                    //FIXME: call onupdate here.
+                    Log.d(TAG, "db.getVersion() = " + db.getVersion());
                 }
             }
             return db;
@@ -595,6 +598,7 @@ public class RecipeProvider extends ContentProvider {
              * If a medicine updated in RecipeMedicineColumn.TABLE_NAME then the same medicine in
              * MedicineColumn.TABLE_NAME should minus corresponding gross weight
              */
+            Log.d(TAG, "create new RecipeMedicineColumn trigger");
             db.execSQL("DROP TRIGGER IF EXISTS "
                     + RecipeMedicineColumn.TABLE_NAME + "_insert;");
             db.execSQL("CREATE TRIGGER "
@@ -604,7 +608,7 @@ public class RecipeProvider extends ContentProvider {
                     + "   UPDATE " + MedicineColumn.TABLE_NAME
                     + "   SET " + MedicineColumn.GROSS_WEIGHT  + "=" + MedicineColumn.GROSS_WEIGHT
                                 + "-NEW." + RecipeMedicineColumn.WEIGHT + "* (SELECT " + RecipeColumn.TABLE_NAME + "." + RecipeColumn.COUNT
-                                + " FROM " + TABLE_RECIPE_JOINED_MEDICINE + " WHERE " + RecipeColumn.TABLE_NAME + "." + RecipeColumn._ID + "=" + RecipeMedicineColumn.TABLE_NAME + "." + RecipeMedicineColumn.RECIPE_KEY + ")"
+                                + " FROM " + TABLE_RECIPE_JOINED_MEDICINE + " WHERE " + RecipeColumn.TABLE_NAME + "." + RecipeColumn._ID + "=" + "NEW." + RecipeMedicineColumn.RECIPE_KEY + ")"
                     + "   WHERE " + MedicineColumn._ID + " IN (SELECT "
                                 + MedicineNameColumn.TABLE_NAME + "." + MedicineNameColumn.MEDICINE_KEY
                                 + " FROM " + TABLE_RECIPE_JOINED_MEDICINE_QUERY
@@ -617,48 +621,61 @@ public class RecipeProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.d(TAG, "old db version = " + oldVersion + " new version = " + newVersion);
-            if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
-                    RecipeMedicineColumn.TABLE_NAME)) {
-                Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
-                db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
-                        + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
-                createTriggers(db);
-            } else {
-                // handle default upgrade. drop all tables and create them again.
-                db.execSQL("DROP TABLE IF EXISTS "
-                        + RecipeMedicineColumn.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
-                db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
-                onCreate(db);
-                createTriggers(db);
-            }
-//            switch (oldVersion) {
-//                case 44:
-//                    if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
-//                            RecipeMedicineColumn.TABLE_NAME)) {
-//                        Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
-//                        db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
-//                                + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
-//                        createTriggers(db);
-//                    }
-//                    break;
-//                default:
-//                    // handle default upgrade. drop all tables and create them again.
-//                    db.execSQL("DROP TABLE IF EXISTS "
-//                            + RecipeMedicineColumn.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
-//                    db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
-//                    onCreate(db);
-//                    createTriggers(db);
+//            if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
+//                    RecipeMedicineColumn.TABLE_NAME)) {
+//                Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+//                db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
+//                        + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
+//                createTriggers(db);
+//            } else if (oldVersion == 46 && newVersion == 47) {
+//                Log.d(TAG, "upgrade db version from 46 to 47");
+//                createTriggers(db);
+//            } else {
+//                // handle default upgrade. drop all tables and create them again.
+//                Log.d(TAG, "upgrade db in default mode, drop all tables");
+//                db.execSQL("DROP TABLE IF EXISTS "
+//                        + RecipeMedicineColumn.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
+//                db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
+//                onCreate(db);
+//                createTriggers(db);
 //            }
+
+            switch (newVersion) {
+                case 44:
+                    Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+                    if (!isColumnExisting(db, RecipeMedicineColumn.INDEX,
+                            RecipeMedicineColumn.TABLE_NAME)) {
+                        Log.d(TAG, "column recipe_index does not exist in Recipe_Medicine, create it");
+                        db.execSQL("ALTER TABLE " + RecipeMedicineColumn.TABLE_NAME + " ADD COLUMN "
+                                + RecipeMedicineColumn.INDEX + " INTEGER DEFAULT 0");
+                        createTriggers(db);
+                    }
+                    break;
+
+                case 48:
+                    Log.d(TAG, "upgrade db version from 46 to 47");
+                    createTriggers(db);
+                    break;
+                default:
+                    // handle default upgrade. drop all tables and create them again.
+                    Log.d(TAG, "upgrade db in default mode, drop all tables");
+                    db.execSQL("DROP TABLE IF EXISTS "
+                            + RecipeMedicineColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + PatientColumns.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + CaseHistoryColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + MedicineNameColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + MedicineColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + RecipeColumn.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + NationColumn.TABLE_NAME);
+                    onCreate(db);
+                    createTriggers(db);
+                    break;
+            }
         }
 
         private boolean isColumnExisting(SQLiteDatabase db, String columnName, String tableName){
@@ -704,65 +721,65 @@ public class RecipeProvider extends ContentProvider {
         Log.v(TAG, "RecipeProvider.query: uri=" + uri + ", match is " + match);
 
         switch (match) {
-        case PATIENT:
-        case CASE_HISTORY:
-        case MEDICINE:
-        case MEDICINE_NAME:
-        case NATION:
-            c = db.query(TABLE_NAMES[table], projection, selection,
-                    selectionArgs, null, null, sortOrder);
-            break;
-        case RECIPE:
-            if (sortOrder == null) {
-                sortOrder = RecipeColumn.DEFAULT_ORDER;
-            }
-            c = db.query(TABLE_NAMES[table], projection, selection,
-                    selectionArgs, null, null, sortOrder);
-            break;
-        case RECIPE_MEDICINE:
-            qBuilder = new SQLiteQueryBuilder();
-            qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
-            qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
-            c = qBuilder.query(db, projection, selection, selectionArgs, null,
-                    null, sortOrder);
-            break;
-        case MEDICINE_NAME_MEDICINE:
-            qBuilder = new SQLiteQueryBuilder();
-            qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
-            qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
-            c = qBuilder.query(db, projection, selection, selectionArgs, null,
-                    null, sortOrder);
-            break;
-        case CASE_HISTORY_ID:
-        case PATIENT_ID:
-        case RECIPE_ID:
-        case MEDICINE_ID:
-        case MEDICINE_NAME_ID:
-            id = uri.getLastPathSegment();
-            c = db.query(TABLE_NAMES[table], projection,
-                    whereWithId(id, selection), selectionArgs, null, null,
-                    sortOrder);
-            break;
-        case RECIPE_MEDICINE_ID:
-            id = uri.getLastPathSegment();
-            qBuilder = new SQLiteQueryBuilder();
-            qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
-            qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
-            c = qBuilder.query(db, projection, RecipeMedicineColumn.TABLE_NAME
-                    + "." + whereWithId(id, selection), selectionArgs, null,
-                    null, sortOrder);
-            break;
-        case MEDICINE_NAME_MEDICINE_ID:
-            id = uri.getLastPathSegment();
-            qBuilder = new SQLiteQueryBuilder();
-            qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
-            qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
-            c = qBuilder.query(db, projection, MedicineNameColumn.TABLE_NAME
-                    + "." + whereWithId(id, selection), selectionArgs, null,
-                    null, sortOrder);
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case PATIENT:
+            case CASE_HISTORY:
+            case MEDICINE:
+            case MEDICINE_NAME:
+            case NATION:
+                c = db.query(TABLE_NAMES[table], projection, selection,
+                        selectionArgs, null, null, sortOrder);
+                break;
+            case RECIPE:
+                if (sortOrder == null) {
+                    sortOrder = RecipeColumn.DEFAULT_ORDER;
+                }
+                c = db.query(TABLE_NAMES[table], projection, selection,
+                        selectionArgs, null, null, sortOrder);
+                break;
+            case RECIPE_MEDICINE:
+                qBuilder = new SQLiteQueryBuilder();
+                qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
+                qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
+                c = qBuilder.query(db, projection, selection, selectionArgs, null,
+                        null, sortOrder);
+                break;
+            case MEDICINE_NAME_MEDICINE:
+                qBuilder = new SQLiteQueryBuilder();
+                qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
+                qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
+                c = qBuilder.query(db, projection, selection, selectionArgs, null,
+                        null, sortOrder);
+                break;
+            case CASE_HISTORY_ID:
+            case PATIENT_ID:
+            case RECIPE_ID:
+            case MEDICINE_ID:
+            case MEDICINE_NAME_ID:
+                id = uri.getLastPathSegment();
+                c = db.query(TABLE_NAMES[table], projection,
+                        whereWithId(id, selection), selectionArgs, null, null,
+                        sortOrder);
+                break;
+            case RECIPE_MEDICINE_ID:
+                id = uri.getLastPathSegment();
+                qBuilder = new SQLiteQueryBuilder();
+                qBuilder.setTables(TABLE_RECIPE_JOINED_MEDICINE_QUERY);
+                qBuilder.setProjectionMap(sRecipeMedicineJoinMedicineNameMap);
+                c = qBuilder.query(db, projection, RecipeMedicineColumn.TABLE_NAME
+                        + "." + whereWithId(id, selection), selectionArgs, null,
+                        null, sortOrder);
+                break;
+            case MEDICINE_NAME_MEDICINE_ID:
+                id = uri.getLastPathSegment();
+                qBuilder = new SQLiteQueryBuilder();
+                qBuilder.setTables(TABLE_MEDICINE_JOINED_ALIAS_QUERY);
+                qBuilder.setProjectionMap(sMedicineJoinAliasProjectionMap);
+                c = qBuilder.query(db, projection, MedicineNameColumn.TABLE_NAME
+                        + "." + whereWithId(id, selection), selectionArgs, null,
+                        null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
@@ -971,5 +988,7 @@ public class RecipeProvider extends ContentProvider {
                 MedicineColumn.GROSS_WEIGHT);
         sRecipeMedicineJoinMedicineNameMap.put(MedicineColumn.THRESHOLD,
                 MedicineColumn.THRESHOLD);
+        sRecipeMedicineJoinMedicineNameMap.put(MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID,
+                MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID);
     }
 }

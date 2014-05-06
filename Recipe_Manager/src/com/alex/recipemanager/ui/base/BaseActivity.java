@@ -85,17 +85,19 @@ public class BaseActivity extends Activity{
         RecipeMedicineColumn.WEIGHT,
         MedicineColumn.AMOUNT,
         MedicineColumn.GROSS_WEIGHT,
-        MedicineColumn.THRESHOLD
+        MedicineColumn.THRESHOLD,
+        MedicineColumn.TABLE_NAME + "." + MedicineColumn._ID
     };
 
     public static final int COLUMN_RECIPE_MEDICINE_NAME_ID      = 0;
     public static final int COLUMN_RECIPE_MEDICINE_NAME         = 1;
-    public static final int COLUMN_RECIPE_MEDICINE_KEY          = 2;
+    public static final int COLUMN_RECIPE_MEDICINE_NAME_KEY     = 2;
     public static final int COLUMN_RECIPE_MEDICINE_RECIPE_KEY   = 3;
     public static final int COLUMN_RECIPE_MEDICINE_WEIGHT       = 4;
     public static final int COLUMN_RECIPE_MEDICINE_AMOUNT       = 5;
     public static final int COLUMN_RECIPE_MEDICINE_GROSS_WEIGHT = 6;
     public static final int COLUMN_RECIPE_MEDICINE_THRESHOLD    = 7;
+    public static final int COLUMN_RECIPE_MEDICINE_ID           = 8;
 
     //use negative number to define dialog, since subclass may define it's own dialog.
     protected static final int DIALOG_WAITING      = -1;
